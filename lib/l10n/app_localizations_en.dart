@@ -165,7 +165,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gps_err11 => 'DEBUG API GPS consent value:';
 
   @override
-  String get gps_err12 => 'GPS Tracking:';
+  String get gps_err12 => 'GPS Tracking ';
 
   @override
   String get gps_err13 => 'You must enable GPS tracking consent in settings.';
@@ -225,7 +225,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get info_mes06 => 'Estimated steps:';
 
   @override
-  String get info_mes07 => 'Daily summary';
+  String get info_mes07 => 'Understand how you move,\nimprove every day.';
 
   @override
   String get mov_inattivo => 'Inactive or stationary';
@@ -426,7 +426,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bottom_impostazioni => 'Settings';
 
   @override
-  String get bottom_cronologia => 'History';
+  String get bottom_cronologia => 'Activity';
 
   @override
   String get bottom_profilo => 'Profile';
@@ -498,10 +498,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storico_14 => '⏳ Loading data…';
 
   @override
-  String get form_crono_01 => 'History';
+  String get form_crono_01 => 'Activity';
 
   @override
-  String get form_crono_02 => 'History of last 7 days';
+  String get form_crono_02 => 'Activity Summary';
 
   @override
   String get form_crono_03 => 'Welcome, ';
@@ -526,6 +526,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashboard_piano => 'Plan:';
+
+  @override
+  String get dashboard_msg => 'Create a (free) account to save your data and unlock sharing.';
 
   @override
   String get imposta_page_studente => 'Student';
@@ -837,4 +840,131 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get acquisto_piano_attivo => 'Plan activated!';
+
+  @override
+  String get card_settimana => 'Week';
+
+  @override
+  String get card_gio_today => 'Now';
+
+  @override
+  String get card_gio_lunedi => 'Monday';
+
+  @override
+  String get card_gio_martedi => 'Tuesday';
+
+  @override
+  String get card_gio_mercoledi => 'Wednesday';
+
+  @override
+  String get card_gio_giovedi => 'Thursday';
+
+  @override
+  String get card_gio_venerdi => 'Friday';
+
+  @override
+  String get card_gio_sabato => 'Saturday';
+
+  @override
+  String get card_gio_domenica => 'Sunday';
+
+  @override
+  String get today_title => 'Today';
+
+  @override
+  String get today_title_closed => 'Today — day finished';
+
+  @override
+  String get badge_partial => 'Partial data';
+
+  @override
+  String get kpi_active => 'Active min';
+
+  @override
+  String get kpi_km => 'Km';
+
+  @override
+  String get kpi_sedentary => 'Sitting';
+
+  @override
+  String get no_data_msg => 'We don’t have any data for today yet.';
+
+  @override
+  String get check_location => 'Location permissions';
+
+  @override
+  String get check_battery => 'Battery saver';
+
+  @override
+  String get check_gps => 'GPS status';
+
+  @override
+  String get insight_quality => 'We’re missing data due to battery saver. Tap to fix.';
+
+  @override
+  String get insight_goal_hit => 'Goal reached 🎯 Great job!';
+
+  @override
+  String insight_goal_missing(Object v1) {
+    return 'You’re $v1 min away from your goal.';
+  }
+
+  @override
+  String insight_vs_yesterday(Object v2) {
+    return 'Today you’re at $v2% vs yesterday.';
+  }
+
+  @override
+  String get fix_qualita_dati => 'Data quality';
+
+  @override
+  String get fix_message => 'Fix these points to avoid data loss.';
+
+  @override
+  String get fix_permessi => 'Location permissions (Always)';
+
+  @override
+  String get fix_permessi_sub => 'Grant “Always” location access';
+
+  @override
+  String get fix_gps_attivo => 'GPS on and High accuracy';
+
+  @override
+  String get fix_gps_attivo_sub => 'Open Location settings';
+
+  @override
+  String get fix_auto_start => 'Autostart / App protection';
+
+  @override
+  String get fix_auto_ricontrolla => 'Re-check';
+
+  @override
+  String get fix_battery => 'Disable battery optimization for MoveUP';
+
+  @override
+  String get fix_battery_sub => 'Allow “Ignore battery optimization”';
+
+  @override
+  String get fix_vendor_01 => 'MIUI: Security → Permissions → Auto-start + Battery saver.';
+
+  @override
+  String get fix_vendor_02 => 'EMUI: Settings → Battery → App launch (allow auto-launch & background).';
+
+  @override
+  String get fix_vendor_03 => 'ColorOS/Funtouch: Enable Auto-start and remove aggressive optimization.';
+
+  @override
+  String get fix_vendor_04 => 'OnePlus: Battery → Battery optimization → MoveUP → Don’t optimize.';
+
+  @override
+  String get fix_vendor_05 => 'Samsung: Device care → Battery → Sleeping apps: remove MoveUP.';
+
+  @override
+  String get fix_vendor_06 => 'Check the manufacturer’s Autostart and app protection.';
+
+  @override
+  String get fix_messag_01 => 'Go to Settings → Privacy & security → Location → MoveUP\nset “Always” and enable “Precise location”.\nAlso check Power saving: it may limit background activity.';
+
+  @override
+  String get fix_chiudi_button => 'Close';
 }

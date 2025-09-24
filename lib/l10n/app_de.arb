@@ -1,56 +1,46 @@
 {
   "@@locale": "de",
+
   "appTitle": "MoveUP",
   "appSubTitle": "Dein Bewegungsassistent",
   "subscriptions": "Abonnements",
   "welcomeUser": "Willkommen, {name}!",
-  "@welcomeUser": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
+  "@welcomeUser": { "placeholders": { "name": { "type": "String" } } },
   "anonymousUser": "Anonymer Benutzer",
   "lingua_sistema": "Systemsprache",
+
   "priceFree": "Kostenlos",
   "pricePerMonth": "{price}/Monat",
-  "@pricePerMonth": {
-    "placeholders": {
-      "price": {
-        "type": "String"
-      }
-    }
-  },
-  "durationDays": "{days, plural, one {# Tag} other {# Tage}}",
-  "@durationDays": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
+  "@pricePerMonth": { "placeholders": { "price": { "type": "String" } } },
+  "durationDays": "{days, plural, one {# day} other {# days}}",
+  "@durationDays": { "placeholders": { "days": { "type": "int" } } },
+   
   "features": "Funktionen",
   "buy": "Kaufen",
   "active": "Aktiv",
   "thisIsYourPlan": "Das ist dein Plan!",
   "sessionExpired": "Sitzung abgelaufen. Bitte erneut einloggen.",
   "durata_abbonamento": "Dauer:",
+
   "onb1": "Erfasse und organisiere deine Bewegungen an einem Ort.",
   "onb2": "Sieh, wohin deine Zeit geht: zu Hause, Arbeit, Pendelstrecken.",
   "onb3": "Automatische Berichte und Trends: verbessere dich mit Daten.",
+
   "botton_salta": "Überspringen",
   "condizioni_uso": "Ich habe die ",
   "condizioni_uso2": "Nutzungsbedingungen",
   "privacy_policy": "und die ",
   "privacy_policy2": "Datenschutzrichtlinie akzeptiert",
+
   "botton_prosegui": "Weiter",
   "botton_indietro": "Zurück",
   "botton_avanti": "Weiter",
+
   "errore_001": "Standorterlaubnis verweigert",
   "errore_002": "Standorterlaubnis dauerhaft verweigert",
   "errore_003": "Fehler beim Abrufen des Standorts:",
   "errore_004": "Standortdienst auf dem Gerät deaktiviert",
+   
   "user_err01": "Fehler beim Initialisieren des Benutzers:",
   "user_err02": "Falscher Benutzer",
   "user_err03": "Letzter Zugriff für Benutzer aktualisiert",
@@ -58,6 +48,7 @@
   "user_err05": "Login fehlgeschlagen",
   "user_err06": "Login",
   "user_err07": "Registrieren",
+
   "gps_err01": "GPS-Tracking deaktiviert: Bitte in den Einstellungen aktivieren.",
   "gps_err02": "Fehler beim Speichern des Standorts:",
   "gps_err03": "GPS-Tracking deaktiviert: Standort wird nicht aufgezeichnet.",
@@ -69,7 +60,7 @@
   "gps_err09": "Fehler beim Speichern des Standorts:",
   "gps_err10": "DEBUG API Lese Einwilligungen:",
   "gps_err11": "DEBUG API Wert GPS-Einwilligung:",
-  "gps_err12": "GPS-Tracking:",
+  "gps_err12": "GPS-Tracking ",
   "gps_err13": "Du musst die GPS-Tracking-Einwilligung in den Einstellungen aktivieren",
   "gps_err14": "Tracking aktiv",
   "gps_err15": "Tracking deaktiviert",
@@ -84,16 +75,19 @@
   "att_err03": "im Vergleich zu gestern",
   "att_err04": "Erweitern, um Details zu sehen...",
   "att_err05": "Keine Sitzung aufgezeichnet",
+
   "info_mes01": "Beginn:",
   "info_mes02": "Ende:",
   "info_mes03": "Dauer:",
   "info_mes04": "Distanz:",
   "info_mes05": "Quelle:",
   "info_mes06": "Geschätzte Schritte:",
-  "info_mes07": "Tagesübersicht",
+  "info_mes07": "Verstehe, wie du dich bewegst,\nverbessere dich jeden Tag.",
+
   "mov_inattivo": "Inaktiv oder stillstehend",
   "mov_leggero": "Leichte Bewegung",
   "mov_veloce": "Schnelle Bewegung",
+
   "chart_mes01": "Momentan kein Diagramm verfügbar.",
   "chart_mes02": "Tägliche Level-Timeline",
   "chart_mes03": "Intervall eine Stunde",
@@ -103,9 +97,11 @@
   "chart_mes07": "Mein heutiger MoveUP-Bericht",
   "cahrt_mes08": "Fehler beim Teilen:",
   "chart_mes09": "MoveUP-Bericht für heute",
+
   "um_metri": "Meter:",
   "um_passi": "Schritte:",
   "um_km": "Km:",
+
   "form_reg_testa": "Registrierung",
   "form_reg_nome": "Name",
   "form_reg_mail": "E-Mail",
@@ -144,6 +140,7 @@
   "link_mail_password": "Wenn die E-Mail registriert ist, haben wir dir einen Link zum Zurücksetzen gesendet.",
   "invia_richiesta_label": "Anfrage senden",
   "condividi_button": "Teilen",
+
   "form_consensi_01": "Einwilligungen",
   "form_consensi_02": "Ich stimme der Datenverarbeitung (Datenschutz) zu",
   "form_consensi_03": "Ich stimme dem Erhalt von Marketing-Mitteilungen zu",
@@ -151,21 +148,25 @@
   "form_consensi_05": "Ich stimme dem GPS-Tracking zu",
   "form_consensi_06": "Bestätigen",
   "form_consensi_er": "Fehler beim Speichern der Einwilligungen .. :",
+
   "session_expired": "Sitzung abgelaufen. Bitte erneut einloggen.",
   "token_invalid": "Ungültiger Token: Bitte erneut einloggen.",
   "payment_mes1": "Unbegrenzt",
   "payment_mes2": "Abgelaufen",
   "payment_mes3": "1 Tag übrig",
   "payment_mes4": "Tage übrig",
+   
   "bottom_impostazioni": "Einstellungen",
-  "bottom_cronologia": "Chronik",
+  "bottom_cronologia": "Aktivität",
   "bottom_profilo": "Profil",
   "bottom_abbonamenti": "Abonnements",
   "bottom_err01": "Funktion nur für registrierte Benutzer verfügbar!",
   "bottom_err02": "FALSCHER Benutzer!",
   "bottom_nome": "Name",
   "bottom_logout": "Abmelden",
+
   "map_mes_01": "Position aktualisieren",
+
   "rep_day_mes01": "Tagesbericht",
   "rep_day_mes02": "Letzte Position",
 
@@ -184,8 +185,8 @@
     "storico_13": "Du kannst deine Einwilligung jederzeit ändern oder widerrufen. Ohne Einwilligung zum Tracking speichern wir keine Positionen.",
   "storico_14": "⏳ Daten werden geladen…",
 
-  "form_crono_01": "Chronik",
-  "form_crono_02": "Chronik der letzten 7 Tage",
+  "form_crono_01": "Aktivität",
+  "form_crono_02": "Aktivitätsübersicht",
   "form_crono_03": "Willkommen, ",
   "form_crono_04": "Summen der letzten 7 Tage",
   "form_crono_05": "Keine Sitzung aufgezeichnet",
@@ -193,7 +194,10 @@
   "form_crono_07": "Details anzeigen",
   "form_crono_08": "Level-Details",
   "form_crono_09": "Details für Level",
+  
   "dashboard_piano": "Plan:",
+  "dashboard_msg": "Erstelle ein (kostenloses) Konto, um deine Daten zu speichern und das Teilen freizuschalten.",
+
   "imposta_page_studente": "Student",
   "imposta_page_impiegato": "Angestellter",
   "imposta_page_libero": "Selbstständig",
@@ -216,27 +220,32 @@
   "imposta_page_save": "Änderungen speichern",
   "imposta_page_mess1": "Persönliche Daten aktualisiert!",
   "imposta_page_mess2": "Fehler: ",
-  "imposta_page_mess3": "Aktualisierung nicht möglich.",
+  "imposta_page_mess3": "Aktualisierung nicht möglich.", 
   "imposta_page_mess4": "Netzwerkfehler.",
   "imposta_page_mess5": "Einstellungen aktualisiert!",
   "imposta_page_mess6": "Daten gespeichert!",
+
   "footer_page_diritti": "© 2025 MoveUP - Alle Rechte vorbehalten",
   "footer_page_banner": "Your Personal Move",
   "footer_page_versione": "App-Version:",
   "header_page_banner": "Your Personal Move",
+
   "rep_day_export_locked": "Teilen erfordert BASIC/PLUS/PRO",
   "msg_abilitato_01": "Registriere dich, um die heutige Verteilung zu sehen",
   "msg_abilitato_02": "Zeitleiste mit BASIC verfügbar. Registriere dich zuerst.",
+
   "crono_msg_01": "Registriere dich, um die Route des Tages zu sehen.",
   "crono_msg_02": "Dein Tarif erlaubt bis zu",
   "crono_msg_03": "Tage Verlauf.",
   "crono_msg_04": "Route nicht verfügbar. Bitte versuche es erneut.",
   "crono_msg_05": "Unbekannter Fehler",
+
   "card_percorso_1": "Datum auswählen",
   "card_percorso_2": "Abbrechen",
   "card_percorso_3": "OK",
   "card_percorso_4": "Strecke vom",
   "card_percorso_5": "Keine Bewegung an diesem Tag",
+
   "imposta_page_funzioni": "Aktive Funktionen",
   "feat_tracking_live": "Live-Tracking",
   "feat_report_basic": "Tagesbericht (Basis)",
@@ -250,6 +259,7 @@
   "feat_priority_support": "Priorisierter Support",
   "feat_no_ads": "Keine Werbung",
   "feat_history_days": "Verfügbare Historie",
+  
   "days": "Tage",
   "feat_gps": "GPS-Parameter des Tarifs",
   "feat_gps_sample_sec": "Abtastrate (Sekunden)",
@@ -266,7 +276,9 @@
   "accuracy_best": "Maximal",
   "unit_seconds": "Sekunden",
   "unit_meters": "Meter",
+
   "gps_next_fix": "Nächster Fix in {s}s",
+
   "escl_prog_01": "Geplante Ausschlüsse",
   "escl_prog_02": "Ausschlüsse nur ab Tarif Basic verfügbar",
   "escl_prog_03": "Ausschluss hinzufügen",
@@ -281,6 +293,7 @@
   "escl_prog_12": "Aktive Tage:",
   "escl_prog_13": "Abbrechen",
   "escl_prog_14": "Speichern",
+
   "verifica_mail_titolo": "Verifiziere deine E-Mail",
   "verifica_mail_testo1": "Überprüfe deine E-Mails und klicke auf den Verifizierungslink.",
   "verifica_mail_testo2": "Wenn du verifiziert hast, gehe zurück zur Anmeldung, um dich anzumelden.",
@@ -289,6 +302,7 @@
   "verifica_mail_erro1": "-Mail gesendet!",
   "verifica_mail_erro2": "Fehler beim Senden der E-Mail.",
   "verifica_mail_button": "E-Mail erneut senden",
+
   "acquisto_piano_conferma": "Kauf bestätigen",
   "acquisto_piano_info": "Ihre Informationen.",
   "acquisto_piano_id": "Benutzer-ID:",
@@ -298,5 +312,54 @@
   "acquisto_piano_pagamento": "Zur Zahlung fortfahren",
   "acquisto_piano_stripe": "Sie werden zu Stripe weitergeleitet...",
   "acquisto_piano_nopaga": "Zahlung nicht gestartet:",
-  "acquisto_piano_attivo": "Abo aktiviert!"
+  "acquisto_piano_attivo": "Abo aktiviert!",
+
+  "card_settimana": "Woche",
+  "card_gio_today": "Jetzt",
+"card_gio_lunedi": "Montag",
+"card_gio_martedi": "Dienstag",
+"card_gio_mercoledi": "Mittwoch",
+"card_gio_giovedi": "Donnerstag",
+"card_gio_venerdi": "Freitag",
+"card_gio_sabato": "Samstag",
+"card_gio_domenica": "Sonntag",
+
+"today_title": "Heute",
+    "today_title_closed": "Heute — Tag abgeschlossen",
+    "badge_partial": "Teilweise Daten",
+    "kpi_active": "Aktive Min",
+    "kpi_km": "Km",
+    "kpi_sedentary": "Sitzend",
+    "no_data_msg": "Für heute liegen noch keine Daten vor.",
+    "check_location": "Standortberechtigungen",
+    "check_battery": "Energiesparmodus",
+    "check_gps": "GPS-Status",
+    "insight_quality": "Wegen Energiesparmodus fehlen Daten. Tippen, um zu beheben.",
+    "insight_goal_hit": "Ziel erreicht 🎯 Gute Arbeit!",
+    "insight_goal_missing": "Dir fehlen {v1} Min bis zum Ziel.",
+    "insight_vs_yesterday": "Heute liegst du bei {v2}% im Vergleich zu gestern.",
+
+    "fix_qualita_dati": "Datenqualität",
+  "fix_message": "Behebe diese Punkte, um Datenverluste zu vermeiden.",
+  "fix_permessi": "Standortberechtigungen (Immer)",
+  "fix_permessi_sub": "Standortzugriff „Immer“ gewähren",
+  "fix_gps_attivo": "GPS aktiv und Hohe Genauigkeit",
+  "fix_gps_attivo_sub": "Standort-Einstellungen öffnen",
+  "fix_auto_start": "Autostart / App-Schutz",
+  "fix_auto_ricontrolla": "Erneut prüfen",
+  "fix_battery": "Akkusparmodus für MoveUP deaktivieren",
+  "fix_battery_sub": "„Akkuoptimierung ignorieren“ erlauben",
+
+  "fix_vendor_01": "MIUI: Sicherheit → Berechtigungen → Autostart + Energiesparen.",
+  "fix_vendor_02": "EMUI: Einstellungen → Akku → App-Start (Autostart & Hintergrund zulassen).",
+  "fix_vendor_03": "ColorOS/Funtouch: Autostart aktivieren und aggressive Optimierung entfernen.",
+  "fix_vendor_04": "OnePlus: Akku → Akkuoptimierung → MoveUP → Nicht optimieren.",
+  "fix_vendor_05": "Samsung: Gerätewartung → Akku → Schlafende Apps: MoveUP entfernen.",
+  "fix_vendor_06": "Prüfe Autostart und App-Schutz des Herstellers.",
+
+  "fix_messag_01": "Gehe zu Einstellungen → Datenschutz & Sicherheit → Standort → MoveUP\nstelle „Immer“ ein und aktiviere „Präziser Standort“.\nPrüfe auch Energiesparen: Es kann Hintergrundaktivitäten einschränken.",
+  "fix_chiudi_button": "Schließen"
+
+
+
 }

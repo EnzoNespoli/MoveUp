@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
-import '../services/app_header_bar.dart';
+import '../services/app_header.dart';
 import '../services/app_footer.dart';
 import '../db.dart'; // Importa la costante globale
 import '../lingua.dart';
@@ -139,9 +139,9 @@ class _AcquistaPianoPageState extends State<AcquistaPianoPage> {
   //-----------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
-    debugPrint('AcquistaPianoPage build piano: ${widget.piano}');
+    //debugPrint('AcquistaPianoPage build piano: ${widget.piano}');
     return Scaffold(
-      appBar: const AppHeaderBar(showBack: true),
+      appBar: const AppHeader(showBack: true),
       body: loading
           ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(

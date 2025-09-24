@@ -1,6 +1,8 @@
 //---------------------------------------------------------------
 const String apiBaseUrl = "https://mytrak.app/move/api";
 const String apiBaseAut = "https://mytrak.app/move/auth";
+const String apiBaseImg = "https://mytrak.app/move/marketing";
+const String apiBasePdf = "https://mytrak.app/move/pdf";
 //------------------------------------------------------------
 const String dt_ragione_sociale = "Nespoli Enzo";
 const String dt_indirizzo = "Via S.Pio da Pietralcona, 27";

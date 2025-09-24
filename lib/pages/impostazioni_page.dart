@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // ⬅️ NEW
 import 'funzioni_attive_form.dart';
 import '../services/app_footer.dart';
-import '../services/app_header_bar.dart';
+import '../services/app_header.dart';
 import '../services/mod_esclusione_temporale.dart';
 import 'esclusione_temporale_diag.dart';
 import '../db.dart'; // Importa la costante globale
@@ -234,7 +234,7 @@ class _ImpostazioniPageState extends State<ImpostazioniPage> with SafeState {
     String? fasciaEta = datiUtente?['fascia_eta'];
 
     return Scaffold(
-      appBar: const AppHeaderBar(showBack: true), // Mostra la freccia indietro
+      appBar: const AppHeader(showBack: true), // Mostra la freccia indietro
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16),

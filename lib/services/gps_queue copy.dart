@@ -84,7 +84,7 @@ class GpsQueue {
         }),
       );
 
-    debugPrint('GPS batch upload response: ${res.body}'); 
+    //debugPrint('GPS batch upload response: ${res.body}'); 
 
       if (res.statusCode == 200) {
         final data = json.decode(res.body);

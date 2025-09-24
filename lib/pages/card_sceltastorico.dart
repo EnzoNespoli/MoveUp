@@ -18,7 +18,7 @@ Widget build(BuildContext context) {
       side: BorderSide(color: Colors.blueGrey, width: 2),
     ),
     child: ExpansionTile(
-      initiallyExpanded: true,
+      initiallyExpanded: false,
       title: Text(
         context.t.storico_01,
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),

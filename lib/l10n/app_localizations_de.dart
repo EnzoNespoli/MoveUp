@@ -41,8 +41,8 @@ class AppLocalizationsDe extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
-      other: '# Tage',
-      one: '# Tag',
+      other: '# days',
+      one: '# day',
     );
     return '$_temp0';
   }
@@ -165,7 +165,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get gps_err11 => 'DEBUG API Wert GPS-Einwilligung:';
 
   @override
-  String get gps_err12 => 'GPS-Tracking:';
+  String get gps_err12 => 'GPS-Tracking ';
 
   @override
   String get gps_err13 => 'Du musst die GPS-Tracking-Einwilligung in den Einstellungen aktivieren';
@@ -225,7 +225,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get info_mes06 => 'Geschätzte Schritte:';
 
   @override
-  String get info_mes07 => 'Tagesübersicht';
+  String get info_mes07 => 'Verstehe, wie du dich bewegst,\nverbessere dich jeden Tag.';
 
   @override
   String get mov_inattivo => 'Inaktiv oder stillstehend';
@@ -426,7 +426,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get bottom_impostazioni => 'Einstellungen';
 
   @override
-  String get bottom_cronologia => 'Chronik';
+  String get bottom_cronologia => 'Aktivität';
 
   @override
   String get bottom_profilo => 'Profil';
@@ -498,10 +498,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get storico_14 => '⏳ Daten werden geladen…';
 
   @override
-  String get form_crono_01 => 'Chronik';
+  String get form_crono_01 => 'Aktivität';
 
   @override
-  String get form_crono_02 => 'Chronik der letzten 7 Tage';
+  String get form_crono_02 => 'Aktivitätsübersicht';
 
   @override
   String get form_crono_03 => 'Willkommen, ';
@@ -526,6 +526,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get dashboard_piano => 'Plan:';
+
+  @override
+  String get dashboard_msg => 'Erstelle ein (kostenloses) Konto, um deine Daten zu speichern und das Teilen freizuschalten.';
 
   @override
   String get imposta_page_studente => 'Student';
@@ -837,4 +840,131 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get acquisto_piano_attivo => 'Abo aktiviert!';
+
+  @override
+  String get card_settimana => 'Woche';
+
+  @override
+  String get card_gio_today => 'Jetzt';
+
+  @override
+  String get card_gio_lunedi => 'Montag';
+
+  @override
+  String get card_gio_martedi => 'Dienstag';
+
+  @override
+  String get card_gio_mercoledi => 'Mittwoch';
+
+  @override
+  String get card_gio_giovedi => 'Donnerstag';
+
+  @override
+  String get card_gio_venerdi => 'Freitag';
+
+  @override
+  String get card_gio_sabato => 'Samstag';
+
+  @override
+  String get card_gio_domenica => 'Sonntag';
+
+  @override
+  String get today_title => 'Heute';
+
+  @override
+  String get today_title_closed => 'Heute — Tag abgeschlossen';
+
+  @override
+  String get badge_partial => 'Teilweise Daten';
+
+  @override
+  String get kpi_active => 'Aktive Min';
+
+  @override
+  String get kpi_km => 'Km';
+
+  @override
+  String get kpi_sedentary => 'Sitzend';
+
+  @override
+  String get no_data_msg => 'Für heute liegen noch keine Daten vor.';
+
+  @override
+  String get check_location => 'Standortberechtigungen';
+
+  @override
+  String get check_battery => 'Energiesparmodus';
+
+  @override
+  String get check_gps => 'GPS-Status';
+
+  @override
+  String get insight_quality => 'Wegen Energiesparmodus fehlen Daten. Tippen, um zu beheben.';
+
+  @override
+  String get insight_goal_hit => 'Ziel erreicht 🎯 Gute Arbeit!';
+
+  @override
+  String insight_goal_missing(Object v1) {
+    return 'Dir fehlen $v1 Min bis zum Ziel.';
+  }
+
+  @override
+  String insight_vs_yesterday(Object v2) {
+    return 'Heute liegst du bei $v2% im Vergleich zu gestern.';
+  }
+
+  @override
+  String get fix_qualita_dati => 'Datenqualität';
+
+  @override
+  String get fix_message => 'Behebe diese Punkte, um Datenverluste zu vermeiden.';
+
+  @override
+  String get fix_permessi => 'Standortberechtigungen (Immer)';
+
+  @override
+  String get fix_permessi_sub => 'Standortzugriff „Immer“ gewähren';
+
+  @override
+  String get fix_gps_attivo => 'GPS aktiv und Hohe Genauigkeit';
+
+  @override
+  String get fix_gps_attivo_sub => 'Standort-Einstellungen öffnen';
+
+  @override
+  String get fix_auto_start => 'Autostart / App-Schutz';
+
+  @override
+  String get fix_auto_ricontrolla => 'Erneut prüfen';
+
+  @override
+  String get fix_battery => 'Akkusparmodus für MoveUP deaktivieren';
+
+  @override
+  String get fix_battery_sub => '„Akkuoptimierung ignorieren“ erlauben';
+
+  @override
+  String get fix_vendor_01 => 'MIUI: Sicherheit → Berechtigungen → Autostart + Energiesparen.';
+
+  @override
+  String get fix_vendor_02 => 'EMUI: Einstellungen → Akku → App-Start (Autostart & Hintergrund zulassen).';
+
+  @override
+  String get fix_vendor_03 => 'ColorOS/Funtouch: Autostart aktivieren und aggressive Optimierung entfernen.';
+
+  @override
+  String get fix_vendor_04 => 'OnePlus: Akku → Akkuoptimierung → MoveUP → Nicht optimieren.';
+
+  @override
+  String get fix_vendor_05 => 'Samsung: Gerätewartung → Akku → Schlafende Apps: MoveUP entfernen.';
+
+  @override
+  String get fix_vendor_06 => 'Prüfe Autostart und App-Schutz des Herstellers.';
+
+  @override
+  String get fix_messag_01 => 'Gehe zu Einstellungen → Datenschutz & Sicherheit → Standort → MoveUP\nstelle „Immer“ ein und aktiviere „Präziser Standort“.\nPrüfe auch Energiesparen: Es kann Hintergrundaktivitäten einschränken.';
+
+  @override
+  String get fix_chiudi_button => 'Schließen';
 }

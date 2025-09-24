@@ -3,14 +3,21 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../services/app_header_bar.dart';
+import '../services/app_header.dart';
 import '../services/app_footer.dart';
 import '../services/date_converter.dart';
+import '../services/quality_fix.dart';
+import '../services/day_detail_sheet.dart';
+
 import '../db.dart'; // Importa la costante globale
 import '../lingua.dart';
 import '../safe_state.dart'; // Importa il mixin SafeState
 import 'package:intl/intl.dart';
 import 'card_percorso_giorno.dart';
+
+import 'today_metrics.dart';
+import 'today_insight.dart';
+import 'today_card.dart';
 
 class CronologiaPage extends StatefulWidget {
   final String utenteId;
@@ -50,6 +57,14 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
   final bool userIsAnonymous = false; // metti il tuo flag
   Map<String, dynamic> features = {}; // permessi del piano};
 
+  final Map<int, List<Map<String, dynamic>>> dettagliLivello = {
+    0: [],
+    1: [],
+    2: [],
+  };
+  TodayMetrics? todayMetrics;
+  bool loadingOggi = false;
+
   //-------------------------------------------------------------------
   // main line
   //-------------------------------------------------------------------
@@ -83,6 +98,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
 
     await caricaLivelloUtente();
     await caricaTuttiLivelli();
+    await caricaOggi();
   }
 
   //-------------------------------------------------------------------
@@ -95,7 +111,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
     };
   }
 
-//-----------------------------------------------------------
+  //-----------------------------------------------------------
   // Carica il livello utente
   //-----------------------------------------------------------
   Future<void> caricaLivelloUtente() async {
@@ -130,8 +146,94 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
     setState(() => loading = true);
     for (int livello = 0; livello <= 2; livello++) {
       await caricaSettimana(livello);
+      await caricaDettagliLivello(livello);
     }
     setState(() => loading = false);
+  }
+
+  //-------------------------------------------------------------------------
+  // Carica i dettagli del livello specificato
+  //-------------------------------------------------------------------------
+  Future<void> caricaDettagliLivello(int livello) async {
+    //setState(() {}); // Per mostrare eventuale caricamento
+
+    final oggi = DateTime.now();
+    String zero = '0';
+    final dataStr =
+        "${oggi.year.toString().padLeft(4, zero)}${oggi.month.toString().padLeft(2, zero)}${oggi.day.toString().padLeft(2, zero)}";
+
+    try {
+      final res = await http.get(
+        Uri.parse(
+          "$apiBaseUrl/dettagli_livello.php?utente_id=$utenteId&livello=$livello&data=$dataStr",
+        ),
+        headers: _jwtToken != null ? _authHeaders() : null,
+      );
+
+      final dati = json.decode(res.body);
+
+      if (dati['success'] == true) {
+        dettagliLivello[livello] = List<Map<String, dynamic>>.from(
+          dati['dettagli'] ?? [],
+        );
+      } else {
+        dettagliLivello[livello] = [];
+      }
+    } catch (e) {
+      dettagliLivello[livello] = [];
+    }
+
+    //setState(() {});
+  }
+
+//--------------------------------------------------------------------------
+// Assumo: dettagliLivello è una Map<int, List<dynamic>>
+// dove ogni elemento ha almeno: durata_sec, distanza_metri, data_ora_inizio, data_ora_fine
+// Esempio: dettagliLivello[1] = lista segmenti tipo_attivita = 1 (leggero)
+//--------------------------------------------------------------------------
+  int _asInt(dynamic v) {
+    if (v == null) return 0;
+    if (v is int) return v;
+    if (v is double) return v.round();
+    if (v is String)
+      return int.tryParse(v.replaceAll(RegExp(r'[^0-9-]'), '')) ?? 0;
+    return 0;
+  }
+
+  double _asDouble(dynamic v) {
+    if (v == null) return 0.0;
+    if (v is double) return v;
+    if (v is int) return v.toDouble();
+    if (v is String) return double.tryParse(v.replaceAll(',', '.')) ?? 0.0;
+    return 0.0;
+  }
+
+//-------------------------------------------------------------------------
+// RIEPILOGO AL LIVELLO (0=fermo, 1=leggero, 2=veloce)
+// Somma durata_sec e distanza_metri; km calcolati da metri.
+// "passi" lo lasciamo a 0 se non lo fornisce il backend.
+//-------------------------------------------------------------------------
+  Map<String, dynamic> riepilogoLivello(int livello) {
+    final List segs = (dettagliLivello[livello] ?? []) as List;
+    int durata = 0;
+    double metri = 0.0;
+    int passi = 0; // se non li hai, resta 0
+
+    for (final s in segs) {
+      durata += _asInt(s['durata_sec']);
+      metri += _asDouble(s['distanza_metri']);
+      // se in futuro hai i passi nel segmento: passi += _asInt(s['passi']);
+    }
+
+    final km = metri / 1000.0;
+
+    return {
+      'durata': durata, // secondi totali del livello
+      'metri': metri, // metri totali del livello
+      'passi': passi, // se non disponibili, 0
+      'km': km, // km derivati
+      'count': segs.length,
+    };
   }
 
   //--------------------------------------------------------------
@@ -289,7 +391,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const AppHeaderBar(showBack: true),
+      appBar: const AppHeader(showBack: true),
       body: loading
           ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -342,6 +444,25 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
                     ),
                     SizedBox(height: 20),
 
+                    Card(
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 4),
+                      color: Colors.blueGrey[50],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side:
+                            const BorderSide(color: Colors.blueGrey, width: 2),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: buildTodayCard(context),
+                      ),
+                    ),
+
+                    SizedBox(height: 12),
+                    //-----------------------------------------------
+                    // card settimana
+                    //-----------------------------------------------
                     Card(
                       margin: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                       color: Colors.blueGrey[50],
@@ -426,11 +547,16 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
                       ),
                     ),
 
+                    //-------------------------------------------------
+                    // card percorso
+                    //-------------------------------------------------
                     const SizedBox(height: 8),
                     _buildPercorsoCard(), // <<--- QUI
                     const SizedBox(height: 8),
 
+                    //-------------------------------------------------
                     // Lista dei giorni
+                    //-------------------------------------------------
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -797,8 +923,6 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
                     if (!ok)
                       throw Exception(data['error'] ?? context.t.crono_msg_05);
 
-                    //debugPrint('Fetched track for $d: ${data['segments']?.length ?? 0} segments');
-
                     return {
                       'segments': data['segments'] ?? const [],
                       'bbox': data['bbox'] ?? const [],
@@ -840,17 +964,271 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
     return diff <= (historyDays - 1);
   }
 
-//----------------------------------------------------------------------
-// Funzione per formattare la durata
-//----------------------------------------------------------------------
-  String _fmtDuration(Duration d) {
-    final h = d.inHours;
-    final m = d.inMinutes % 60;
-    if (h > 0) return '${h}h ${m}min';
-    if (m > 0) return '${m}min';
-    return '${d.inSeconds}s';
+//-------------------------------------------------------------
+// helper: costruisce TodayMetrics usando i tuoi riepiloghi
+//-------------------------------------------------------------
+  TodayMetrics buildTodayFromRiepiloghi({
+    required Map<String, dynamic> r0, // fermo
+    required Map<String, dynamic> r1, // leggero
+    required Map<String, dynamic> r2, // veloce
+    List<Map<String, dynamic>>? dettagliOggi, // opzionale: per stimare gap%
+    int? goalMinutes,
+    int? yesterdayActiveMinutes,
+  }) {
+    final secFermo = _asInt(r0['durata']);
+    final secLeggero = _asInt(r1['durata']);
+    final secVeloce = _asInt(r2['durata']);
+
+    final metriTot = _asDouble(r0['metri']) +
+        _asDouble(r1['metri']) +
+        _asDouble(r2['metri']);
+
+    // gap% stimato sullo span [min(inizio), max(fine)] dei segmenti odierni
+    double gapRatio = 0.0;
+    if (dettagliOggi != null && dettagliOggi.isNotEmpty) {
+      DateTime? a, b;
+      for (final s in dettagliOggi) {
+        final i = DateTime.parse(
+            (s['data_ora_inizio'] as String).replaceFirst(' ', 'T'));
+        final f = DateTime.parse(
+            (s['data_ora_fine'] as String).replaceFirst(' ', 'T'));
+        a = (a == null || i.isBefore(a)) ? i : a;
+        b = (b == null || f.isAfter(b)) ? f : b;
+      }
+      final span = (a != null && b != null) ? b.difference(a).inSeconds : 0;
+      final covered = secFermo + secLeggero + secVeloce;
+      final gapSec = (span > covered) ? (span - covered) : 0;
+      gapRatio = (span > 0) ? (gapSec / span).clamp(0.0, 1.0) : 0.0;
+    }
+
+    final hasAnyData = (secFermo + secLeggero + secVeloce) > 0 || metriTot > 0;
+    final now = DateTime.now();
+    final dayClosed = now.hour > 21 || (now.hour == 21 && now.minute >= 30);
+
+    return TodayMetrics(
+      secFermo: secFermo,
+      secLeggero: secLeggero,
+      secVeloce: secVeloce,
+      distanceMeters: metriTot,
+      gapRatio: gapRatio,
+      hasAnyData: hasAnyData,
+      dayClosed: dayClosed,
+      goalMinutes: goalMinutes,
+      yesterdayActiveMinutes: yesterdayActiveMinutes,
+    );
+  }
+
+//-----------------------------------------------------------
+// carica i dati di oggi
+//-----------------------------------------------------------
+  Future<void> caricaOggi() async {
+    setState(() => loadingOggi = true);
+
+    // 1) carica i 3 livelli in parallelo
+    await Future.wait([
+      caricaDettagliLivello(0),
+      caricaDettagliLivello(1),
+      caricaDettagliLivello(2),
+    ]);
+
+    // 2) calcola i riepiloghi
+    final r0 = riepilogoLivello(0);
+    final r1 = riepilogoLivello(1);
+    final r2 = riepilogoLivello(2);
+
+    // 3) prepara la lista dei segmenti odierni (serve solo per stimare il gap%)
+    final dettagliOggi = [
+      ...dettagliLivello[0]!,
+      ...dettagliLivello[1]!,
+      ...dettagliLivello[2]!,
+    ];
+
+    // 4) calcola i minuti attivi di IERI dai DETTAGLI SETTIMANALI (livelli 1 e 2)
+    final level1Week =
+        (datiLivelli[1] ?? const []).cast<Map<String, dynamic>>();
+    final level2Week =
+        (datiLivelli[2] ?? const []).cast<Map<String, dynamic>>();
+    final yesterdayMin = activeMinutesYesterdayFromDetails(
+      level1: level1Week,
+      level2: level2Week,
+    );
+
+    // 4) costruisci il TodayMetrics finale
+    todayMetrics = buildTodayFromRiepiloghi(
+      r0: r0!, r1: r1!, r2: r2!,
+      dettagliOggi: dettagliOggi, // oppure null se non ti interessa il gap% ora
+      goalMinutes: null, // metti il tuo obiettivo minuti, se lo hai
+      yesterdayActiveMinutes:
+          yesterdayMin, // metti i minuti attivi di ieri, se li hai
+    );
+
+    setState(() => loadingOggi = false);
+  }
+
+//-----------------------------------------------------------
+// Crea form today
+//-----------------------------------------------------------
+  Widget buildTodayCard(BuildContext context) {
+    if (loadingOggi || todayMetrics == null) {
+      return const SizedBox(height: 140); // placeholder
+    }
+
+    // Adatta qui al tuo TodayMetrics reale:
+  double _sumMetersTodayFromSegments() {
+  double m = 0;
+  for (final l in [0, 1, 2]) {
+    final list = (dettagliLivello[l] ?? const []) as List;
+    for (final s in list) {
+      final v = s['distanza_metri'];
+      if (v is num) m += v.toDouble();
+      else if (v is String) m += double.tryParse(v.replaceAll(',', '.')) ?? 0.0;
+    }
+  }
+  return m;
+}
+
+final snap = TodaySnapshot(
+  activeMinutes: todayMetrics!.activeMinutes,
+  metersToday: _sumMetersTodayFromSegments(),
+  sedentaryMinutes: todayMetrics!.sedentaryMinutes ?? 0,
+  yesterdayActiveMinutes: todayMetrics!.yesterdayActiveMinutes,
+);
+
+
+  // Se hai già i segmenti caricati per livello (0/1/2), passali:
+  final segs = <int, List<Map<String, dynamic>>>{
+    0: List<Map<String, dynamic>>.from(dettagliLivello[0] ?? const []),
+    1: List<Map<String, dynamic>>.from(dettagliLivello[1] ?? const []),
+    2: List<Map<String, dynamic>>.from(dettagliLivello[2] ?? const []),
+  };
+
+    return TodayCard(
+      metrics: todayMetrics!,
+      rules: InsightRules(gapCritical: 0.20, goalReminderHour: 18),
+      now: DateTime.now(),
+      t: (k, v) => _t(context, k, v), // il tuo adapter testi
+      // Tap sull'intera card -> dettaglio della giornata (se vuoi)
+    onTap: () {
+      openDayDetailSheet(
+        context,
+        snapshot: snap,
+        segmentsByLevel: segs,
+        title: context.t.today_title,
+      );
+    },
+      // Tap sul banner "qualità dati" -> apri il foglio con i fix
+    onTapQualityFix: () {
+      openQualityFix(context);
+    },
+    );
+  }
+
+//------------------------------------------------------------------------------
+// Adapter testi per TodayCard.
+// Se hai già un sistema di traduzioni (es. context.t) puoi sostituire i return.
+//------------------------------------------------------------------------------
+  String _t(BuildContext ctx, String key, Map<String, dynamic> v) {
+    switch (key) {
+      case 'today_title':
+        return ctx.t.today_title;
+      case 'today_title_closed':
+        return ctx.t.today_title_closed;
+      case 'badge_partial':
+        return ctx.t.badge_partial;
+      case 'kpi_active':
+        return ctx.t.kpi_active;
+      case 'kpi_km':
+        return ctx.t.kpi_km;
+      case 'kpi_sedentary':
+        return ctx.t.kpi_sedentary;
+      case 'no_data_msg':
+        return ctx.t.no_data_msg;
+      case 'check_location':
+        return ctx.t.check_location;
+      case 'check_battery':
+        return ctx.t.check_battery;
+      case 'check_gps':
+        return ctx.t.check_gps;
+      case 'insight_quality':
+        return ctx.t.insight_quality;
+      case 'insight_goal_hit':
+        return ctx.t.insight_goal_hit;
+      case 'insight_goal_missing':
+        return ctx.t.insight_goal_missing(v['n']); //v1
+      case 'insight_vs_yesterday':
+        return ctx.t.insight_vs_yesterday(v['pct']); //v2
+      default:
+        return key; // fallback
+    }
   }
 }
+
+//--------------------------------------------------------------------
+// parse della data
+//--------------------------------------------------------------------
+DateTime? _parseTs(dynamic v) {
+  if (v == null) return null;
+  if (v is DateTime) return v;
+  if (v is String) {
+    final s = v.contains('T') ? v : v.replaceFirst(' ', 'T');
+    try {
+      return DateTime.parse(s);
+    } catch (_) {}
+  }
+  return null;
+}
+
+//---------------------------------------------------------------------
+// mette data in ssaammgg
+//---------------------------------------------------------------------
+String _ymd(DateTime d) => '${d.year.toString().padLeft(4, '0')}-'
+    '${d.month.toString().padLeft(2, '0')}-'
+    '${d.day.toString().padLeft(2, '0')}';
+
+//-----------------------------------------------------------
+// formatta intero
+//-----------------------------------------------------------
+int _asInt(dynamic v) {
+  if (v == null) return 0;
+  if (v is int) return v;
+  if (v is num) return v.toInt();
+  if (v is String) return int.tryParse(v) ?? 0;
+  return 0;
+}
+
+//------------------------------------------------------------
+/// level1/level2 = liste “dettagli” dei 7 giorni per livello
+//------------------------------------------------------------
+int activeMinutesYesterdayFromDetails({
+  required List<Map<String, dynamic>> level1,
+  required List<Map<String, dynamic>> level2,
+}) {
+  final y = DateTime.now().toLocal().subtract(const Duration(days: 1));
+  final ymd = _ymd(y);
+
+  int sec = 0;
+
+  // somma livello 1
+  for (final s in level1) {
+    final ts = _parseTs(s['inizio_locale'] ?? s['data_ora_inizio']);
+    if (ts != null && _ymd(ts.toLocal()) == ymd) {
+      sec += _asInt(s['durata_sec']);
+    }
+  }
+  // somma livello 2
+  for (final s in level2) {
+    final ts = _parseTs(s['inizio_locale'] ?? s['data_ora_inizio']);
+    if (ts != null && _ymd(ts.toLocal()) == ymd) {
+      sec += _asInt(s['durata_sec']);
+    }
+  }
+
+  return (sec / 60).round();
+}
+
+//-----------------------------------------------------------
+// fine classe principale
+//-----------------------------------------------------------
 
 /// --------------------------------------------------------------
 /// Costruisce il widget di intestazione per un livello specifico

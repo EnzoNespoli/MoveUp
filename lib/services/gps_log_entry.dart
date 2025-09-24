@@ -69,7 +69,9 @@ class GpsLogE {
   void setVerbose(bool v) => _verbose = v;
 
   void _log(String msg) {
-    if (_verbose) debugPrint('[GpsLogE] $msg');
+    if (_verbose){
+      //debugPrint('[GpsLogE] $msg');
+    }
   }
 
   GpsLogE._();
@@ -202,20 +204,21 @@ class GpsLogE {
       final prefs = await SharedPreferences.getInstance();
       // 1) Utente loggato
       String? idLogin = prefs.getString("utenteIdLogin");
-      String? idAnonimo='';
-      if (idLogin != null && idLogin.isNotEmpty) {
-        idAnonimo = prefs.getString("utenteIdAnonimo");  
-      }
-
+      String? idAnonimo = prefs.getString("utenteIdAnonimo");  
+       
       final appVersion = '1.0.1+4';
-
       final platform = _platformName();
 
       final payload = batch
           .map((e) => e.toJson(appVersion: appVersion, platform: platform))
           .toList();
 
-      final utenteId = idLogin ?? idAnonimo;
+      final utenteId = (idLogin != null && idLogin.isNotEmpty)
+    ? idLogin
+    : (idAnonimo != null && idAnonimo.isNotEmpty ? idAnonimo : null);
+
+      //debugPrint('utenteId: $utenteId - token: $token ');
+
       final url = '$apiBaseUrl/gps_debug_log.php?utente_id=$utenteId';
 
       _log('POST $url items=${payload.length}');

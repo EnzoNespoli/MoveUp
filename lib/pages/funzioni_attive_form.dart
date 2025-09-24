@@ -46,9 +46,9 @@ class FunzioniAttiveForm extends StatelessWidget {
 
   @override
 Widget build(BuildContext context) {
-  debugPrint('FunzioniAttiveForm input: ${funzioniAttive.runtimeType} -> $funzioniAttive');
+  //debugPrint('FunzioniAttiveForm input: ${funzioniAttive.runtimeType} -> $funzioniAttive');
   final Map<String, dynamic> f = _toMap(funzioniAttive);
-  debugPrint('FunzioniAttiveForm parsed: ${f.runtimeType} -> $f');
+  //debugPrint('FunzioniAttiveForm parsed: ${f.runtimeType} -> $f');
 
     // 2) Etichette "umane"
     final labels = _featLabels(context);

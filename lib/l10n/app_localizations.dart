@@ -392,7 +392,7 @@ abstract class AppLocalizations {
   /// No description provided for @gps_err12.
   ///
   /// In en, this message translates to:
-  /// **'GPS Tracking:'**
+  /// **'GPS Tracking '**
   String get gps_err12;
 
   /// No description provided for @gps_err13.
@@ -512,7 +512,7 @@ abstract class AppLocalizations {
   /// No description provided for @info_mes07.
   ///
   /// In en, this message translates to:
-  /// **'Daily summary'**
+  /// **'Understand how you move,\nimprove every day.'**
   String get info_mes07;
 
   /// No description provided for @mov_inattivo.
@@ -914,7 +914,7 @@ abstract class AppLocalizations {
   /// No description provided for @bottom_cronologia.
   ///
   /// In en, this message translates to:
-  /// **'History'**
+  /// **'Activity'**
   String get bottom_cronologia;
 
   /// No description provided for @bottom_profilo.
@@ -1058,13 +1058,13 @@ abstract class AppLocalizations {
   /// No description provided for @form_crono_01.
   ///
   /// In en, this message translates to:
-  /// **'History'**
+  /// **'Activity'**
   String get form_crono_01;
 
   /// No description provided for @form_crono_02.
   ///
   /// In en, this message translates to:
-  /// **'History of last 7 days'**
+  /// **'Activity Summary'**
   String get form_crono_02;
 
   /// No description provided for @form_crono_03.
@@ -1114,6 +1114,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Plan:'**
   String get dashboard_piano;
+
+  /// No description provided for @dashboard_msg.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a (free) account to save your data and unlock sharing.'**
+  String get dashboard_msg;
 
   /// No description provided for @imposta_page_studente.
   ///
@@ -1732,6 +1738,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Plan activated!'**
   String get acquisto_piano_attivo;
+
+  /// No description provided for @card_settimana.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get card_settimana;
+
+  /// No description provided for @card_gio_today.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get card_gio_today;
+
+  /// No description provided for @card_gio_lunedi.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get card_gio_lunedi;
+
+  /// No description provided for @card_gio_martedi.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuesday'**
+  String get card_gio_martedi;
+
+  /// No description provided for @card_gio_mercoledi.
+  ///
+  /// In en, this message translates to:
+  /// **'Wednesday'**
+  String get card_gio_mercoledi;
+
+  /// No description provided for @card_gio_giovedi.
+  ///
+  /// In en, this message translates to:
+  /// **'Thursday'**
+  String get card_gio_giovedi;
+
+  /// No description provided for @card_gio_venerdi.
+  ///
+  /// In en, this message translates to:
+  /// **'Friday'**
+  String get card_gio_venerdi;
+
+  /// No description provided for @card_gio_sabato.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday'**
+  String get card_gio_sabato;
+
+  /// No description provided for @card_gio_domenica.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday'**
+  String get card_gio_domenica;
+
+  /// No description provided for @today_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today_title;
+
+  /// No description provided for @today_title_closed.
+  ///
+  /// In en, this message translates to:
+  /// **'Today — day finished'**
+  String get today_title_closed;
+
+  /// No description provided for @badge_partial.
+  ///
+  /// In en, this message translates to:
+  /// **'Partial data'**
+  String get badge_partial;
+
+  /// No description provided for @kpi_active.
+  ///
+  /// In en, this message translates to:
+  /// **'Active min'**
+  String get kpi_active;
+
+  /// No description provided for @kpi_km.
+  ///
+  /// In en, this message translates to:
+  /// **'Km'**
+  String get kpi_km;
+
+  /// No description provided for @kpi_sedentary.
+  ///
+  /// In en, this message translates to:
+  /// **'Sitting'**
+  String get kpi_sedentary;
+
+  /// No description provided for @no_data_msg.
+  ///
+  /// In en, this message translates to:
+  /// **'We don’t have any data for today yet.'**
+  String get no_data_msg;
+
+  /// No description provided for @check_location.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permissions'**
+  String get check_location;
+
+  /// No description provided for @check_battery.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery saver'**
+  String get check_battery;
+
+  /// No description provided for @check_gps.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS status'**
+  String get check_gps;
+
+  /// No description provided for @insight_quality.
+  ///
+  /// In en, this message translates to:
+  /// **'We’re missing data due to battery saver. Tap to fix.'**
+  String get insight_quality;
+
+  /// No description provided for @insight_goal_hit.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal reached 🎯 Great job!'**
+  String get insight_goal_hit;
+
+  /// No description provided for @insight_goal_missing.
+  ///
+  /// In en, this message translates to:
+  /// **'You’re {v1} min away from your goal.'**
+  String insight_goal_missing(Object v1);
+
+  /// No description provided for @insight_vs_yesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today you’re at {v2}% vs yesterday.'**
+  String insight_vs_yesterday(Object v2);
+
+  /// No description provided for @fix_qualita_dati.
+  ///
+  /// In en, this message translates to:
+  /// **'Data quality'**
+  String get fix_qualita_dati;
+
+  /// No description provided for @fix_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Fix these points to avoid data loss.'**
+  String get fix_message;
+
+  /// No description provided for @fix_permessi.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permissions (Always)'**
+  String get fix_permessi;
+
+  /// No description provided for @fix_permessi_sub.
+  ///
+  /// In en, this message translates to:
+  /// **'Grant “Always” location access'**
+  String get fix_permessi_sub;
+
+  /// No description provided for @fix_gps_attivo.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS on and High accuracy'**
+  String get fix_gps_attivo;
+
+  /// No description provided for @fix_gps_attivo_sub.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Location settings'**
+  String get fix_gps_attivo_sub;
+
+  /// No description provided for @fix_auto_start.
+  ///
+  /// In en, this message translates to:
+  /// **'Autostart / App protection'**
+  String get fix_auto_start;
+
+  /// No description provided for @fix_auto_ricontrolla.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-check'**
+  String get fix_auto_ricontrolla;
+
+  /// No description provided for @fix_battery.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable battery optimization for MoveUP'**
+  String get fix_battery;
+
+  /// No description provided for @fix_battery_sub.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow “Ignore battery optimization”'**
+  String get fix_battery_sub;
+
+  /// No description provided for @fix_vendor_01.
+  ///
+  /// In en, this message translates to:
+  /// **'MIUI: Security → Permissions → Auto-start + Battery saver.'**
+  String get fix_vendor_01;
+
+  /// No description provided for @fix_vendor_02.
+  ///
+  /// In en, this message translates to:
+  /// **'EMUI: Settings → Battery → App launch (allow auto-launch & background).'**
+  String get fix_vendor_02;
+
+  /// No description provided for @fix_vendor_03.
+  ///
+  /// In en, this message translates to:
+  /// **'ColorOS/Funtouch: Enable Auto-start and remove aggressive optimization.'**
+  String get fix_vendor_03;
+
+  /// No description provided for @fix_vendor_04.
+  ///
+  /// In en, this message translates to:
+  /// **'OnePlus: Battery → Battery optimization → MoveUP → Don’t optimize.'**
+  String get fix_vendor_04;
+
+  /// No description provided for @fix_vendor_05.
+  ///
+  /// In en, this message translates to:
+  /// **'Samsung: Device care → Battery → Sleeping apps: remove MoveUP.'**
+  String get fix_vendor_05;
+
+  /// No description provided for @fix_vendor_06.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the manufacturer’s Autostart and app protection.'**
+  String get fix_vendor_06;
+
+  /// No description provided for @fix_messag_01.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Settings → Privacy & security → Location → MoveUP\nset “Always” and enable “Precise location”.\nAlso check Power saving: it may limit background activity.'**
+  String get fix_messag_01;
+
+  /// No description provided for @fix_chiudi_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get fix_chiudi_button;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -28,7 +28,7 @@
   
   "botton_salta": "Salta",
   "condizioni_uso": "Ho letto e accettato le ",
-  "condizioni_uso2": "Condizioni d’uso",
+  "condizioni_uso2": "Condizioni d'uso",
   "privacy_policy": "e le ",
   "privacy_policy2": "Privacy Policy",
   
@@ -49,9 +49,9 @@
   "user_err06": "Login",
   "user_err07": "Registrati",
   
-  "gps_err01": "Tracking GPS disattivato: attivalo nelle impostazioni.",
+  "gps_err01": "Tracciamento GPS disattivato: attivalo nelle impostazioni.",
   "gps_err02": "Errore salvataggio posizione:",
-  "gps_err03": "Tracking GPS disattivato: la posizione non viene registrata.",
+  "gps_err03": "Tracciamento GPS disattivato: la posizione non viene registrata.",
   "gps_err04": "Permesso posizione negato",
   "gps_err05": "Permesso posizione negato per sempre",
   "gps_err06": "Segnale GPS debole, attendi una posizione migliore",
@@ -60,10 +60,10 @@
   "gps_err09": "Errore salvataggio posizione:",
   "gps_err10": "DEBUG API leggi consensi:",
   "gps_err11": "DEBUG API valore consenso GPS:",
-  "gps_err12": "Tracciamento GPS:",
-  "gps_err13": "Devi attivare il consenso al tracking GPS nelle impostazioni",
-  "gps_err14": "Tracking in ascolto",
-  "gps_err15": "Tracking disattivato",
+  "gps_err12": "Tracciamento GPS ",
+  "gps_err13": "Devi attivare il consenso al tracciamento GPS nelle impostazioni",
+  "gps_err14": "Tracciamento in ascolto",
+  "gps_err15": "Tracciamento disattivato",
   "gps_err16": "Prossima rilevazione tra",
   "gps_err17": "GPS Attivo",
   "gps_err18": "GPS Disattivo",
@@ -82,7 +82,7 @@
   "info_mes04": "Distanza:",
   "info_mes05": "Fonte:",
   "info_mes06": "Passi stimati:",
-  "info_mes07": "Riepilogo giornaliero",
+  "info_mes07": "Capisci come ti muovi,\nmigliora ogni giorno",
 
   "mov_inattivo": "Inattivo o fermo",
   "mov_leggero": "Movimento leggero",
@@ -98,7 +98,6 @@
   "cahrt_mes08": "Errore condivisione:",
   "chart_mes09": "Report MoveUP di oggi",
   
-
   "um_metri": "Metri:",
   "um_passi": "Passi:",
   "um_km": "Km:",
@@ -119,7 +118,7 @@
   "form_reg_eta": "Fascia di età",
   "form_reg_ult_accesso": "Ultimo accesso",
   "form_reg_consensi": "Impostazioni e consensi",
-  "form_reg_gps": "Tracking GPS",
+  "form_reg_gps": "Tracciamento GPS",
   "form_reg_err06": "Le password non coincidono",
   "form_reg_country": "Nazione di residenza",
   
@@ -142,7 +141,6 @@
     "invia_richiesta_label": "Invia richiesta",
     "condividi_button": "Condividi",
 
-
   "form_consensi_01": "Consensi",
   "form_consensi_02": "Acconsento al trattamento dei dati (privacy)",
   "form_consensi_03": "Acconsento a ricevere comunicazioni marketing",
@@ -159,7 +157,7 @@
   "payment_mes4": "gg rim.",
   
   "bottom_impostazioni": "Impostazioni",
-  "bottom_cronologia": "Cronologia",
+  "bottom_cronologia": "Attività",
   "bottom_profilo": "Profilo",
   "bottom_abbonamenti": "Abbonamenti",
   "bottom_err01": "Funzione disponibile solo per utenti registrati!",
@@ -187,8 +185,8 @@
   "storico_13": "Puoi cambiare o revocare i consensi in qualsiasi momento. Senza consenso al tracking non registriamo posizioni.",
   "storico_14": "⏳ Caricamento dati…",
   
-  "form_crono_01": "Cronologia",
-  "form_crono_02": "Cronologia ultimi 7 giorni",
+  "form_crono_01": "Attività",
+  "form_crono_02": "Riepilogo attività",
   "form_crono_03": "Benvenuto, ",
   "form_crono_04": "Totali ultimi 7 giorni",
   "form_crono_05": "Nessuna sessione registrata",
@@ -198,6 +196,7 @@
   "form_crono_09": "Dettagli per il Livello",
   
   "dashboard_piano": "Piano:",
+  "dashboard_msg": "Crea un account (gratis) per salvare i dati e sbloccare la condivisione.",
   
   "imposta_page_studente": "Studente",
   "imposta_page_impiegato": "Impiegato",
@@ -212,7 +211,7 @@
   "imposta_page_marketing": "Consenso marketing",
   "imposta_page_premi": "Consenso premi",
   "imposta_page_datac": "Data consenso",
-  "imposta_page_frequenza": "Frequenza tracking (sec)",
+  "imposta_page_frequenza": "Frequenza tracciamento (sec)",
   "imposta_page_piani": "Piani abbonamento",
   "imposta_page_importo": "Importo:",
   "imposta_page_durata": "Durata:",
@@ -226,11 +225,10 @@
   "imposta_page_mess5": "Impostazioni aggiornate! ",
   "imposta_page_mess6": "Dati salvati!",
 
-
   "footer_page_diritti": "© 2025 MoveUP - Tutti i diritti riservati",
   "footer_page_banner": "Your Personal Move",
   "footer_page_versione": "Versione app:",
-    "header_page_banner": "Your Personal Move",
+  "header_page_banner": "Your Personal Move",
   
   "rep_day_export_locked": "La condivisione richiede BASIC/PLUS/PRO",
   "msg_abilitato_01": "Registrati per vedere la distribuzione di oggi",
@@ -241,15 +239,15 @@
   "crono_msg_03": "giorni di storico.",
   "crono_msg_04": "Percorso non disponibile. Riprova.",
   "crono_msg_05": "Errore sconosciuto",
+  
   "card_percorso_1": "Seleziona data",
   "card_percorso_2": "Annulla",
   "card_percorso_3": "Ok",
   "card_percorso_4": "Percorso del", 
   "card_percorso_5": "Nessun movimento in questa data",
   
-
   "imposta_page_funzioni": "Funzioni attive",
-  "feat_tracking_live": "Tracking live",
+  "feat_tracking_live": "Tracciamento live",
   "feat_report_basic": "Report giornaliero (base)",
   "feat_report_advanced": "Timeline giornaliera avanzata",
   "feat_places_routes": "Luoghi e percorsi ripetuti",
@@ -267,7 +265,7 @@
   "feat_gps_sample_sec": "Campionamento (secondi)",
   "feat_gps_min_distance_m": "Distanza minima (metri)",
   "feat_gps_upload_sec": "Invio in batch (secondi)",
-  "feat_gps_background": "Tracking in background",
+  "feat_gps_background": "Tracciamento in background",
   "feat_gps_max_acc_m": "Massima accuratezza (metri)",
   "feat_gps_accuracy_mode": "Modalità precisione",
 
@@ -314,7 +312,53 @@
 "acquisto_piano_pagamento": "Procedi con pagamento",
 "acquisto_piano_stripe": "Verrai indirizzato su Stripe...",
 "acquisto_piano_nopaga": "Pagamento non avviato:",
-"acquisto_piano_attivo": "Piano attivato!"
+"acquisto_piano_attivo": "Piano attivato!",
+
+"card_gio_today": "Adesso",
+"card_settimana": "Settimana",
+"card_gio_lunedi": "Lunedi",
+"card_gio_martedi": "Martedi",
+"card_gio_mercoledi": "Mercoledi",
+"card_gio_giovedi": "Giovedi",
+"card_gio_venerdi": "Venerdi",
+"card_gio_sabato": "Sabato",
+"card_gio_domenica": "Domenica",
+
+"today_title": "Oggi",
+"today_title_closed": "Oggi — giornata conclusa",
+"badge_partial": "Dati parziali",
+"kpi_active": "Min attivi",
+"kpi_km":"Km",
+"kpi_sedentary": "Seduto",
+"no_data_msg": "Non abbiamo ancora dati per oggi.",
+"check_location": "Permessi posizione",
+"check_battery": "Risparmio batteria",
+"check_gps": "Stato GPS",
+"insight_quality": "Stiamo perdendo dati per il risparmio batteria. Tocca per sistemare.",
+"insight_goal_hit": "Obiettivo centrato 🎯 Ottimo lavoro!",
+"insight_goal_missing": "Ti mancano {v1} min per l’obiettivo.",
+"insight_vs_yesterday": "Oggi sei a {v2}% rispetto a ieri.",
+
+"fix_qualita_dati": "Qualità dati",
+"fix_message": "Sistema questi punti per evitare perdite di dati.",
+"fix_permessi": "Permessi posizione (Sempre)",
+"fix_permessi_sub": "Concedi “Sempre” alla posizione",
+"fix_gps_attivo": "GPS attivo e Alta precisione",
+"fix_gps_attivo_sub": "Apri impostazioni Localizzazione",
+"fix_auto_start": "Autostart / Protezione app",
+"fix_auto_ricontrolla": "Ricontrolla",
+"fix_battery": "Disattiva risparmio batteria per MoveUP",
+"fix_battery_sub": "Consenti “Ignora ottimizzazione batteria”",
+
+"fix_vendor_01": "MIUI: Sicurezza → Autorizzazioni → Avvio automatico + Risparmio batteria.",
+"fix_vendor_02": "EMUI: Impostazioni → Batteria → Avvio app (consenti avvio & background).",
+"fix_vendor_03": "ColorOS/Funtouch: Abilita Avvio automatico e rimuovi ottimizzazione aggressiva.",
+"fix_vendor_04": "OnePlus: Batteria → Ottimizzazione batteria → MoveUP → Non ottimizzare.",
+"fix_vendor_05": "Samsung: Cura dispositivo → Batteria → App in sospensione: rimuovi MoveUP.",
+"fix_vendor_06": "Controlla Autostart e protezione app del produttore.",
+
+"fix_messag_01": "Vai in Impostazioni → Privacy e sicurezza → Localizzazione → MoveUP\nimposta “Sempre” e attiva “Posizione precisa”.\nControlla anche Risparmio energia: potrebbe ridurre le attività in background.",
+"fix_chiudi_button": "Chiudi"
 
 
 

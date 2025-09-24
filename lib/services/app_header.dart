@@ -33,7 +33,7 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
         top: false,
         bottom: false,
         child: Container(
-          height: 120,
+          height: 100,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
           decoration: BoxDecoration(
             border: isLight
@@ -70,13 +70,13 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
                 child: ClipOval(
                   child: Image.asset(
                     logoAsset,
-                    height: 100,
-                    width: 100,
+                    height: 72,
+                    width: 72,
                     fit: BoxFit.cover,
                   ),
                 ),
               ),
-              const SizedBox(width: 20),
+              const SizedBox(width: 12),
               // Titoli
               Expanded(
                 child: Column(
@@ -98,7 +98,7 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
                       subtitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodyLarge?.copyWith(
+                      style: theme.textTheme.bodySmall?.copyWith(
                         color: cs.onSurfaceVariant,
                         fontWeight: FontWeight.w500,
                       ),
@@ -110,41 +110,41 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
               // Popup lingua (opzionale)
               if (onChangeLocale != null)
                 PopupMenuButton<String>(
-  icon: const Icon(Icons.language),
-  // Mostra la selezione attuale nel menu
-  initialValue: LocaleController.instance.locale == null
-      ? 'system'
-      : LocaleController.instance.locale!.languageCode,
+                  icon: const Icon(Icons.language),
+                  // Mostra la selezione attuale nel menu
+                  initialValue: LocaleController.instance.locale == null
+                      ? 'system'
+                      : LocaleController.instance.locale!.languageCode,
 
-  onSelected: (v) {
-    if (v == 'system') {
-      onChangeLocale?.call(null);                // lingua di sistema (auto)
-    } else {
-      onChangeLocale?.call(Locale(v));           // es. 'it','en',...
-    }
-  },
+                  onSelected: (v) {
+                    if (v == 'system') {
+                      onChangeLocale?.call(null); // lingua di sistema (auto)
+                    } else {
+                      onChangeLocale?.call(Locale(v)); // es. 'it','en',...
+                    }
+                  },
 
-  itemBuilder: (_) {
-    final lc = LocaleController.instance;
-    final isSystem = lc.locale == null;
-    final current = lc.locale?.languageCode;
+                  itemBuilder: (_) {
+                    final lc = LocaleController.instance;
+                    final isSystem = lc.locale == null;
+                    final current = lc.locale?.languageCode;
 
-    return [
-      CheckedPopupMenuItem(
-        value: 'system',
-        checked: isSystem,
-        child: Text(context.t.lingua_sistema),
-      ),
-      ...AppLocalizations.supportedLocales.map(
-        (locale) => CheckedPopupMenuItem(
-          value: locale.languageCode,
-          checked: !isSystem && current == locale.languageCode,
-          child: Text(_labelFor(locale.languageCode)),
-        ),
-      ),
-    ];
-  },
-)
+                    return [
+                      CheckedPopupMenuItem(
+                        value: 'system',
+                        checked: isSystem,
+                        child: Text(context.t.lingua_sistema),
+                      ),
+                      ...AppLocalizations.supportedLocales.map(
+                        (locale) => CheckedPopupMenuItem(
+                          value: locale.languageCode,
+                          checked: !isSystem && current == locale.languageCode,
+                          child: Text(_labelFor(locale.languageCode)),
+                        ),
+                      ),
+                    ];
+                  },
+                )
             ],
           ),
         ),

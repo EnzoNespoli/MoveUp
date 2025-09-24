@@ -60,7 +60,7 @@
   "gps_err09": "Erreur d’enregistrement de la localisation :",
   "gps_err10": "DEBUG API lecture consentements :",
   "gps_err11": "DEBUG API valeur consentement GPS :",
-  "gps_err12": "Suivi GPS :",
+  "gps_err12": "Suivi GPS ",
   "gps_err13": "Tu dois activer le consentement au suivi GPS dans les paramètres",
   "gps_err14": "Suivi en écoute",
   "gps_err15": "Suivi désactivé",
@@ -82,7 +82,7 @@
   "info_mes04": "Distance :",
   "info_mes05": "Source :",
   "info_mes06": "Pas estimés :",
-  "info_mes07": "Résumé quotidien",
+  "info_mes07": "Comprends comment tu te déplaces,\naméliore-toi chaque jour.",
 
   "mov_inattivo": "Inactif ou arrêté",
   "mov_leggero": "Mouvement léger",
@@ -98,7 +98,6 @@
 "cahrt_mes08": "Erreur de partage :",
 "chart_mes09": "Rapport MoveUP d’aujourd’hui",
   
-
   "um_metri": "Mètres :",
   "um_passi": "Pas :",
   "um_km": "Km :",
@@ -158,7 +157,7 @@
   "payment_mes4": "j rest.",
 
   "bottom_impostazioni": "Paramètres",
-  "bottom_cronologia": "Historique",
+  "bottom_cronologia": "Activité",
   "bottom_profilo": "Profil",
   "bottom_abbonamenti": "Abonnements",
   "bottom_err01": "Fonction disponible uniquement pour les utilisateurs inscrits !",
@@ -186,8 +185,8 @@
     "storico_13": "Vous pouvez modifier ou retirer votre consentement à tout moment. Sans consentement au suivi, nous n’enregistrons pas de positions.",
   "storico_14": "⏳ Chargement des données…",
 
-  "form_crono_01": "Historique",
-  "form_crono_02": "Historique des 7 derniers jours",
+  "form_crono_01": "Activité",
+  "form_crono_02": "Résumé d’activité",
   "form_crono_03": "Bienvenue, ",
   "form_crono_04": "Totaux des 7 derniers jours",
   "form_crono_05": "Aucune session enregistrée",
@@ -197,6 +196,7 @@
   "form_crono_09": "Détails pour le Niveau",
 
   "dashboard_piano": "Plan :",
+  "dashboard_msg": "Crée un compte (gratuit) pour enregistrer vos données et déverrouiller le partage.",
 
   "imposta_page_studente": "Étudiant",
   "imposta_page_impiegato": "Employé",
@@ -270,6 +270,7 @@
     "feat_gps_accuracy_mode": "Mode de précision",
 
   "gps_accuracy_mode": "Mode de précision",
+  
   "accuracy_low": "Faible",
   "accuracy_balanced": "Équilibré",
   "accuracy_high": "Élevé",
@@ -311,7 +312,57 @@
     "acquisto_piano_pagamento": "Procéder au paiement",
     "acquisto_piano_stripe": "Vous serez redirigé vers Stripe...",
     "acquisto_piano_nopaga": "Paiement non démarré :",
-    "acquisto_piano_attivo": "Abonnement activé !"
+    "acquisto_piano_attivo": "Abonnement activé !",
+
+    "card_settimana": "Semaine",
+    "card_gio_today": "Maintenant",
+"card_gio_lunedi": "Lundi",
+"card_gio_martedi": "Mardi",
+"card_gio_mercoledi": "Mercredi",
+"card_gio_giovedi": "Jeudi",
+"card_gio_venerdi": "Vendredi",
+"card_gio_sabato": "Samedi",
+"card_gio_domenica": "Dimanche",
+
+"today_title": "Aujourd’hui",
+    "today_title_closed": "Aujourd’hui — journée terminée",
+    "badge_partial": "Données partielles",
+    "kpi_active": "Min actives",
+    "kpi_km": "Km",
+    "kpi_sedentary": "Assis",
+    "no_data_msg": "Nous n’avons pas encore de données pour aujourd’hui.",
+    "check_location": "Autorisations de localisation",
+    "check_battery": "Économie d’énergie",
+    "check_gps": "Statut GPS",
+    "insight_quality": "Nous perdons des données à cause de l’économiseur de batterie. Touchez pour corriger.",
+    "insight_goal_hit": "Objectif atteint 🎯 Bravo !",
+    "insight_goal_missing": "Il vous manque {v1} min pour l’objectif.",
+    "insight_vs_yesterday": "Aujourd’hui vous êtes à {v2}% par rapport à hier.",
+
+    "fix_qualita_dati": "Qualité des données",
+  "fix_message": "Corrigez ces points pour éviter des pertes de données.",
+  "fix_permessi": "Autorisations de localisation (Toujours)",
+  "fix_permessi_sub": "Accordez l’accès “Toujours” à la localisation",
+  "fix_gps_attivo": "GPS activé et Haute précision",
+  "fix_gps_attivo_sub": "Ouvrir les paramètres de Localisation",
+  "fix_auto_start": "Démarrage auto / Protection des apps",
+  "fix_auto_ricontrolla": "Vérifier à nouveau",
+  "fix_battery": "Désactiver l’économiseur de batterie pour MoveUP",
+  "fix_battery_sub": "Autoriser “Ignorer l’optimisation de la batterie”",
+
+  "fix_vendor_01": "MIUI : Sécurité → Autorisations → Démarrage auto + Économie d’énergie.",
+  "fix_vendor_02": "EMUI : Paramètres → Batterie → Lancement d’apps (autoriser démarrage et arrière-plan).",
+  "fix_vendor_03": "ColorOS/Funtouch : Activer le démarrage auto et désactiver l’optimisation agressive.",
+  "fix_vendor_04": "OnePlus : Batterie → Optimisation de la batterie → MoveUP → Ne pas optimiser.",
+  "fix_vendor_05": "Samsung : Entretien de l’appareil → Batterie → Apps en veille : retirer MoveUP.",
+  "fix_vendor_06": "Vérifiez le Démarrage auto et la protection des apps du fabricant.",
+
+  "fix_messag_01": "Allez dans Paramètres → Confidentialité et sécurité → Localisation → MoveUP\nréglez sur “Toujours” et activez “Position précise”.\nVérifiez aussi l’Économie d’énergie : elle peut limiter l’arrière-plan.",
+  "fix_chiudi_button": "Fermer"
+
+
+
+
 
 
 }

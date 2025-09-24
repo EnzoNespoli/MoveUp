@@ -7,6 +7,7 @@ class CardTrackingGps extends StatelessWidget {
   final int countdown;
   final int countdownLevel;
   final ValueChanged<bool> onTrackingChanged;
+  final String ultimaPosizione;
 
   const CardTrackingGps({
     super.key,
@@ -15,6 +16,7 @@ class CardTrackingGps extends StatelessWidget {
     required this.countdown,
     required this.countdownLevel,
     required this.onTrackingChanged,
+    required this.ultimaPosizione,
   });
 
   @override
@@ -50,7 +52,14 @@ class CardTrackingGps extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            Text('${context.t.gps_err16} $countdown s : $countdownLevel s'),
+            //Text('${context.t.gps_err16} $countdown s : $countdownLevel s'),
+            
+            Text('${context.t.gps_err16} $countdown s'),
+            const SizedBox(height: 8),
+            Text(
+              '${context.t.rep_day_mes02}: $ultimaPosizione',
+              style: TextStyle(fontSize: 13, color: Colors.blue),
+            ),
             if (!consensoTrackingGps) ...[
               const SizedBox(height: 6),
               Text(

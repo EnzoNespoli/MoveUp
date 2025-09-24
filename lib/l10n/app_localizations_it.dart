@@ -81,7 +81,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get condizioni_uso => 'Ho letto e accettato le ';
 
   @override
-  String get condizioni_uso2 => 'Condizioni d’uso';
+  String get condizioni_uso2 => 'Condizioni d\'uso';
 
   @override
   String get privacy_policy => 'e le ';
@@ -132,13 +132,13 @@ class AppLocalizationsIt extends AppLocalizations {
   String get user_err07 => 'Registrati';
 
   @override
-  String get gps_err01 => 'Tracking GPS disattivato: attivalo nelle impostazioni.';
+  String get gps_err01 => 'Tracciamento GPS disattivato: attivalo nelle impostazioni.';
 
   @override
   String get gps_err02 => 'Errore salvataggio posizione:';
 
   @override
-  String get gps_err03 => 'Tracking GPS disattivato: la posizione non viene registrata.';
+  String get gps_err03 => 'Tracciamento GPS disattivato: la posizione non viene registrata.';
 
   @override
   String get gps_err04 => 'Permesso posizione negato';
@@ -165,16 +165,16 @@ class AppLocalizationsIt extends AppLocalizations {
   String get gps_err11 => 'DEBUG API valore consenso GPS:';
 
   @override
-  String get gps_err12 => 'Tracciamento GPS:';
+  String get gps_err12 => 'Tracciamento GPS ';
 
   @override
-  String get gps_err13 => 'Devi attivare il consenso al tracking GPS nelle impostazioni';
+  String get gps_err13 => 'Devi attivare il consenso al tracciamento GPS nelle impostazioni';
 
   @override
-  String get gps_err14 => 'Tracking in ascolto';
+  String get gps_err14 => 'Tracciamento in ascolto';
 
   @override
-  String get gps_err15 => 'Tracking disattivato';
+  String get gps_err15 => 'Tracciamento disattivato';
 
   @override
   String get gps_err16 => 'Prossima rilevazione tra';
@@ -225,7 +225,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get info_mes06 => 'Passi stimati:';
 
   @override
-  String get info_mes07 => 'Riepilogo giornaliero';
+  String get info_mes07 => 'Capisci come ti muovi,\nmigliora ogni giorno';
 
   @override
   String get mov_inattivo => 'Inattivo o fermo';
@@ -321,7 +321,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get form_reg_consensi => 'Impostazioni e consensi';
 
   @override
-  String get form_reg_gps => 'Tracking GPS';
+  String get form_reg_gps => 'Tracciamento GPS';
 
   @override
   String get form_reg_err06 => 'Le password non coincidono';
@@ -426,7 +426,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get bottom_impostazioni => 'Impostazioni';
 
   @override
-  String get bottom_cronologia => 'Cronologia';
+  String get bottom_cronologia => 'Attività';
 
   @override
   String get bottom_profilo => 'Profilo';
@@ -498,10 +498,10 @@ class AppLocalizationsIt extends AppLocalizations {
   String get storico_14 => '⏳ Caricamento dati…';
 
   @override
-  String get form_crono_01 => 'Cronologia';
+  String get form_crono_01 => 'Attività';
 
   @override
-  String get form_crono_02 => 'Cronologia ultimi 7 giorni';
+  String get form_crono_02 => 'Riepilogo attività';
 
   @override
   String get form_crono_03 => 'Benvenuto, ';
@@ -526,6 +526,9 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get dashboard_piano => 'Piano:';
+
+  @override
+  String get dashboard_msg => 'Crea un account (gratis) per salvare i dati e sbloccare la condivisione.';
 
   @override
   String get imposta_page_studente => 'Studente';
@@ -567,7 +570,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get imposta_page_datac => 'Data consenso';
 
   @override
-  String get imposta_page_frequenza => 'Frequenza tracking (sec)';
+  String get imposta_page_frequenza => 'Frequenza tracciamento (sec)';
 
   @override
   String get imposta_page_piani => 'Piani abbonamento';
@@ -657,7 +660,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get card_percorso_5 => 'Nessun movimento in questa data';
 
   @override
-  String get feat_tracking_live => 'Tracking live';
+  String get feat_tracking_live => 'Tracciamento live';
 
   @override
   String get feat_report_basic => 'Report giornaliero (base)';
@@ -708,7 +711,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get feat_gps_upload_sec => 'Invio in batch (secondi)';
 
   @override
-  String get feat_gps_background => 'Tracking in background';
+  String get feat_gps_background => 'Tracciamento in background';
 
   @override
   String get gps_accuracy_mode => 'Modalità precisione';
@@ -837,4 +840,131 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get acquisto_piano_attivo => 'Piano attivato!';
+
+  @override
+  String get card_settimana => 'Settimana';
+
+  @override
+  String get card_gio_today => 'Adesso';
+
+  @override
+  String get card_gio_lunedi => 'Lunedi';
+
+  @override
+  String get card_gio_martedi => 'Martedi';
+
+  @override
+  String get card_gio_mercoledi => 'Mercoledi';
+
+  @override
+  String get card_gio_giovedi => 'Giovedi';
+
+  @override
+  String get card_gio_venerdi => 'Venerdi';
+
+  @override
+  String get card_gio_sabato => 'Sabato';
+
+  @override
+  String get card_gio_domenica => 'Domenica';
+
+  @override
+  String get today_title => 'Oggi';
+
+  @override
+  String get today_title_closed => 'Oggi — giornata conclusa';
+
+  @override
+  String get badge_partial => 'Dati parziali';
+
+  @override
+  String get kpi_active => 'Min attivi';
+
+  @override
+  String get kpi_km => 'Km';
+
+  @override
+  String get kpi_sedentary => 'Seduto';
+
+  @override
+  String get no_data_msg => 'Non abbiamo ancora dati per oggi.';
+
+  @override
+  String get check_location => 'Permessi posizione';
+
+  @override
+  String get check_battery => 'Risparmio batteria';
+
+  @override
+  String get check_gps => 'Stato GPS';
+
+  @override
+  String get insight_quality => 'Stiamo perdendo dati per il risparmio batteria. Tocca per sistemare.';
+
+  @override
+  String get insight_goal_hit => 'Obiettivo centrato 🎯 Ottimo lavoro!';
+
+  @override
+  String insight_goal_missing(Object v1) {
+    return 'Ti mancano $v1 min per l’obiettivo.';
+  }
+
+  @override
+  String insight_vs_yesterday(Object v2) {
+    return 'Oggi sei a $v2% rispetto a ieri.';
+  }
+
+  @override
+  String get fix_qualita_dati => 'Qualità dati';
+
+  @override
+  String get fix_message => 'Sistema questi punti per evitare perdite di dati.';
+
+  @override
+  String get fix_permessi => 'Permessi posizione (Sempre)';
+
+  @override
+  String get fix_permessi_sub => 'Concedi “Sempre” alla posizione';
+
+  @override
+  String get fix_gps_attivo => 'GPS attivo e Alta precisione';
+
+  @override
+  String get fix_gps_attivo_sub => 'Apri impostazioni Localizzazione';
+
+  @override
+  String get fix_auto_start => 'Autostart / Protezione app';
+
+  @override
+  String get fix_auto_ricontrolla => 'Ricontrolla';
+
+  @override
+  String get fix_battery => 'Disattiva risparmio batteria per MoveUP';
+
+  @override
+  String get fix_battery_sub => 'Consenti “Ignora ottimizzazione batteria”';
+
+  @override
+  String get fix_vendor_01 => 'MIUI: Sicurezza → Autorizzazioni → Avvio automatico + Risparmio batteria.';
+
+  @override
+  String get fix_vendor_02 => 'EMUI: Impostazioni → Batteria → Avvio app (consenti avvio & background).';
+
+  @override
+  String get fix_vendor_03 => 'ColorOS/Funtouch: Abilita Avvio automatico e rimuovi ottimizzazione aggressiva.';
+
+  @override
+  String get fix_vendor_04 => 'OnePlus: Batteria → Ottimizzazione batteria → MoveUP → Non ottimizzare.';
+
+  @override
+  String get fix_vendor_05 => 'Samsung: Cura dispositivo → Batteria → App in sospensione: rimuovi MoveUP.';
+
+  @override
+  String get fix_vendor_06 => 'Controlla Autostart e protezione app del produttore.';
+
+  @override
+  String get fix_messag_01 => 'Vai in Impostazioni → Privacy e sicurezza → Localizzazione → MoveUP\nimposta “Sempre” e attiva “Posizione precisa”.\nControlla anche Risparmio energia: potrebbe ridurre le attività in background.';
+
+  @override
+  String get fix_chiudi_button => 'Chiudi';
 }

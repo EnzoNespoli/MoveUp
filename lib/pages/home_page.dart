@@ -8,11 +8,15 @@ import 'card_mappaposizione.dart';
 import 'dashboard_header.dart';
 import 'card_trakinggps.dart';
 import 'card_reportgiornaliero.dart';
+import 'card_reportsettimanale.dart';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:io';
 import 'bottom_navigationbar.dart';
 import 'gps_log.dart';
+import 'auto_image_carousel.dart';
+import '../services/marketing_content.dart';
+import '../services/slide.dart';
 
 import '../services/gps_log_entry.dart';
 import '../services/app_header_bar.dart';
@@ -71,7 +75,6 @@ class _HomePageState extends State<HomePage> {
   ];
 
   List<List<Map<String, dynamic>>> sessioniLivelli = [[], [], []];
-
   Map<int, List<Map<String, dynamic>>> dettagliLivello = {};
   List<int> livelliInCaricamento = [];
 
@@ -89,6 +92,7 @@ class _HomePageState extends State<HomePage> {
   String appVersion = '';
 
   Map<int, List<dynamic>> datiLivelli = {0: [], 1: [], 2: []};
+  Map<int, List<dynamic>> datiLivelliSett = {0: [], 1: [], 2: []};
   bool loading = true;
 
   (List<OraStat>, List<Periodo>)? datiGiornalieri;
@@ -134,8 +138,7 @@ class _HomePageState extends State<HomePage> {
     _getToken();
 
     // Se hai già un token in RAM al boot:
-  GpsLogE.instance.setToken(_jwtToken);
-
+    GpsLogE.instance.setToken(_jwtToken);
   }
 
   //----------------------------------------------------------
@@ -291,17 +294,28 @@ class _HomePageState extends State<HomePage> {
     }
 
     try {
-      await _ottieniPosizione(); // carica la posizione la prima volta
+
       await caricaUtente(); // carica o crea utente
       await caricaLivelloUtente();
-      await ricalcolaEaggiornaAttivita();
-      await _caricaDatiGiornalieri();
-      await caricaTuttiLivelli();
-      await _maybeRecalc(force: true);
-      await aggiornaDataUltimoAccesso();
-      await callAppOpen();
-      _lastLat = _lastLon = null;
-      _initQueue();
+
+      //await ricalcolaEaggiornaAttivita('loadAll'); // ricalcola attività
+      //await _caricaDatiGiornalieri();
+      //await _ottieniPosizione(); // carica la posizione la prima volta
+      //await caricaTuttiLivelli();
+      //await _maybeRecalc(force: true);
+      //await aggiornaDataUltimoAccesso();
+      //await callAppOpen();
+
+      final futures = [
+  ricalcolaEaggiornaAttivita('loadAll'),
+  _caricaDatiGiornalieri(),
+  _ottieniPosizione(),
+  caricaTuttiLivelli(),
+  _maybeRecalc(force: true),
+  aggiornaDataUltimoAccesso(),
+  callAppOpen(),
+];
+await Future.wait(futures);
 
       _lastLat = _lastLon = null;
       _initQueue();
@@ -753,15 +767,15 @@ class _HomePageState extends State<HomePage> {
 
         // su errore:
         GpsLogE.instance.add(GpsLogEntryE(
-        ts: DateTime.now(),
-        status: GpsLogStatusE.error,
-        lat: pos.latitude,
-        lon: pos.longitude,
-        accM: precisione,
-        altM: altitudine,
-        msg: 'Accuracy filter failed: $precisione > $accMax',
-        errorCode: 'HTTP_500',
-        )); 
+          ts: DateTime.now(),
+          status: GpsLogStatusE.error,
+          lat: pos.latitude,
+          lon: pos.longitude,
+          accM: precisione,
+          altM: altitudine,
+          msg: 'Accuracy filter failed: $precisione > $accMax',
+          errorCode: 'HTTP_500',
+        ));
 
         setState(() => gpsErrore = context.t.gps_err06);
         return;
@@ -782,17 +796,17 @@ class _HomePageState extends State<HomePage> {
           );
 
           // su errore:
-        GpsLogE.instance.add(GpsLogEntryE(
-          ts: DateTime.now(),
-          status: GpsLogStatusE.error,
-           lat: pos.latitude,
-        lon: pos.longitude,
-        accM: precisione,
-        altM: altitudine,
-          msg: 'Minimum motion filter failed: $deltaM < $minMoveM',
-          errorCode: 'HTTP_500',
-        ));
-          
+          GpsLogE.instance.add(GpsLogEntryE(
+            ts: DateTime.now(),
+            status: GpsLogStatusE.error,
+            lat: pos.latitude,
+            lon: pos.longitude,
+            accM: precisione,
+            altM: altitudine,
+            msg: 'Minimum motion filter failed: $deltaM < $minMoveM',
+            errorCode: 'HTTP_500',
+          ));
+
           // troppo vicino all’ultimo punto utile: ignora silenziosamente
           return;
         }
@@ -926,13 +940,13 @@ class _HomePageState extends State<HomePage> {
   //-------------------------------------------------------------------------
   // Ricalcola e aggiorna le attività
   //-------------------------------------------------------------------------
-  Future<void> ricalcolaEaggiornaAttivita() async {
+  Future<void> ricalcolaEaggiornaAttivita(String txt) async {
     try {
       final res = await http.get(
         Uri.parse("$apiBaseUrl/ricalcola_attivita.php?utente_id=$utenteId"),
         headers: _jwtToken != null ? _authHeaders() : null,
       );
-
+      //debugPrint("ricalcolaEaggiornaAttivita $txt");
       final data = json.decode(res.body);
       if (data['success'] == true) {
         // 2. Solo se la ricalcolazione è andata a buon fine, aggiorna i livelli
@@ -1239,8 +1253,13 @@ class _HomePageState extends State<HomePage> {
                 countdown: countdown,
                 countdownLevel: countdownLevel,
                 onTrackingChanged: attivaTracking,
+                ultimaPosizione: ultimaPosizione,
               ),
               SizedBox(height: 20),
+              //---------------------------------------------
+              // CAROSELLO IMMAGINI inizio
+              //---------------------------------------------
+              const HeroCarousel(),
               //-------------------------------------------------
               // report inizio
               //---------------------------------------------------
@@ -1259,7 +1278,25 @@ class _HomePageState extends State<HomePage> {
               //-------------------------
               //report fine
               //-------------------
-
+              SizedBox(height: 20),
+              //-------------------------------------------------
+              // report settimanale inizio
+              //---------------------------------------------------
+              CardReportSettimanale(
+                riepilogo0: datiLivelliSett[0] ?? [],
+                riepilogo1: datiLivelliSett[1] ?? [],
+                riepilogo2: datiLivelliSett[2] ?? [],
+                ultimaPosizione: ultimaPosizione,
+                features: features, // object dall’API
+                historyDaysMax:
+                    limitsHistoryDaysMax, // min(history_days, retention)
+                isAnonymous: utenteTemporaneo, // bool
+                planName: livelloUtente, // "Free" | "Start" | "Basic"...
+                date: DateTime.now(),
+              ),
+              //-------------------------
+              //report fine
+              //-------------------
               //-------------------------
               //grafici
               //-------------------
@@ -2152,8 +2189,18 @@ class _HomePageState extends State<HomePage> {
 
     if (res.statusCode == 200) {
       final dettagli = json.decode(res.body)['totali'];
+
+        final body = json.decode(res.body);
+        final List totali = (body['totali'] as List? ?? []);
+        totali.sort((a, b) => a['data'].toString().compareTo(b['data'].toString())); // lun→dom
+
       setState(() {
         datiLivelli[livello] = dettagli is List ? dettagli : [];
+        //datiLivelliSett[livello] = json.decode(res.body)['dettagli'] ?? [];
+        datiLivelliSett[livello] = totali; // <-- la card settimanale userà questo
+        
+
+
       });
     } else if (res.statusCode == 401) {
       await _storage.delete(key: 'jwt_token');
@@ -2169,6 +2216,7 @@ class _HomePageState extends State<HomePage> {
     } else {
       setState(() {
         datiLivelli[livello] = [];
+        datiLivelliSett[livello] = [];
       });
     }
   }
@@ -2177,6 +2225,7 @@ class _HomePageState extends State<HomePage> {
   // riempie se nessun dato
   //-----------------------------------------------------------------
   List<int> datiSettimanali(List<dynamic>? lista) {
+    //debugPrint("datiSettimanali: lista=$lista");
     // 1. Calcola le 7 date (da oggi a oggi-6) in formato 'YYYY-MM-DD'
     final oggi = DateTime.now();
     final giorni = List.generate(7, (i) {
@@ -2850,7 +2899,8 @@ class _HomePageState extends State<HomePage> {
         _lastRecalcAt == null ||
         now.difference(_lastRecalcAt!).inSeconds >= gpsuploadsec) {
       try {
-        await ricalcolaEaggiornaAttivita(); // <-- la tua funzione
+        debugPrint('Ricalcolo attività...$now');
+        await ricalcolaEaggiornaAttivita('maybeRecalc'); // <-- la tua funzione
         _lastRecalcAt = now;
       } catch (_) {
         // opzionale: log/banner
@@ -3107,6 +3157,11 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+
+
+
+
+
   // ----------------------------------------------
   // fine classe
   // ---------------------------------------------
@@ -3183,4 +3238,68 @@ class _LegendDot extends StatelessWidget {
           Text(label),
         ],
       );
+}
+
+//--------------------------------------------------------------
+// HERO CAROUSEL — mettilo in un file o sopra alla tua pagina
+//--------------------------------------------------------------
+class HeroCarousel extends StatefulWidget {
+  const HeroCarousel({super.key});
+
+  @override
+  State<HeroCarousel> createState() => _HeroCarouselState();
+}
+
+class _HeroCarouselState extends State<HeroCarousel>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  Future<List<Slide>>? _future;
+  String? _loadedLang;
+  List<String>? _imgs, _txts;
+
+  String _bestLang() {
+    final code = Localizations.maybeLocaleOf(context)?.languageCode?.toLowerCase() ?? 'en';
+    const supported = {'it','en','es','fr','de'};
+    return supported.contains(code) ? code : 'en';
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final lang = _bestLang();
+    if (_future == null || _loadedLang != lang) {
+      _loadedLang = lang;
+      _future = loadSlides(lang);   // usa la tua funzione
+      _imgs = null;                 // reset cache quando cambia lingua
+      _txts = null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context); // keepAlive
+    return FutureBuilder<List<Slide>>(
+      future: _future,
+      builder: (context, snap) {
+        if (snap.connectionState != ConnectionState.done) {
+          return const SizedBox(height: 220);
+        }
+        final slides = snap.data ?? const [];
+        if (slides.isEmpty) return const SizedBox.shrink();
+
+        _imgs ??= slides.map((s) => s.image).toList(growable: false);
+        _txts ??= slides.map((s) => s.title).toList(growable: false);
+
+        return RepaintBoundary(
+          child: AutoImageCarousel(
+            immagini: _imgs!,   // liste stabili → niente flicker
+            testi: _txts!,
+            altezza: 220,
+          ),
+        );
+      },
+    );
+  }
 }

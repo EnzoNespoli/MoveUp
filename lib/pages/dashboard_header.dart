@@ -79,15 +79,22 @@ class DashboardHeader extends StatelessWidget {
         ),
         SizedBox(height: 12),
         Row(
-          children: [
-            Icon(Icons.calendar_today, size: 20, color: Colors.blue[400]),
-            SizedBox(width: 8),
-            Text(
-              context.t.info_mes07,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
+  children: [
+    Icon(Icons.directions_walk, size: 22, color: Colors.blue[500]),
+    SizedBox(width: 2),
+    Icon(Icons.trending_up, size: 18, color: Colors.blue[300]),
+    SizedBox(width: 8),
+    Expanded(
+      child: Text(
+        context.t.info_mes07,
+        maxLines: 2,              // va a capo al bisogno
+        softWrap: true,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Colors.orange[700]),
+      ),
+    ),
+  ],
+),
         SizedBox(height: 8),
         Row(
           children: [
@@ -129,6 +136,21 @@ class DashboardHeader extends StatelessWidget {
             ),
           ],
         ),
+
+if (livelloUtente == 'Free') // Mostra solo per utente anonimo
+          Padding(
+            padding: const EdgeInsets.only(top: 8, left: 30),
+            child: Text(
+              context.t.dashboard_msg,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.orange[700],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        SizedBox(height: 8),
+
         Row(
           children: [
             Icon(Icons.workspace_premium, color: Colors.amber[700]),

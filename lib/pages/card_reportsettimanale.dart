@@ -7,11 +7,12 @@ import 'package:share_plus/share_plus.dart';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
+import 'package:intl/intl.dart';
 
-class CardReportGiornaliero extends StatelessWidget {
-  final Map<String, dynamic> riepilogo0;
-  final Map<String, dynamic> riepilogo1;
-  final Map<String, dynamic> riepilogo2;
+class CardReportSettimanale extends StatelessWidget {
+  final List<dynamic> riepilogo0;
+  final List<dynamic> riepilogo1;
+  final List<dynamic> riepilogo2;
   final String ultimaPosizione;
   final Map<String, dynamic> features; // dall’API /utenti_livello
   final int
@@ -20,7 +21,7 @@ class CardReportGiornaliero extends StatelessWidget {
   final String planName; // livello.nome (es. "Free"/"Plus")
   final DateTime date; // data mostrata (oggi)
 
-  CardReportGiornaliero({
+  CardReportSettimanale({
     Key? key,
     required this.riepilogo0,
     required this.riepilogo1,
@@ -83,7 +84,7 @@ class CardReportGiornaliero extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      context.t.rep_day_mes01,
+                      context.t.form_crono_04,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -102,6 +103,7 @@ class CardReportGiornaliero extends StatelessWidget {
                       foregroundColor: Colors.white,
                     ),
                   ),
+                  const SizedBox(width: 8),
 
                   // ---- Menu AVANZATO (CSV/GPX) ----
                   if (advancedEnabled)
@@ -138,10 +140,9 @@ class CardReportGiornaliero extends StatelessWidget {
                     ),
                 ],
               ),
-              const SizedBox(height: 8),
 
               Text(
-                _giornoBreve(context, date),
+                _settimanaBreve(context, date),
                 style: const TextStyle(fontSize: 13, color: Colors.black),
               ),
 
@@ -155,7 +156,7 @@ class CardReportGiornaliero extends StatelessWidget {
     children: [
       TextSpan(text: '🛌 ${context.t.mov_inattivo} '),
       TextSpan(
-        text: formattaMinuti(riepilogo0['durata']),
+        text: '${totaliLivello(riepilogo0, 0)['durata']}',
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
     ],
@@ -167,11 +168,11 @@ RichText(
     children: [
       TextSpan(text: '🚶 ${context.t.mov_leggero} '),
       TextSpan(
-        text: formattaMinuti(riepilogo1['durata']),
+        text: '${totaliLivello(riepilogo1, 1)['durata']}',
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
-      TextSpan(text: '  ${context.t.um_metri} ${riepilogo1['metri']}  '),
-      TextSpan(text: '${context.t.um_passi} ${riepilogo1['passi']}'),
+      TextSpan(text: '  ${context.t.um_metri} ${totaliLivello(riepilogo1, 1)['metri']}  '),
+      TextSpan(text: '${context.t.um_passi} ${totaliLivello(riepilogo1, 1)['passi']}'),
     ],
   ),
 ),
@@ -181,13 +182,14 @@ RichText(
     children: [
       TextSpan(text: '🚗 ${context.t.mov_veloce} '),
       TextSpan(
-        text: formattaMinuti(riepilogo2['durata']),
+        text: '${totaliLivello(riepilogo2, 2)['durata']}',
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
-      TextSpan(text: '  ${context.t.um_km} ${riepilogo2['km'].toStringAsFixed(2)}'),
+      TextSpan(text: '  ${context.t.um_km} ${totaliLivello(riepilogo2, 2)['km'].toStringAsFixed(2)}'),
     ],
   ),
-),              const SizedBox(height: 8),
+),
+              const SizedBox(height: 8),
               const Divider(),
 
               // Messaggio export come prima (resta per CSV/GPX)
@@ -211,9 +213,9 @@ RichText(
                   child: _ShareCardPoster(
                     titolo: context.t.rep_day_mes01,
                     data: date,
-                    r0: riepilogo0,
-                    r1: riepilogo1,
-                    r2: riepilogo2,
+                    r0: totaliLivello(riepilogo0, 0),
+                    r1: totaliLivello(riepilogo1, 1),
+                    r2: totaliLivello(riepilogo2, 2),
                     ultimaPosizione: ultimaPosizione,
                   ),
                 ),
@@ -226,30 +228,47 @@ RichText(
   }
 
   //----------------------------------------------------------------
-  // Restituisce una stringa breve per il giorno (es. "lun 5")
+  // Restituisce una stringa per il period di una settimana 
   //----------------------------------------------------------------
-  String _giornoBreve(BuildContext context, DateTime d) {
-    final giorni = [
-      context.t.card_gio_lunedi,
-      context.t.card_gio_martedi,
-      context.t.card_gio_mercoledi,
-      context.t.card_gio_giovedi,
-      context.t.card_gio_venerdi,
-      context.t.card_gio_sabato,
-      context.t.card_gio_domenica,
-    ];
+  String _settimanaBreve(BuildContext context, DateTime d) {
+    final primoGiorno = d.subtract(const Duration(days: 6));
+    final ultimoGiorno = d;
+    String format(DateTime dt) =>
+        '${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}';
+    return '${context.t.card_settimana} • ${format(primoGiorno)} • ${format(ultimoGiorno)}';
+  }
 
-    return '${context.t.card_gio_today} • ${giorni[d.weekday - 1]} ${d.day}';
+//----------------------------------------------------------------
+  // Calcola i totali per un livello specifico
+  //----------------------------------------------------------------
+  Map<String, dynamic> totaliLivello(List<dynamic> sessioni, int livello) {
+    int durataTot = 0;
+    double metriTot = 0;
+    for (final s in sessioni) {
+      durataTot += (s['durata_sec'] ?? 0) as int;
+      final dynamic distanza = s['distanza_metri'];
+      if (distanza != null) {
+        if (distanza is num) {
+          metriTot += distanza.toDouble();
+        } else if (distanza is String) {
+          metriTot += double.tryParse(distanza) ?? 0.0;
+        }
+      }
+    }
+    return {
+      'durata': formattaMinuti((durataTot / 60).round()),
+      'metri': fmtDistanzaM(metriTot),
+      'km': (metriTot / 1000),
+      'passi': livello == 1 ? (metriTot / 0.7).round() : null,
+    };
   }
 
   //----------------------------------------------------------------
   // Formatta i minuti in ore e minuti
   //----------------------------------------------------------------
-  String formattaMinuti(dynamic minuti) {
-    final intMinuti =
-        minuti is int ? minuti : int.tryParse(minuti?.toString() ?? '') ?? 0;
-    final ore = intMinuti ~/ 60;
-    final restantiMin = intMinuti % 60;
+  String formattaMinuti(int minuti) {
+    final ore = minuti ~/ 60;
+    final restantiMin = minuti % 60;
     return ore > 0 ? '${ore}h ${restantiMin}min' : '${restantiMin}min';
   }
 
@@ -334,12 +353,13 @@ RichText(
   // ========== Export CSV (come prima) ==========
   Future<void> _esportaCsv(BuildContext context) async {
     final csv = StringBuffer();
+    final r0 = totaliLivello(riepilogo0, 0);
+    final r1 = totaliLivello(riepilogo1, 1);
+    final r2 = totaliLivello(riepilogo2, 2);
     csv.writeln('Tipo,Durata,Metri,Passi,KM');
-    csv.writeln('Inattivo,${riepilogo0['durata']},,,');
-    csv.writeln(
-        'Leggero,${riepilogo1['durata']},${riepilogo1['metri']},${riepilogo1['passi']},');
-    csv.writeln(
-        'Veloce,${riepilogo2['durata']},,,${riepilogo2['km'].toStringAsFixed(2)}');
+    csv.writeln('Inattivo,${r0['durata']},,,');
+    csv.writeln('Leggero,${r1['durata']},${r1['metri']},${r1['passi']},');
+    csv.writeln('Veloce,${r2['durata']},,,${r2['km'].toStringAsFixed(2)}');
 
     final dir = await getTemporaryDirectory();
     final file = File('${dir.path}/report_${date.toIso8601String()}.csv');
@@ -443,4 +463,13 @@ class _ShareCardPoster extends StatelessWidget {
       ),
     );
   }
+}
+
+
+final _nfIt = NumberFormat("#,##0.##", "it_IT");        // 0 → "0", 2.6 → "2,6", 77.82 → "77,82"
+String fmtNum(num x, {int? fixed}) =>
+    fixed != null ? _nfIt.format(num.parse(x.toStringAsFixed(fixed))) : _nfIt.format(x);
+
+String fmtDistanzaM(num metri) {
+  return fmtNum(metri, fixed: 1);
 }

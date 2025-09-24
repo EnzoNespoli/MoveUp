@@ -12,6 +12,8 @@
 <!-- (Opzionale) se usi un servizio in foreground per il tracking continuo -->
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+<!-- Prompt per escludere l’app dall’ottimizzazione batteria -->
+<uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
 <!-- Facoltativo, ma utile -->
 <uses-feature android:name="android.hardware.location.gps" android:required="false"/>
 

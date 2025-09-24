@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../services/app_header_bar.dart';
+import '../services/app_header.dart';
 import '../services/app_footer.dart';
 import '../db.dart'; // Importa la costante globale
 import 'acquista_piano_page.dart';
@@ -146,7 +146,7 @@ class _AbbonamentiPageState extends State<AbbonamentiPage> {
     final isSmall = MediaQuery.of(context).size.width < 380;
 
     return Scaffold(
-      appBar: const AppHeaderBar(showBack: true),
+      appBar: const AppHeader(showBack: true),
       body: loading
           ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(

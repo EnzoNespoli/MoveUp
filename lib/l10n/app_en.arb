@@ -60,7 +60,7 @@
   "gps_err09": "Error saving location:",
   "gps_err10": "DEBUG API read consents:",
   "gps_err11": "DEBUG API GPS consent value:",
-  "gps_err12": "GPS Tracking:",
+  "gps_err12": "GPS Tracking ",
   "gps_err13": "You must enable GPS tracking consent in settings.",
   "gps_err14": "Tracking active",
   "gps_err15": "Tracking disabled",
@@ -82,7 +82,7 @@
   "info_mes04": "Distance:",
   "info_mes05": "Source:",
   "info_mes06": "Estimated steps:",
-  "info_mes07": "Daily summary",
+  "info_mes07": "Understand how you move,\nimprove every day.",
 
   "mov_inattivo": "Inactive or stationary",
   "mov_leggero": "Light movement",
@@ -157,7 +157,7 @@
   "payment_mes4": "days left",
   
   "bottom_impostazioni": "Settings",
-  "bottom_cronologia": "History",
+  "bottom_cronologia": "Activity",
   "bottom_profilo": "Profile",
   "bottom_abbonamenti": "Subscriptions",
   "bottom_err01": "Function available only for registered users!",
@@ -185,8 +185,8 @@
     "storico_13": "You can change or withdraw consent at any time. Without consent to tracking we do not record locations.",
   "storico_14": "⏳ Loading data…",
    
-  "form_crono_01": "History",
-  "form_crono_02": "History of last 7 days",
+  "form_crono_01": "Activity",
+  "form_crono_02": "Activity Summary",
   "form_crono_03": "Welcome, ",
   "form_crono_04": "Totals for last 7 days",
   "form_crono_05": "No sessions recorded",
@@ -196,6 +196,7 @@
   "form_crono_09": "Details for level",
   
   "dashboard_piano": "Plan:",
+  "dashboard_msg": "Create a (free) account to save your data and unlock sharing.",
 
   "imposta_page_studente": "Student",
   "imposta_page_impiegato": "Employee",
@@ -258,6 +259,7 @@
   "feat_priority_support": "Priority support",
   "feat_no_ads": "No ads",
   "feat_history_days": "Viewable history",
+  
   "days": "days",
   "feat_gps": "Plan GPS parameters",
   "feat_gps_sample_sec": "Sampling (seconds)",
@@ -274,6 +276,7 @@
   "accuracy_best": "Best",
   "unit_seconds": "seconds",
   "unit_meters": "meters",
+
   "gps_next_fix": "Next fix in {s}s",
 
   "escl_prog_01": "Scheduled exclusions",
@@ -309,7 +312,55 @@
     "acquisto_piano_pagamento": "Proceed to payment",
     "acquisto_piano_stripe": "You will be redirected to Stripe...",
     "acquisto_piano_nopaga": "Payment not started:",
-    "acquisto_piano_attivo": "Plan activated!"
+    "acquisto_piano_attivo": "Plan activated!",
+
+    "card_settimana": "Week",
+    "card_gio_today": "Now",
+"card_gio_lunedi": "Monday",
+"card_gio_martedi": "Tuesday",
+"card_gio_mercoledi": "Wednesday",
+"card_gio_giovedi": "Thursday",
+"card_gio_venerdi": "Friday",
+"card_gio_sabato": "Saturday",
+"card_gio_domenica": "Sunday",
+
+"today_title": "Today",
+    "today_title_closed": "Today — day finished",
+    "badge_partial": "Partial data",
+    "kpi_active": "Active min",
+    "kpi_km": "Km",
+    "kpi_sedentary": "Sitting",
+    "no_data_msg": "We don’t have any data for today yet.",
+    "check_location": "Location permissions",
+    "check_battery": "Battery saver",
+    "check_gps": "GPS status",
+    "insight_quality": "We’re missing data due to battery saver. Tap to fix.",
+    "insight_goal_hit": "Goal reached 🎯 Great job!",
+    "insight_goal_missing": "You’re {v1} min away from your goal.",
+    "insight_vs_yesterday": "Today you’re at {v2}% vs yesterday.",
+
+    "fix_qualita_dati": "Data quality",
+  "fix_message": "Fix these points to avoid data loss.",
+  "fix_permessi": "Location permissions (Always)",
+  "fix_permessi_sub": "Grant “Always” location access",
+  "fix_gps_attivo": "GPS on and High accuracy",
+  "fix_gps_attivo_sub": "Open Location settings",
+  "fix_auto_start": "Autostart / App protection",
+  "fix_auto_ricontrolla": "Re-check",
+  "fix_battery": "Disable battery optimization for MoveUP",
+  "fix_battery_sub": "Allow “Ignore battery optimization”",
+
+  "fix_vendor_01": "MIUI: Security → Permissions → Auto-start + Battery saver.",
+  "fix_vendor_02": "EMUI: Settings → Battery → App launch (allow auto-launch & background).",
+  "fix_vendor_03": "ColorOS/Funtouch: Enable Auto-start and remove aggressive optimization.",
+  "fix_vendor_04": "OnePlus: Battery → Battery optimization → MoveUP → Don’t optimize.",
+  "fix_vendor_05": "Samsung: Device care → Battery → Sleeping apps: remove MoveUP.",
+  "fix_vendor_06": "Check the manufacturer’s Autostart and app protection.",
+
+  "fix_messag_01": "Go to Settings → Privacy & security → Location → MoveUP\nset “Always” and enable “Precise location”.\nAlso check Power saving: it may limit background activity.",
+  "fix_chiudi_button": "Close"
+
+
 
 
     

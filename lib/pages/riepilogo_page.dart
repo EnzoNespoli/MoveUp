@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../services/app_header_bar.dart';
+import '../services/app_header.dart';
 
 class RiepilogoPage extends StatelessWidget {
   final String utenteId;
@@ -19,7 +19,7 @@ class RiepilogoPage extends StatelessWidget {
     // Esempio: mostra un grafico a barre per il livello 1 (Movimento Leggero)
     final dati = datiLivelli[1] ?? [];
     return Scaffold(
-      appBar: const AppHeaderBar(showBack: true),
+      appBar: const AppHeader(showBack: true),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: BarChart(

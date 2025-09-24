@@ -60,7 +60,7 @@
   "gps_err09": "Error al guardar ubicación:",
   "gps_err10": "DEBUG API leer consentimientos:",
   "gps_err11": "DEBUG API valor consentimiento GPS:",
-  "gps_err12": "Seguimiento GPS:",
+  "gps_err12": "Seguimiento GPS ",
   "gps_err13": "Debes activar el consentimiento de seguimiento GPS en la configuración",
   "gps_err14": "Seguimiento en escucha",
   "gps_err15": "Seguimiento desactivado",
@@ -82,7 +82,7 @@
   "info_mes04": "Distancia:",
   "info_mes05": "Fuente:",
   "info_mes06": "Pasos estimados:",
-  "info_mes07": "Resumen diario",
+  "info_mes07": "Entiende cómo te mueves,\nmejora cada día",
 
   "mov_inattivo": "Inactivo o parado",
   "mov_leggero": "Movimiento ligero",
@@ -97,7 +97,6 @@
 "chart_mes07": "Mi informe MoveUP de hoy",
 "cahrt_mes08": "Error al compartir:",
 "chart_mes09": "Informe MoveUP de hoy",
-  
   
   "um_metri": "Metros:",
   "um_passi": "Pasos:",
@@ -158,7 +157,7 @@
   "payment_mes4": "días rest.",
   
   "bottom_impostazioni": "Configuración",
-  "bottom_cronologia": "Historial",
+  "bottom_cronologia": "Actividad",
   "bottom_profilo": "Perfil",
   "bottom_abbonamenti": "Suscripciones",
   "bottom_err01": "¡Función disponible solo para usuarios registrados!",
@@ -186,8 +185,8 @@
     "storico_13": "Puedes cambiar o retirar tu consentimiento en cualquier momento. Sin consentimiento para el seguimiento no registramos posiciones.",
   "storico_14": "⏳ Cargando datos…",
   
-  "form_crono_01": "Historial",
-  "form_crono_02": "Historial últimos 7 días",
+  "form_crono_01": "Actividad",
+  "form_crono_02": "Resumen de actividad",
   "form_crono_03": "Bienvenido, ",
   "form_crono_04": "Totales últimos 7 días",
   "form_crono_05": "Ninguna sesión registrada",
@@ -197,6 +196,7 @@
   "form_crono_09": "Detalles para el Nivel",
   
   "dashboard_piano": "Plan:",
+  "dashboard_msg": "Crea una cuenta (gratuita) para guardar tus datos y desbloquear la función de compartir.",
 
   "imposta_page_studente": "Estudiante",
   "imposta_page_impiegato": "Empleado",
@@ -259,6 +259,7 @@
   "feat_priority_support": "Supporto prioritario",
   "feat_no_ads": "Senza banner pubblicitari",
   "feat_history_days": "Storico consultabile",
+  
   "days": "giorni",
   "feat_gps": "Parámetros GPS del plan",
   "feat_gps_sample_sec": "Muestreo (segundos)",
@@ -275,6 +276,7 @@
   "accuracy_best": "Máxima",
   "unit_seconds": "segundos",
   "unit_meters": "metros",
+
   "gps_next_fix": "Próxima lectura en {s}s",
 
   "escl_prog_01": "Exclusiones programadas",
@@ -310,7 +312,55 @@
     "acquisto_piano_pagamento": "Proceder al pago",
     "acquisto_piano_stripe": "Serás redirigido a Stripe...",
     "acquisto_piano_nopaga": "Pago no iniciado:",
-    "acquisto_piano_attivo": "¡Plan activado!"
+    "acquisto_piano_attivo": "¡Plan activado!",
+
+    "card_settimana": "Semana",
+    "card_gio_today": "Ahora",
+"card_gio_lunedi": "Lunes",
+"card_gio_martedi": "Martes",
+"card_gio_mercoledi": "Miércoles",
+"card_gio_giovedi": "Jueves",
+"card_gio_venerdi": "Viernes",
+"card_gio_sabato": "Sábado",
+"card_gio_domenica": "Domingo",
+
+"today_title": "Hoy",
+    "today_title_closed": "Hoy — jornada terminada",
+    "badge_partial": "Datos parciales",
+    "kpi_active": "Min activos",
+    "kpi_km": "Km",
+    "kpi_sedentary": "Sedentario",
+    "no_data_msg": "Aún no tenemos datos para hoy.",
+    "check_location": "Permisos de ubicación",
+    "check_battery": "Ahorro de batería",
+    "check_gps": "Estado del GPS",
+    "insight_quality": "Estamos perdiendo datos por el ahorro de batería. Toca para corregirlo.",
+    "insight_goal_hit": "¡Objetivo logrado 🎯! ¡Buen trabajo!",
+    "insight_goal_missing": "Te faltan {v1} min para el objetivo.",
+    "insight_vs_yesterday": "Hoy estás al {v2}% respecto a ayer.",
+
+    "fix_qualita_dati": "Calidad de datos",
+  "fix_message": "Corrige estos puntos para evitar pérdida de datos.",
+  "fix_permessi": "Permisos de ubicación (Siempre)",
+  "fix_permessi_sub": "Concede acceso de ubicación “Siempre”",
+  "fix_gps_attivo": "GPS activo y Alta precisión",
+  "fix_gps_attivo_sub": "Abrir ajustes de Ubicación",
+  "fix_auto_start": "Inicio automático / Protección de apps",
+  "fix_auto_ricontrolla": "Volver a comprobar",
+  "fix_battery": "Desactiva el ahorro de batería para MoveUP",
+  "fix_battery_sub": "Permitir “Ignorar optimización de batería”",
+
+  "fix_vendor_01": "MIUI: Seguridad → Permisos → Inicio automático + Ahorro de batería.",
+  "fix_vendor_02": "EMUI: Ajustes → Batería → Inicio de apps (permitir inicio y ejecución en segundo plano).",
+  "fix_vendor_03": "ColorOS/Funtouch: Habilita Inicio automático y quita la optimización agresiva.",
+  "fix_vendor_04": "OnePlus: Batería → Optimización de batería → MoveUP → No optimizar.",
+  "fix_vendor_05": "Samsung: Cuidado del dispositivo → Batería → Apps en suspensión: elimina MoveUP.",
+  "fix_vendor_06": "Revisa el Inicio automático y la protección de apps del fabricante.",
+
+  "fix_messag_01": "Ve a Ajustes → Privacidad y seguridad → Ubicación → MoveUP\nestablece “Siempre” y activa “Ubicación precisa”.\nRevisa también Ahorro de energía: podría limitar la actividad en segundo plano.",
+  "fix_chiudi_button": "Cerrar"
+
+
 
 
 }
