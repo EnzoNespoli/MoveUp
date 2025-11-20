@@ -1,15 +1,28 @@
 import 'pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'l10n/app_localizations.dart';
-import 'services/locale_controller.dart'; // <-- usa davvero il controller
+import 'services/locale_controller.dart';
+import 'package:provider/provider.dart';
+import 'services/purchase_service.dart';
+import 'theme.dart'; // buildThemeStandardWhite / buildThemePastelGreen / buildThemeDarkPink
 
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<ScaffoldMessengerState> rootMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await LocaleController.instance.load(); // carica mode + eventuale lingua salvata
-  runApp(const MoveApp());
+  await LocaleController.instance.load(); // lingua + tema custom
+  runApp(
+    MultiProvider(
+      providers: [
+        Provider<PurchaseService>(
+          create: (_) => PurchaseService()..init(),
+          dispose: (_, s) => s.dispose(),
+        ),
+      ],
+      child: const MoveApp(),
+    ),
+  );
 }
 
 class MoveApp extends StatefulWidget {
@@ -19,38 +32,57 @@ class MoveApp extends StatefulWidget {
 }
 
 class _MoveAppState extends State<MoveApp> {
-  final lc = LocaleController.instance; // singleton, notifyListeners() → rebuild
+  final lc = LocaleController.instance; // singleton
 
   @override
   void initState() {
     super.initState();
-    lc.addListener(_onLocaleChange);
+    lc.addListener(_onControllerChange);
   }
 
   @override
   void dispose() {
-    lc.removeListener(_onLocaleChange);
+    lc.removeListener(_onControllerChange);
     super.dispose();
   }
 
-  void _onLocaleChange() => setState(() {}); // ricostruisce MaterialApp quando cambia lingua
+  void _onControllerChange() => setState(() {});
 
   @override
   Widget build(BuildContext context) {
+    // Mappa la tua scelta custom ai temi effettivi
+    final ThemeMode mode;
+    final ThemeData lightTheme;
+    final ThemeData darkTheme = buildThemePastelPink(); //  ROSA
+
+    switch (lc.appTheme) {
+      case AppTheme.systemWhite:
+        // System = bianco standard (sempre light)
+        mode = ThemeMode.light;
+        lightTheme = buildThemeStandardWhite();
+        break;
+      case AppTheme.lightPastelGreen:
+        // Light = verde pastello (sempre light)
+        mode = ThemeMode.light;
+        lightTheme = buildThemePastelGreen();
+        break;
+      case AppTheme.darkPink:
+        // “dark” = rosa pastello (ma è un tema chiaro) → forziamo light
+        mode = ThemeMode.light;
+        // il lightTheme qui è irrilevante, ma MaterialApp lo richiede comunque
+        lightTheme = buildThemePastelPink();
+        break;
+    }
+
     return MaterialApp(
       navigatorKey: appNavigatorKey,
       scaffoldMessengerKey: rootMessengerKey,
       title: 'MoveUP',
 
-      // 🔤 Punto chiave:
-      // - se lc.mode == system → locale = null → segue la lingua del telefono
-      // - se manuale → usa lc.locale
+      // Lingua
       locale: lc.locale,
-
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-
-      // Se la lingua di sistema non è tra le supported, cade sulla prima (es. it)
       localeResolutionCallback: (device, supported) {
         if (lc.locale != null) return lc.locale;
         if (device != null && supported.any((l) => l.languageCode == device.languageCode)) {
@@ -60,17 +92,13 @@ class _MoveAppState extends State<MoveApp> {
       },
 
       debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.light,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1565C0), brightness: Brightness.light),
-      ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1565C0), brightness: Brightness.dark),
-      ),
 
-      // Passa le azioni al resto dell’app, ma fai chiamare il controller
+      // Tema: applica mapping custom
+      themeMode: mode,
+      theme: lightTheme,
+      darkTheme: darkTheme,
+
+      // Home + callback lingua
       home: HomePage(
         onChangeLocale: (Locale? l) {
           if (l == null) {

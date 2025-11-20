@@ -66,13 +66,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get durata_abbonamento => 'Subscription duration:';
 
   @override
-  String get onb1 => 'Track and organize your movements in one place.';
+  String get onb1 => 'What does MoveUP do?';
 
   @override
-  String get onb2 => 'See where your time goes: home, work, commutes.';
+  String get onb1_body => 'MoveUP shows how much of your time you’re still, moving slowly, or moving fast.\nYou’ll be surprised!';
 
   @override
-  String get onb3 => 'Automatic reports and trends: improve with data.';
+  String get onb2 => 'How it works';
+
+  @override
+  String get onb2_body => '• Start tracking\n• Move for 10 minutes\n• Open the evening summary\n• Share it with whoever you want';
+
+  @override
+  String get onb3 => 'Ready to start?';
+
+  @override
+  String get onb3_body => 'Accept the terms and enable tracking.\nRegister for FREE.\nKeep your week under control.';
 
   @override
   String get botton_salta => 'Skip';
@@ -84,13 +93,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get condizioni_uso2 => 'Terms of Use';
 
   @override
-  String get privacy_policy => 'and the ';
+  String get privacy_policy => ' and the ';
 
   @override
   String get privacy_policy2 => 'Privacy Policy';
 
   @override
-  String get botton_prosegui => 'Continue';
+  String get botton_prosegui => 'Start tracking now';
 
   @override
   String get botton_indietro => 'Back';
@@ -130,6 +139,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get user_err07 => 'Register';
+
+  @override
+  String get user_login_success => 'Login successful!';
 
   @override
   String get gps_err01 => 'GPS tracking disabled: enable it in settings.';
@@ -174,7 +186,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gps_err14 => 'Tracking active';
 
   @override
-  String get gps_err15 => 'Tracking disabled';
+  String get gps_err15 => 'Tracking off';
 
   @override
   String get gps_err16 => 'Next detection in';
@@ -190,6 +202,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gps_err20 => 'No events recorded yet.';
+
+  @override
+  String get gps_err21 => 'Paused';
+
+  @override
+  String get gps_err22 => 'Listening';
+
+  @override
+  String get gps_err23 => 'Start tracking';
+
+  @override
+  String get gps_err24 => 'Resume tracking';
+
+  @override
+  String get gps_err25 => 'Pause tracking';
+
+  @override
+  String get gps_err26 => 'Resume tracking';
 
   @override
   String get att_err01 => 'Activity recalculation error:';
@@ -225,13 +255,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get info_mes06 => 'Estimated steps:';
 
   @override
-  String get info_mes07 => 'Understand how you move,\nimprove every day.';
+  String get info_mes07 => 'Understand how you move';
 
   @override
-  String get mov_inattivo => 'Inactive or stationary';
+  String get info_mes08 => 'Discover how you use your time';
 
   @override
-  String get mov_leggero => 'Light movement';
+  String get mov_inattivo => 'Pause / Stopped';
+
+  @override
+  String get mov_leggero => 'Slow movement';
 
   @override
   String get mov_veloce => 'Fast movement';
@@ -262,6 +295,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chart_mes09 => 'MoveUP Report for today';
+
+  @override
+  String get chart_mes10 => 'Levels timeline (by lanes)';
 
   @override
   String get um_metri => 'Meters:';
@@ -435,6 +471,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bottom_abbonamenti => 'Subscriptions';
 
   @override
+  String get bottom_dashboard => 'Home';
+
+  @override
+  String get bottom_impostazioni_short => 'Set.';
+
+  @override
+  String get bottom_cronologia_short => 'Act.';
+
+  @override
+  String get bottom_profilo_short => 'Prof.';
+
+  @override
+  String get bottom_abbonamenti_short => 'Sub.';
+
+  @override
   String get bottom_err01 => 'Function available only for registered users!';
 
   @override
@@ -462,7 +513,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storico_02 => 'Free (Anonymous)';
 
   @override
-  String get storico_03 => 'Use the app without signing up. History only for the current day.\nFeatures: live tracking and daily summary.';
+  String get storico_03 => 'Use the app without signing up.\nYour location can also be collected in the background to calculate, in real time, distance traveled, time in movement and pause moments.\nData stays only on your device, is valid for the current day, and is deleted automatically every day.\nFeatures: live tracking and daily summary.';
 
   @override
   String get storico_04 => 'Start (Registered)';
@@ -492,7 +543,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storico_12 => 'Privacy note:';
 
   @override
-  String get storico_13 => 'You can change or withdraw consent at any time. Without consent to tracking we do not record locations.';
+  String get storico_13 => 'The app may collect your location in the background to calculate your trips, distance traveled and time in movement.\nYou can change or withdraw consent at any time.\nWithout tracking consent we do not store locations.\nIf you use the app in anonymous mode (no registration), data stays only on the device and is automatically deleted at the end of the day: we do not keep history of previous days and we do not link locations to a personal profile.';
 
   @override
   String get storico_14 => '⏳ Loading data…';
@@ -507,7 +558,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get form_crono_03 => 'Welcome, ';
 
   @override
-  String get form_crono_04 => 'Totals for last 7 days';
+  String get form_crono_04 => 'Summary for last 7 days';
 
   @override
   String get form_crono_05 => 'No sessions recorded';
@@ -525,10 +576,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get form_crono_09 => 'Details for level';
 
   @override
+  String get form_crono_10 => 'Summary from 8 to 14 days';
+
+  @override
+  String get form_crono_11 => 'Weekly comparison';
+
+  @override
   String get dashboard_piano => 'Plan:';
 
   @override
-  String get dashboard_msg => 'Create a (free) account to save your data and unlock sharing.';
+  String get dashboard_msg => 'Go to Profile and register.\nYou will have your typical week';
 
   @override
   String get imposta_page_studente => 'Student';
@@ -585,7 +642,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get imposta_page_cancella => 'Data deletion: after ';
 
   @override
-  String get imposta_page_funzioni => 'Active features';
+  String get imposta_page_funzioni => 'Active features:';
 
   @override
   String get imposta_page_save => 'Save changes';
@@ -621,7 +678,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get header_page_banner => 'Your Personal Move';
 
   @override
-  String get rep_day_export_locked => 'Sharing requires BASIC/PLUS/PRO';
+  String get rep_day_export_locked => 'Sharing requires START/BASIC/PLUS/PRO';
 
   @override
   String get msg_abilitato_01 => 'Sign up to see today\'s distribution';
@@ -836,6 +893,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get acquisto_piano_stripe => 'You will be redirected to Stripe...';
 
   @override
+  String get acquisto_piano_google => 'You will be redirected to Google...';
+
+  @override
   String get acquisto_piano_nopaga => 'Payment not started:';
 
   @override
@@ -878,13 +938,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get badge_partial => 'Partial data';
 
   @override
-  String get kpi_active => 'Active min';
+  String get kpi_active => 'Time in movement';
 
   @override
   String get kpi_km => 'Km';
 
   @override
-  String get kpi_sedentary => 'Sitting';
+  String get kpi_sedentary => 'Pauses / Stopped';
 
   @override
   String get no_data_msg => 'We don’t have any data for today yet.';
@@ -902,16 +962,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get insight_quality => 'We’re missing data due to battery saver. Tap to fix.';
 
   @override
-  String get insight_goal_hit => 'Goal reached 🎯 Great job!';
+  String get insight_goal_hit => 'You reached your planned movement time today.';
 
   @override
   String insight_goal_missing(Object v1) {
-    return 'You’re $v1 min away from your goal.';
+    return 'You’re $v1 min away from the planned movement time.';
   }
 
   @override
   String insight_vs_yesterday(Object v2) {
-    return 'Today you’re at $v2% vs yesterday.';
+    return 'Today you’re at $v2% compared to yesterday.';
   }
 
   @override
@@ -967,4 +1027,76 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fix_chiudi_button => 'Close';
+
+  @override
+  String get fix_riduci_button => 'Minimize';
+
+  @override
+  String get fix_espandi_button => 'Expand';
+
+  @override
+  String get dettagli => 'Technical details of the day';
+
+  @override
+  String get posizione => 'Your location';
+
+  @override
+  String get export_day => 'Export day data';
+
+  @override
+  String get date_parse_error => 'Date parse error';
+
+  @override
+  String get export_started => 'Export started...';
+
+  @override
+  String get download_start => 'Download started in browser';
+
+  @override
+  String get esportazione_file => 'Export:';
+
+  @override
+  String get errore_http => 'Download error: HTTP';
+
+  @override
+  String get errore_generico => 'Export error:';
+
+  @override
+  String get dedica_title => 'Dedicated to…';
+
+  @override
+  String get dedica_testo => 'My wife and Lova, who gave me the strength to get this far. 💚🐾';
+
+  @override
+  String get analisi_oggi => 'Analysis of today';
+
+  @override
+  String get movimento => 'Movement';
+
+  @override
+  String get non_reg => 'Not registered';
+
+  @override
+  String get parziale => 'Partial';
+
+  @override
+  String get completo => 'Complete';
+
+  @override
+  String get dati_incompleti => 'Incomplete data: the phone did not record for about';
+
+  @override
+  String get ottima_attivita => 'Great activity today';
+
+  @override
+  String get buona_attivita => 'Good activity, you used part of your day well.';
+
+  @override
+  String get giorno_statico1 => 'Day quite static ';
+
+  @override
+  String get giorno_statico2 => 'still/pause';
+
+  @override
+  String get attivita_media => 'Average activity.';
 }

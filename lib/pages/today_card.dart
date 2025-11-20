@@ -98,13 +98,26 @@ class TodayCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Wrap(
-              spacing: 8, runSpacing: 8,
-              children: [
-                _ChecklistChip(label: t('check_location', {}), icon: Icons.location_on),
-                _ChecklistChip(label: t('check_battery', {}),  icon: Icons.battery_saver),
-                _ChecklistChip(label: t('check_gps', {}),      icon: Icons.gps_fixed),
-              ],
-            ),
+  spacing: 8,
+  runSpacing: 8,
+  children: [
+    _ChecklistChip(
+      label: t('check_location', {}),
+      icon: Icons.location_on,
+      onTap: onTapQualityFix, // 👈 apre il foglio di fix
+    ),
+    _ChecklistChip(
+      label: t('check_battery', {}),
+      icon: Icons.battery_saver,
+      onTap: onTapQualityFix,
+    ),
+    _ChecklistChip(
+      label: t('check_gps', {}),
+      icon: Icons.gps_fixed,
+      onTap: onTapQualityFix,
+    ),
+  ],
+),
           ],
         ),
       );
@@ -214,22 +227,43 @@ class _CardShell extends StatelessWidget {
 class _ChecklistChip extends StatelessWidget {
   final String label;
   final IconData icon;
-  const _ChecklistChip({required this.label, required this.icon});
+  final VoidCallback? onTap; // <--- aggiunto
+
+  const _ChecklistChip({
+    required this.label,
+    required this.icon,
+    this.onTap,
+  });
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Container(
+
+    final chipBody = Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: cs.surfaceVariant,
         borderRadius: BorderRadius.circular(999),
         border: Border.all(color: cs.outlineVariant),
       ),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(icon, size: 14, color: cs.primary),
-        const SizedBox(width: 6),
-        Text(label, style: const TextStyle(fontSize: 12)),
-      ]),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: cs.primary),
+          const SizedBox(width: 6),
+          Text(label, style: const TextStyle(fontSize: 12)),
+        ],
+      ),
+    );
+
+    // Se onTap è null → torna solo il chip “morto” (come prima)
+    // Se onTap non è null → lo wrappiamo con InkWell così è cliccabile
+    if (onTap == null) return chipBody;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: onTap,
+      child: chipBody,
     );
   }
 }

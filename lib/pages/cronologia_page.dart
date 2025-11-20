@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:intl/intl.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../services/app_header.dart';
 import '../services/app_footer.dart';
@@ -18,6 +23,11 @@ import 'card_percorso_giorno.dart';
 import 'today_metrics.dart';
 import 'today_insight.dart';
 import 'today_card.dart';
+
+import '../class/locked_info.dart';
+import '../class/loading_card.dart';
+import '../class/dettagli_livello_page.dart';
+import 'compare_weeks_chart.dart'; // <-- aggiungi import in cima al file
 
 class CronologiaPage extends StatefulWidget {
   final String utenteId;
@@ -40,6 +50,8 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
   String? _jwtToken;
 
   Map<int, List<dynamic>> datiLivelli = {0: [], 1: [], 2: []};
+  Map<int, List<dynamic>> datiLivelliPrevSett = {0: [], 1: [], 2: []};
+
   bool loading = true;
   late String utenteId;
   late String nomeId;
@@ -64,6 +76,14 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
   };
   TodayMetrics? todayMetrics;
   bool loadingOggi = false;
+  bool _refreshingToken = false;
+
+  final double grandezzaMappa = 320; // altezza fissa della mappa
+
+  // aggiungi questi getter nella classe
+  List<int> get weekActiveCur => datiSettimanali(datiLivelli[1]);
+  List<int> get weekActivePrev => datiSettimanali(datiLivelliPrevSett[1]);
+  int confrontoLivello = 1;
 
   //-------------------------------------------------------------------
   // main line
@@ -121,6 +141,12 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
 
       final data = json.decode(res.body);
 
+      if (res.statusCode == 401 && !_refreshingToken) {
+        await handle401(); // <--- refresh token e gestisci eventuale retry
+        await caricaLivelloUtente(); // riprova dopo il refresh
+        return;
+      }
+
       if (data['success'] == true) {
         setState(() {
           livelloUtente = data['livello']['nome'] ?? 'Free';
@@ -172,6 +198,12 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
 
       final dati = json.decode(res.body);
 
+      if (res.statusCode == 401 && !_refreshingToken) {
+        await handle401(); // <--- refresh token e gestisci eventuale retry
+        await caricaDettagliLivello(livello); // riprova dopo il refresh
+        return;
+      }
+
       if (dati['success'] == true) {
         dettagliLivello[livello] = List<Map<String, dynamic>>.from(
           dati['dettagli'] ?? [],
@@ -182,15 +214,14 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
     } catch (e) {
       dettagliLivello[livello] = [];
     }
-
-    //setState(() {});
   }
 
-//--------------------------------------------------------------------------
-// Assumo: dettagliLivello è una Map<int, List<dynamic>>
-// dove ogni elemento ha almeno: durata_sec, distanza_metri, data_ora_inizio, data_ora_fine
-// Esempio: dettagliLivello[1] = lista segmenti tipo_attivita = 1 (leggero)
-//--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
+  // Assumo: dettagliLivello è una Map<int, List<dynamic>>
+  // dove ogni elemento ha almeno: durata_sec, distanza_metri, data_ora_inizio,
+  // data_ora_fine
+  // Esempio: dettagliLivello[1] = lista segmenti tipo_attivita = 1 (leggero)
+  //--------------------------------------------------------------------------
   int _asInt(dynamic v) {
     if (v == null) return 0;
     if (v is int) return v;
@@ -200,6 +231,9 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
     return 0;
   }
 
+  //--------------------------------------------------------------------------
+  // Converte variabile dinamica in double
+  //--------------------------------------------------------------------------
   double _asDouble(dynamic v) {
     if (v == null) return 0.0;
     if (v is double) return v;
@@ -208,11 +242,11 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
     return 0.0;
   }
 
-//-------------------------------------------------------------------------
-// RIEPILOGO AL LIVELLO (0=fermo, 1=leggero, 2=veloce)
-// Somma durata_sec e distanza_metri; km calcolati da metri.
-// "passi" lo lasciamo a 0 se non lo fornisce il backend.
-//-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
+  // RIEPILOGO AL LIVELLO (0=fermo, 1=leggero, 2=veloce)
+  // Somma durata_sec e distanza_metri; km calcolati da metri.
+  // "passi" lo lasciamo a 0 se non lo fornisce il backend.
+  //-------------------------------------------------------------------------
   Map<String, dynamic> riepilogoLivello(int livello) {
     final List segs = (dettagliLivello[livello] ?? []) as List;
     int durata = 0;
@@ -244,26 +278,87 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
 
     final dataStr =
         "${oggi.year.toString().padLeft(4, '0')}${oggi.month.toString().padLeft(2, '0')}${oggi.day.toString().padLeft(2, '0')}";
-    final url =
-        "$apiBaseUrl/settimana_livello.php?utente_id=$utenteId&livello=$livello&data=$dataStr";
-    final res = await http.get(Uri.parse(url), headers: _authHeaders());
-    if (res.statusCode == 200) {
-      setState(() {
-        datiLivelli[livello] = json.decode(res.body)['dettagli'] ?? [];
-      });
-    } else if (res.statusCode == 401) {
-      await _storage.delete(key: 'jwt_token');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.t.session_expired),
-          ),
-        );
-        Navigator.of(context).pushReplacementNamed('/login');
+    final prev = oggi.subtract(const Duration(days: 7));
+    final prevDataStr =
+        "${prev.year.toString().padLeft(4, '0')}${prev.month.toString().padLeft(2, '0')}${prev.day.toString().padLeft(2, '0')}";
+
+    final url = (String d) =>
+        "$apiBaseUrl/settimana_livello.php?utente_id=$utenteId&livello=$livello&data=$d";
+
+    try {
+      // chiamata per settimana corrente
+      final resCur =
+          await http.get(Uri.parse(url(dataStr)), headers: _authHeaders());
+      if (resCur.statusCode == 401 && !_refreshingToken) {
+        await handle401();
+        await caricaSettimana(livello); // retry una sola volta
+        return;
       }
-    } else {
+      if (resCur.statusCode == 200) {
+        final bodyCur = json.decode(resCur.body);
+        final dettagliCur = bodyCur['dettagli'] ?? [];
+        // ordina se serve
+        if (dettagliCur is List) {
+          dettagliCur.sort((a, b) => (a['data_ora_inizio'] ?? '')
+              .toString()
+              .compareTo((b['data_ora_inizio'] ?? '').toString()));
+        }
+        setState(() {
+          datiLivelli[livello] = List<dynamic>.from(dettagliCur);
+        });
+      } else if (resCur.statusCode == 401) {
+        // token invalido persistente
+        await _storage.delete(key: 'jwt_token');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(context.t.session_expired)),
+          );
+          Navigator.of(context).pushReplacementNamed('/login');
+        }
+        return;
+      } else {
+        setState(() {
+          datiLivelli[livello] = [];
+        });
+      }
+
+      // chiamata per settimana precedente
+      final resPrev =
+          await http.get(Uri.parse(url(prevDataStr)), headers: _authHeaders());
+      if (resPrev.statusCode == 401 && !_refreshingToken) {
+        await handle401();
+        await caricaSettimana(livello); // retry una sola volta
+        return;
+      }
+      if (resPrev.statusCode == 200) {
+        final bodyPrev = json.decode(resPrev.body);
+        final dettagliPrev = bodyPrev['dettagli'] ?? [];
+        if (dettagliPrev is List) {
+          dettagliPrev.sort((a, b) => (a['data_ora_inizio'] ?? '')
+              .toString()
+              .compareTo((b['data_ora_inizio'] ?? '').toString()));
+        }
+        setState(() {
+          datiLivelliPrevSett[livello] = List<dynamic>.from(dettagliPrev);
+        });
+      } else if (resPrev.statusCode == 401) {
+        await _storage.delete(key: 'jwt_token');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(context.t.session_expired)),
+          );
+          Navigator.of(context).pushReplacementNamed('/login');
+        }
+      } else {
+        setState(() {
+          datiLivelliPrevSett[livello] = [];
+        });
+      }
+    } catch (e) {
+      // best-effort fallback
       setState(() {
-        datiLivelli[livello] = [];
+        datiLivelli[livello] = datiLivelli[livello] ?? [];
+        datiLivelliPrevSett[livello] = datiLivelliPrevSett[livello] ?? [];
       });
     }
   }
@@ -321,6 +416,27 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
 
     final totaliData = totaliLivello(sessioniData, livello);
 
+    DateTime? _tryParseDate(String? s) {
+      if (s == null || s.isEmpty) return null;
+      // 1) formato ISO compatibile: yyyy-MM-dd
+      final iso = DateTime.tryParse(s);
+      if (iso != null) return iso;
+      try {
+        // 2) formato localizzato comune dd/MM/yyyy o d/M/yyyy
+        final f1 = DateFormat('dd/MM/yyyy');
+        return f1.parseLoose(s);
+      } catch (_) {}
+      try {
+        final f2 = DateFormat('d/M/yyyy');
+        return f2.parseLoose(s);
+      } catch (_) {}
+      try {
+        final f3 = DateFormat('yyyy-MM-dd');
+        return f3.parseLoose(s);
+      } catch (_) {}
+      return null;
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       child: Row(
@@ -339,7 +455,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
                   Text(
                       '${context.t.um_metri} ${totaliData['metri'].toStringAsFixed(1)}'),
                   const SizedBox(width: 16),
-                  Text('${context.t.um_passi} ${totaliData['passi'] ?? '-'}'),
+                  //Text('${context.t.um_passi} ${totaliData['passi'] ?? '-'}'),
                 ],
                 if (livello == 2) ...[
                   const SizedBox(width: 16),
@@ -350,11 +466,12 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
             ),
           ),
 
-          // 👇 a destra: la tendina, fuori dal Wrap (quindi ok con Row)
-          if (giorni.isNotEmpty)
+          // 👇 a destra: la tendina e il pulsante di export
+          if (giorni.isNotEmpty) ...[
             DropdownButton<String>(
               value: dataSelezionata,
-              style: const TextStyle(fontSize: 12),
+              dropdownColor: Theme.of(context).colorScheme.surface,
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
               items: giorni
                   .map((g) => DropdownMenuItem(
                         value: g,
@@ -363,6 +480,30 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
                   .toList(),
               onChanged: onGiornoChanged,
             ),
+            const SizedBox(width: 6),
+            IconButton(
+              tooltip: context.t.export_day ?? 'Esporta',
+              icon: const Icon(Icons.download_outlined, size: 20),
+              onPressed: () {
+                final dt = _tryParseDate(dataSelezionata);
+                if (dt == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text(context.t.date_parse_error ??
+                            'Formato data non riconosciuto')),
+                  );
+                  return;
+                }
+                // chiama la tua funzione di export (implementata in classe)
+                _downloadCsv(dt);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content: Text(
+                          context.t.export_started ?? 'Esportazione avviata')),
+                );
+              },
+            ),
+          ],
         ],
       ),
     );
@@ -516,10 +657,10 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
                                   '${context.t.um_metri} ${totaliLivello(datiLivelli[1]!, 1)['metri'].toStringAsFixed(1)}',
                                   style: TextStyle(fontSize: 14),
                                 ),
-                                Text(
-                                  '${context.t.um_passi} ${totaliLivello(datiLivelli[1]!, 1)['passi'] ?? '-'}',
-                                  style: TextStyle(fontSize: 14),
-                                ),
+                                //Text(
+                                //'${context.t.um_passi} ${totaliLivello(datiLivelli[1]!, 1)['passi'] ?? '-'}',
+                                //style: TextStyle(fontSize: 14),
+                                //),
                               ],
                             ),
                             SizedBox(height: 8),
@@ -547,6 +688,183 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
                       ),
                     ),
 
+                    SizedBox(height: 12),
+                    //-----------------------------------------------
+                    // card settimana precedente
+                    //-----------------------------------------------
+                    Card(
+                      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                      color: Colors.blueGrey[50],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(color: Colors.blueGrey, width: 2),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              context.t.form_crono_10,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue[700],
+                              ),
+                            ),
+                            SizedBox(height: 12),
+                            // Inattività
+                            Row(
+                              children: [
+                                Text(
+                                  '🛌 ${context.t.mov_inattivo}',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  totaliLivello(
+                                      datiLivelliPrevSett[0]!, 0)['durata'],
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 8),
+                            // Movimento leggero
+                            Wrap(
+                              spacing: 16,
+                              runSpacing: 4,
+                              children: [
+                                Text(
+                                  '🚶 ${context.t.mov_leggero}:',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                                Text(
+                                  totaliLivello(
+                                      datiLivelliPrevSett[1]!, 1)['durata'],
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                Text(
+                                  '${context.t.um_metri} ${totaliLivello(datiLivelliPrevSett[1]!, 1)['metri'].toStringAsFixed(1)}',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                //Text(
+                                //'${context.t.um_passi} ${totaliLivello(datiLivelliPrevSett[1]!, 1)['passi'] ?? '-'}',
+                                //style: TextStyle(fontSize: 14),
+                                //),
+                              ],
+                            ),
+                            SizedBox(height: 8),
+                            // Movimento veloce
+                            Wrap(
+                              spacing: 16,
+                              runSpacing: 4,
+                              children: [
+                                Text(
+                                  '🚗 ${context.t.mov_veloce}',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                                Text(
+                                  totaliLivello(
+                                      datiLivelliPrevSett[2]!, 2)['durata'],
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                Text(
+                                  '${context.t.um_km} ${totaliLivello(datiLivelliPrevSett[2]!, 2)['km'].toStringAsFixed(2)}',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: 12),
+                    //-------------------------------------------------
+                    // grafico confronto due settimane con selettore livello
+                    //-------------------------------------------------
+                    Card(
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 4),
+                      color: Colors.blueGrey[50],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side:
+                            const BorderSide(color: Colors.blueGrey, width: 2),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    context.t.form_crono_11,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue[700],
+                                    ),
+                                  ),
+                                ),
+                                // selettore livello: 0/1/2
+                                DropdownButton<int>(
+                                  value: confrontoLivello,
+                                  items: [
+                                    DropdownMenuItem(
+                                        value: 0,
+                                        child: Text(
+                                            'L0 • ${context.t.mov_inattivo}')),
+                                    DropdownMenuItem(
+                                        value: 1,
+                                        child: Text(
+                                            'L1 • ${context.t.mov_leggero}')),
+                                    DropdownMenuItem(
+                                        value: 2,
+                                        child: Text(
+                                            'L2 • ${context.t.mov_veloce}')),
+                                  ],
+                                  onChanged: (v) {
+                                    if (v == null) return;
+                                    setState(() => confrontoLivello = v);
+                                  },
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            // prepara i dati per il livello selezionato
+                            Builder(builder: (ctx) {
+                              final today = DateTime.now();
+                              final weekA = datiSettimanali(
+                                  datiLivelli[confrontoLivello],
+                                  endDate: today);
+                              final weekB = datiSettimanali(
+                                  datiLivelliPrevSett[confrontoLivello],
+                                  endDate:
+                                      today.subtract(const Duration(days: 7)));
+                              return CompareWeeksChart(
+                                weekA: weekA,
+                                weekB: weekB,
+                                labelA: context.t.form_crono_04,
+                                labelB: context.t.form_crono_10,
+                                colorA: confrontoLivello == 2
+                                    ? Colors.purple
+                                    : Colors.blue[700]!,
+                                colorB: confrontoLivello == 2
+                                    ? Colors.pink
+                                    : Colors.orange[600]!,
+                                height: 220,
+                                onBarTap: (day) => debugPrint(
+                                    'Toccato giorno idx $day (L$confrontoLivello)'),
+                              );
+                            }),
+                          ],
+                        ),
+                      ),
+                    ),
+
                     //-------------------------------------------------
                     // card percorso
                     //-------------------------------------------------
@@ -557,181 +875,229 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
                     //-------------------------------------------------
                     // Lista dei giorni
                     //-------------------------------------------------
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    ExpansionTile(
+                      initiallyExpanded: false,
+                      leading: const Icon(Icons.science_outlined),
+                      title: Text(
+                        context.t.dettagli,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                       children: [
-                        for (int livello = 0; livello <= 2; livello++)
-                          ExpansionTile(
-                            initiallyExpanded: livello == 0,
-                            leading: Text(
-                              livello == 0
-                                  ? '🛌'
-                                  : livello == 1
-                                      ? '🚶'
-                                      : '🚗',
-                              style: TextStyle(fontSize: 22),
-                            ),
-                            title: Text(
-                              livello == 0
-                                  ? context.t.mov_inattivo
-                                  : livello == 1
-                                      ? context.t.mov_leggero
-                                      : context.t.mov_veloce,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue[700],
-                              ),
-                            ),
-                            children: () {
-                              final giorni = giorniDisponibili(livello);
-                              final giornoDefault =
-                                  giorni.isNotEmpty ? giorni.first : null;
-                              return [
-                                // --- TESTATA TOTALE ---
-                                testataLivello(
-                                  livello,
-                                  giorni,
-                                  giornoSelezionato[livello] ?? giornoDefault,
-                                  (val) {
-                                    setState(() {
-                                      giornoSelezionato[livello] = val;
-                                    });
-                                  },
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            for (int livello = 0; livello <= 2; livello++)
+                              ExpansionTile(
+                                //initiallyExpanded: livello == 0,
+                                leading: Text(
+                                  livello == 0
+                                      ? '🛌'
+                                      : livello == 1
+                                          ? '🚶'
+                                          : '🚗',
+                                  style: TextStyle(fontSize: 22),
                                 ),
+                                title: Text(
+                                  livello == 0
+                                      ? context.t.mov_inattivo
+                                      : livello == 1
+                                          ? context.t.mov_leggero
+                                          : context.t.mov_veloce,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue[700],
+                                  ),
+                                ),
+                                children: () {
+                                  final giorni = giorniDisponibili(livello);
+                                  final giornoDefault =
+                                      giorni.isNotEmpty ? giorni.first : null;
+                                  return [
+                                    // --- TESTATA TOTALE ---
+                                    testataLivello(
+                                      livello,
+                                      giorni,
+                                      giornoSelezionato[livello] ??
+                                          giornoDefault,
+                                      (val) {
+                                        setState(() {
+                                          giornoSelezionato[livello] = val;
+                                        });
+                                      },
+                                    ),
 
-                                // --- SESSIONI FILTRATE ---
-                                if (datiLivelli[livello]!.isEmpty ||
-                                    giorni.isEmpty)
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8,
-                                    ),
-                                    child: Text(
-                                      context.t.form_crono_05,
-                                      style: TextStyle(color: Colors.grey[600]),
-                                    ),
-                                  )
-                                else
-                                  // --- Totali per la data selezionata ---
-                                  ...datiLivelli[livello]!
-                                      .where(
-                                        (giorno) =>
-                                            (giornoSelezionato[livello] ??
-                                                giornoDefault) ==
-                                            (ymdLocal(giorno[
-                                                    'data_ora_inizio']) ??
-                                                ''),
+                                    // --- SESSIONI FILTRATE ---
+                                    if (datiLivelli[livello]!.isEmpty ||
+                                        giorni.isEmpty)
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 8,
+                                        ),
+                                        child: Text(
+                                          context.t.form_crono_05,
+                                          style: TextStyle(
+                                              color: Colors.grey[600]),
+                                        ),
                                       )
-                                      .map(
-                                        (giorno) => Card(
-                                          margin: EdgeInsets.symmetric(
-                                            vertical: 6,
-                                            horizontal: 12,
-                                          ),
-                                          elevation: 2,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(12.0),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Row(
+                                    else
+                                      // --- Totali per la data selezionata ---
+                                      ...datiLivelli[livello]!
+                                          .where(
+                                            (giorno) =>
+                                                (giornoSelezionato[livello] ??
+                                                    giornoDefault) ==
+                                                (ymdLocal(giorno[
+                                                        'data_ora_inizio']) ??
+                                                    ''),
+                                          )
+                                          .map(
+                                            (giorno) => Card(
+                                              margin: EdgeInsets.symmetric(
+                                                vertical: 6,
+                                                horizontal: 12,
+                                              ),
+                                              elevation: 2,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(12.0),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
                                                   children: [
-                                                    Icon(
-                                                      Icons.calendar_today,
-                                                      color: Colors.blue[400],
-                                                      size: 20,
+                                                    Row(
+                                                      children: [
+                                                        Icon(
+                                                          Icons.calendar_today,
+                                                          color:
+                                                              Colors.blue[400],
+                                                          size: 20,
+                                                        ),
+                                                        SizedBox(width: 8),
+                                                        Text(
+                                                          ymdLocal(giorno[
+                                                                  'data_ora_inizio']) ??
+                                                              '',
+                                                          style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 18,
+                                                          ),
+                                                        ),
+                                                        Spacer(),
+                                                        Icon(
+                                                          Icons.timer,
+                                                          color:
+                                                              Colors.grey[600],
+                                                          size: 18,
+                                                        ),
+                                                        SizedBox(width: 4),
+                                                        Text(
+                                                          '${Duration(seconds: (giorno['durata_sec'] as num?)?.toInt() ?? 0).inMinutes} min',
+                                                          style: TextStyle(
+                                                            fontSize: 15,
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
-                                                    SizedBox(width: 8),
-                                                    Text(
-                                                      ymdLocal(giorno[
-                                                              'data_ora_inizio']) ??
-                                                          '',
-                                                      style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 16,
-                                                      ),
+                                                    SizedBox(height: 8),
+                                                    Row(
+                                                      children: [
+                                                        Icon(
+                                                          Icons.directions_walk,
+                                                          color:
+                                                              Colors.green[600],
+                                                          size: 18,
+                                                        ),
+                                                        SizedBox(width: 4),
+                                                        Text(
+                                                          '${context.t.info_mes04} ${(giorno['distanza_metri'] is num ? giorno['distanza_metri'] : double.tryParse(giorno['distanza_metri'] ?? '0') ?? 0).toStringAsFixed(1)} m',
+                                                        ),
+                                                        Spacer(),
+                                                        Icon(
+                                                          Icons.sensors,
+                                                          color: Colors
+                                                              .orange[600],
+                                                          size: 18,
+                                                        ),
+                                                        SizedBox(width: 4),
+                                                        Text(
+                                                          ' ${giorno['fonte'] ?? '-'}',
+                                                        ),
+                                                      ],
                                                     ),
-                                                    Spacer(),
-                                                    Icon(
-                                                      Icons.timer,
-                                                      color: Colors.grey[600],
-                                                      size: 18,
-                                                    ),
-                                                    SizedBox(width: 4),
-                                                    Text(
-                                                      '${Duration(seconds: (giorno['durata_sec'] as num?)?.toInt() ?? 0).inMinutes} min',
-                                                      style: TextStyle(
-                                                        fontSize: 15,
-                                                      ),
+                                                    SizedBox(height: 8),
+                                                    Row(
+                                                      children: [
+                                                        Icon(
+                                                          Icons.play_arrow,
+                                                          color:
+                                                              Colors.grey[700],
+                                                          size: 18,
+                                                        ),
+                                                        SizedBox(width: 4),
+                                                        Text(
+                                                          '${context.t.info_mes01} ${hmLocal(giorno['data_ora_inizio']) ?? ''}',
+                                                        ),
+                                                        Spacer(),
+                                                        Icon(
+                                                          Icons.stop,
+                                                          color:
+                                                              Colors.grey[700],
+                                                          size: 18,
+                                                        ),
+                                                        SizedBox(width: 4),
+                                                        Text(
+                                                          '${context.t.info_mes02} ${hmLocal(giorno['data_ora_fine']) ?? ''}',
+                                                        ),
+                                                      ],
                                                     ),
                                                   ],
                                                 ),
-                                                SizedBox(height: 8),
-                                                Row(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.directions_walk,
-                                                      color: Colors.green[600],
-                                                      size: 18,
-                                                    ),
-                                                    SizedBox(width: 4),
-                                                    Text(
-                                                      '${context.t.info_mes04} ${(giorno['distanza_metri'] is num ? giorno['distanza_metri'] : double.tryParse(giorno['distanza_metri'] ?? '0') ?? 0).toStringAsFixed(1)} m',
-                                                    ),
-                                                    Spacer(),
-                                                    Icon(
-                                                      Icons.sensors,
-                                                      color: Colors.orange[600],
-                                                      size: 18,
-                                                    ),
-                                                    SizedBox(width: 4),
-                                                    Text(
-                                                      '${context.t.info_mes05} ${giorno['fonte'] ?? '-'}',
-                                                    ),
-                                                  ],
-                                                ),
-                                                SizedBox(height: 8),
-                                                Row(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.play_arrow,
-                                                      color: Colors.grey[700],
-                                                      size: 18,
-                                                    ),
-                                                    SizedBox(width: 4),
-                                                    Text(
-                                                      '${context.t.info_mes01} ${hmLocal(giorno['data_ora_inizio']) ?? ''}',
-                                                    ),
-                                                    Spacer(),
-                                                    Icon(
-                                                      Icons.stop,
-                                                      color: Colors.grey[700],
-                                                      size: 18,
-                                                    ),
-                                                    SizedBox(width: 4),
-                                                    Text(
-                                                      '${context.t.info_mes02} ${hmLocal(giorno['data_ora_fine']) ?? ''}',
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ),
-                              ];
-                            }(),
-                          ),
+                                  ];
+                                }(),
+                              ),
+                          ],
+                        ),
                       ],
                     ),
+
+                    const SizedBox(height: 24),
+                    AppFooter(), // <-- ora scorre con la pagina
+                    const SizedBox(height: 8),
                   ],
                 ),
               ),
             ),
-      bottomNavigationBar: AppFooter(),
+
+      // BOTTONE fisso in basso
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          child: SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton.icon(
+              icon: const Icon(Icons.home),
+              label: Text(context.t.bottom_dashboard),
+              onPressed: () {
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                } else {
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, '/home', (r) => false);
+                }
+              },
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -812,9 +1178,9 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
     );
   }
 
-//----------------------------------------------------------------------
-// Callback per la modifica della data
-//----------------------------------------------------------------------
+  // --------------------------------------------------------------
+  // Callback per la modifica della data
+  //----------------------------------------------------------------------
   void _onDateChanged(DateTime d) {
     setState(() {
       _selectedDate = d;
@@ -822,9 +1188,9 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
     });
   }
 
-//----------------------------------------------------------------------
-// Funzione per il recupero dei dati di tracciamento
-//----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // Funzione per il recupero dei dati di tracciamento
+  //----------------------------------------------------------------------
   Future<Map<String, dynamic>> _fetchTrack(DateTime d) async {
     final qs = {
       'utente_id': utenteId.toString(), // <-- il tuo id
@@ -837,6 +1203,11 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
 
     final res =
         await http.get(uri, headers: _authHeaders()); // <-- i tuoi header
+
+    if (res.statusCode == 401 && !_refreshingToken) {
+      await handle401(); // <--- refresh token e gestisci eventuale retry
+      return _fetchTrack(d); // riprova dopo il refresh
+    }
 
     Map<String, dynamic> data;
     try {
@@ -853,16 +1224,16 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
     return data;
   }
 
-//------------------------------------------------------------------
-// creazione mappa
-//------------------------------------------------------------------
+  //------------------------------------------------------------------
+  // creazione mappa
+  //------------------------------------------------------------------
   Widget _buildPercorsoCard() {
     // gating: anonimo o fuori dallo storico
     if (userIsAnonymous) {
-      return _LockedInfo(text: context.t.crono_msg_01);
+      return LockedInfo(text: context.t.crono_msg_01);
     }
     if (!_withinHistory(_selectedDate, features['history_days'])) {
-      return _LockedInfo(
+      return LockedInfo(
         text:
             '${context.t.crono_msg_02} ${features['history_days']} ${context.t.crono_msg_03}',
       );
@@ -872,10 +1243,10 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
       future: _trackFuture,
       builder: (context, snap) {
         if (snap.connectionState != ConnectionState.done) {
-          return const _LoadingCard();
+          return const LoadingCard();
         }
         if (snap.hasError) {
-          return _LockedInfo(text: context.t.crono_msg_04);
+          return LockedInfo(text: context.t.crono_msg_04);
         }
 
         final data = snap.data!;
@@ -899,33 +1270,52 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
 
                 CardPercorsoGiorno(
                   framed: false,
-                  height: 260,
-                  levelsToShow: const {
-                    'L0',
-                    'L1',
-                    'L2'
-                  }, // <— mostra anche lo 0
+                  height: grandezzaMappa,
+                  levelsToShow: const {'L0', 'L1', 'L2'},
                   fetchTraccia: (date) async {
                     final d = DateFormat('yyyy-MM-dd').format(date);
-                    final url = Uri.parse('$apiBaseUrl/traccia_giorno.php'
-                        '?utente_id=$utenteId&date=$d&precision=med&max_acc_m=100');
+                    final uri = Uri.parse(
+                      '$apiBaseUrl/traccia_giorno.php?utente_id=$utenteId&date=$d&precision=med&max_acc_m=100',
+                    );
 
-                    final res = await http.get(url, headers: _authHeaders());
+                    final res = await http.get(uri, headers: _authHeaders());
+
+                    if (res.statusCode != 200) {
+                      throw Exception('HTTP ${res.statusCode}: ${res.body}');
+                    }
+
                     Map<String, dynamic> data;
                     try {
-                      data = json.decode(res.body) as Map<String, dynamic>;
+                      final j = json.decode(res.body);
+                      if (j is Map<String, dynamic>) {
+                        data = j;
+                      } else {
+                        throw Exception('JSON non è un oggetto');
+                      }
                     } catch (e) {
-                      throw Exception(
-                          'track_invalid_json: ${res.statusCode} ${res.body}');
+                      throw Exception('track_invalid_json: ${res.body}');
                     }
+
                     final ok =
                         (data['success'] == true) || (data['ok'] == true);
-                    if (!ok)
+                    if (!ok) {
                       throw Exception(data['error'] ?? context.t.crono_msg_05);
+                    }
+
+                    // Normalizza campi attesi da MappaPercorsi
+                    final segments = (data['segments'] is List)
+                        ? (data['segments'] as List)
+                        : const <dynamic>[];
+                    final bbox =
+                        (data['bbox'] is List) ? (data['bbox'] as List) : null;
+
+                    // DEBUG (vedi se arrivano davvero segmenti e quanti punti hanno)
+                    // debugPrint('segments=${segments.length}  bbox=$bbox');
+                    // if (segments.isNotEmpty) debugPrint('first seg: ${segments.first}');
 
                     return {
-                      'segments': data['segments'] ?? const [],
-                      'bbox': data['bbox'] ?? const [],
+                      'segments': segments,
+                      'bbox': bbox,
                     };
                   },
                 ),
@@ -937,26 +1327,105 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
     );
   }
 
-//----------------------------------------------------------------------
-// Funzione per il download del file GPX
-//----------------------------------------------------------------------
-  void _downloadGpx(DateTime d) {
+  //----------------------------------------------------------------------
+  // Funzione per il download del file GPX
+  //----------------------------------------------------------------------
+  Future<void> _downloadGpx(DateTime d) async {
     final s = DateFormat('yyyy-MM-dd').format(d);
     final url = '$apiBaseUrl/export_gpx_giorno.php?utente_id=$utenteId&date=$s';
-    // usa url_launcher o la tua funzione già usata nei report
+    await _openOrDownload(url, 'traccia_$s.gpx');
   }
 
-//----------------------------------------------------------------------
-// Funzione per il download del file CSV
-//----------------------------------------------------------------------
-  void _downloadCsv(DateTime d) {
+  //----------------------------------------------------------------------
+  // Funzione per il download del file CSV
+  //----------------------------------------------------------------------
+  Future<void> _downloadCsv(DateTime d) async {
     final s = DateFormat('yyyy-MM-dd').format(d);
     final url = '$apiBaseUrl/export_csv_giorno.php?utente_id=$utenteId&date=$s';
+    await _downloadInsideApp(url, 'export_$s.csv');
+    //await _openOrDownload(url, 'export_$s.csv');
   }
 
-//----------------------------------------------------------------------
-// Funzione per verificare se una data è all'interno dello storico
-//----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // helper: scarica il file via HTTP e lo condivide/apre
+  //----------------------------------------------------------------------
+  Future<void> _downloadInsideApp(String url, String filename) async {
+    try {
+      final uri = Uri.parse(url);
+
+      // 1. CHIAMO l’API con gli header (qui c’è il token!)
+      final res = await http.get(uri, headers: _authHeaders());
+
+      if (res.statusCode == 200) {
+        // 2. salvo su tmp
+        final tmp = await getTemporaryDirectory();
+        final file = File('${tmp.path}/$filename');
+        await file.writeAsBytes(res.bodyBytes);
+
+        // 3. condivido/apro
+        await Share.shareFiles([file.path],
+            text: '${context.t.esportazione_file} $filename');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${context.t.errore_http} ${res.statusCode}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${context.t.errore_generico}: $e')),
+      );
+    }
+  }
+
+  //----------------------------------------------------------------------
+  // helper: prova ad aprire l'URL;
+  //se non possibile scarica e condivide il file
+  // attenzione manca token
+  //----------------------------------------------------------------------
+  Future<void> _openOrDownload(String url, String filename) async {
+    try {
+      final uri = Uri.parse(url);
+
+      // 1) prima provo ad aprirlo fuori
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(context.t.download_start)),
+          );
+        }
+        return;
+      }
+
+      // 2) fallback: scarico io e salvo
+      final res = await http.get(uri, headers: _authHeaders());
+      if (res.statusCode == 200) {
+        // QUI serve path_provider
+        final tmpDir = await getTemporaryDirectory();
+        final file = File('${tmpDir.path}/$filename');
+        await file.writeAsBytes(res.bodyBytes);
+        await Share.shareFiles([file.path],
+            text: '${context.t.esportazione_file} $filename');
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text('${context.t.errore_http} ${res.statusCode}')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${context.t.errore_generico}: $e')),
+        );
+      }
+    }
+  }
+
+  //----------------------------------------------------------------------
+  // Funzione per verificare se una data è all'interno dello storico
+  //----------------------------------------------------------------------
   bool _withinHistory(DateTime d, int? historyDays) {
     if (historyDays == null || historyDays <= 0) return true;
     final today = DateTime.now();
@@ -964,9 +1433,9 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
     return diff <= (historyDays - 1);
   }
 
-//-------------------------------------------------------------
-// helper: costruisce TodayMetrics usando i tuoi riepiloghi
-//-------------------------------------------------------------
+  //-------------------------------------------------------------
+  // helper: costruisce TodayMetrics usando i tuoi riepiloghi
+  //-------------------------------------------------------------
   TodayMetrics buildTodayFromRiepiloghi({
     required Map<String, dynamic> r0, // fermo
     required Map<String, dynamic> r1, // leggero
@@ -1018,9 +1487,9 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
     );
   }
 
-//-----------------------------------------------------------
-// carica i dati di oggi
-//-----------------------------------------------------------
+  //-----------------------------------------------------------
+  // carica i dati di oggi
+  //-----------------------------------------------------------
   Future<void> caricaOggi() async {
     setState(() => loadingOggi = true);
 
@@ -1065,42 +1534,43 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
     setState(() => loadingOggi = false);
   }
 
-//-----------------------------------------------------------
-// Crea form today
-//-----------------------------------------------------------
+  //-----------------------------------------------------------
+  // Crea form today
+  //-----------------------------------------------------------
   Widget buildTodayCard(BuildContext context) {
     if (loadingOggi || todayMetrics == null) {
       return const SizedBox(height: 140); // placeholder
     }
 
     // Adatta qui al tuo TodayMetrics reale:
-  double _sumMetersTodayFromSegments() {
-  double m = 0;
-  for (final l in [0, 1, 2]) {
-    final list = (dettagliLivello[l] ?? const []) as List;
-    for (final s in list) {
-      final v = s['distanza_metri'];
-      if (v is num) m += v.toDouble();
-      else if (v is String) m += double.tryParse(v.replaceAll(',', '.')) ?? 0.0;
+    double _sumMetersTodayFromSegments() {
+      double m = 0;
+      for (final l in [0, 1, 2]) {
+        final list = (dettagliLivello[l] ?? const []) as List;
+        for (final s in list) {
+          final v = s['distanza_metri'];
+          if (v is num)
+            m += v.toDouble();
+          else if (v is String)
+            m += double.tryParse(v.replaceAll(',', '.')) ?? 0.0;
+        }
+      }
+      return m;
     }
-  }
-  return m;
-}
 
-final snap = TodaySnapshot(
-  activeMinutes: todayMetrics!.activeMinutes,
-  metersToday: _sumMetersTodayFromSegments(),
-  sedentaryMinutes: todayMetrics!.sedentaryMinutes ?? 0,
-  yesterdayActiveMinutes: todayMetrics!.yesterdayActiveMinutes,
-);
+    final snap = TodaySnapshot(
+      activeMinutes: todayMetrics!.activeMinutes,
+      metersToday: _sumMetersTodayFromSegments(),
+      sedentaryMinutes: todayMetrics!.sedentaryMinutes ?? 0,
+      yesterdayActiveMinutes: todayMetrics!.yesterdayActiveMinutes,
+    );
 
-
-  // Se hai già i segmenti caricati per livello (0/1/2), passali:
-  final segs = <int, List<Map<String, dynamic>>>{
-    0: List<Map<String, dynamic>>.from(dettagliLivello[0] ?? const []),
-    1: List<Map<String, dynamic>>.from(dettagliLivello[1] ?? const []),
-    2: List<Map<String, dynamic>>.from(dettagliLivello[2] ?? const []),
-  };
+    // Se hai già i segmenti caricati per livello (0/1/2), passali:
+    final segs = <int, List<Map<String, dynamic>>>{
+      0: List<Map<String, dynamic>>.from(dettagliLivello[0] ?? const []),
+      1: List<Map<String, dynamic>>.from(dettagliLivello[1] ?? const []),
+      2: List<Map<String, dynamic>>.from(dettagliLivello[2] ?? const []),
+    };
 
     return TodayCard(
       metrics: todayMetrics!,
@@ -1108,25 +1578,25 @@ final snap = TodaySnapshot(
       now: DateTime.now(),
       t: (k, v) => _t(context, k, v), // il tuo adapter testi
       // Tap sull'intera card -> dettaglio della giornata (se vuoi)
-    onTap: () {
-      openDayDetailSheet(
-        context,
-        snapshot: snap,
-        segmentsByLevel: segs,
-        title: context.t.today_title,
-      );
-    },
+      onTap: () {
+        openDayDetailSheet(
+          context,
+          snapshot: snap,
+          segmentsByLevel: segs,
+          title: context.t.today_title,
+        );
+      },
       // Tap sul banner "qualità dati" -> apri il foglio con i fix
-    onTapQualityFix: () {
-      openQualityFix(context);
-    },
+      onTapQualityFix: () {
+        openQualityFix(context);
+      },
     );
   }
 
-//------------------------------------------------------------------------------
-// Adapter testi per TodayCard.
-// Se hai già un sistema di traduzioni (es. context.t) puoi sostituire i return.
-//------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
+  // Adapter testi per TodayCard.
+  // Se hai già un sistema di traduzioni (es. context.t) puoi sostituire i return.
+  //------------------------------------------------------------------------------
   String _t(BuildContext ctx, String key, Map<String, dynamic> v) {
     switch (key) {
       case 'today_title':
@@ -1161,148 +1631,179 @@ final snap = TodaySnapshot(
         return key; // fallback
     }
   }
-}
 
 //--------------------------------------------------------------------
 // parse della data
 //--------------------------------------------------------------------
-DateTime? _parseTs(dynamic v) {
-  if (v == null) return null;
-  if (v is DateTime) return v;
-  if (v is String) {
-    final s = v.contains('T') ? v : v.replaceFirst(' ', 'T');
-    try {
-      return DateTime.parse(s);
-    } catch (_) {}
+  DateTime? _parseTs(dynamic v) {
+    if (v == null) return null;
+    if (v is DateTime) return v;
+    if (v is String) {
+      final s = v.contains('T') ? v : v.replaceFirst(' ', 'T');
+      try {
+        return DateTime.parse(s);
+      } catch (_) {}
+    }
+    return null;
   }
-  return null;
-}
 
 //---------------------------------------------------------------------
 // mette data in ssaammgg
 //---------------------------------------------------------------------
-String _ymd(DateTime d) => '${d.year.toString().padLeft(4, '0')}-'
-    '${d.month.toString().padLeft(2, '0')}-'
-    '${d.day.toString().padLeft(2, '0')}';
-
-//-----------------------------------------------------------
-// formatta intero
-//-----------------------------------------------------------
-int _asInt(dynamic v) {
-  if (v == null) return 0;
-  if (v is int) return v;
-  if (v is num) return v.toInt();
-  if (v is String) return int.tryParse(v) ?? 0;
-  return 0;
-}
+  String _ymd(DateTime d) => '${d.year.toString().padLeft(4, '0')}-'
+      '${d.month.toString().padLeft(2, '0')}-'
+      '${d.day.toString().padLeft(2, '0')}';
 
 //------------------------------------------------------------
-/// level1/level2 = liste “dettagli” dei 7 giorni per livello
+  /// level1/level2 = liste “dettagli” dei 7 giorni per livello
 //------------------------------------------------------------
-int activeMinutesYesterdayFromDetails({
-  required List<Map<String, dynamic>> level1,
-  required List<Map<String, dynamic>> level2,
-}) {
-  final y = DateTime.now().toLocal().subtract(const Duration(days: 1));
-  final ymd = _ymd(y);
+  int activeMinutesYesterdayFromDetails({
+    required List<Map<String, dynamic>> level1,
+    required List<Map<String, dynamic>> level2,
+  }) {
+    final y = DateTime.now().toLocal().subtract(const Duration(days: 1));
+    final ymd = _ymd(y);
 
-  int sec = 0;
+    int sec = 0;
 
-  // somma livello 1
-  for (final s in level1) {
-    final ts = _parseTs(s['inizio_locale'] ?? s['data_ora_inizio']);
-    if (ts != null && _ymd(ts.toLocal()) == ymd) {
-      sec += _asInt(s['durata_sec']);
+    // somma livello 1
+    for (final s in level1) {
+      final ts = _parseTs(s['inizio_locale'] ?? s['data_ora_inizio']);
+      if (ts != null && _ymd(ts.toLocal()) == ymd) {
+        sec += _asInt(s['durata_sec']);
+      }
+    }
+    // somma livello 2
+    for (final s in level2) {
+      final ts = _parseTs(s['inizio_locale'] ?? s['data_ora_inizio']);
+      if (ts != null && _ymd(ts.toLocal()) == ymd) {
+        sec += _asInt(s['durata_sec']);
+      }
+    }
+
+    return (sec / 60).round();
+  }
+
+//----------------------------------------------------------------------
+// Gestione del token 401 (non più valido): login anonimo e reload dati
+//----------------------------------------------------------------------
+  Future<void> handle401() async {
+    if (_refreshingToken) return;
+    _refreshingToken = true;
+    final ok = await loginAnon();
+    _refreshingToken = false;
+    if (ok) {
+      _jwtToken = await _storage.read(key: 'jwt_token');
+      debugPrint('Token rinnovato dopo 401 $_jwtToken');
+      // qui puoi ripetere la richiesta che aveva dato 401
+      //await _loadAll();
     }
   }
-  // somma livello 2
-  for (final s in level2) {
-    final ts = _parseTs(s['inizio_locale'] ?? s['data_ora_inizio']);
-    if (ts != null && _ymd(ts.toLocal()) == ymd) {
-      sec += _asInt(s['durata_sec']);
-    }
+
+  //---------------------------------------------------------
+  // crea token chiamando login anonimo per avere autenticazione
+  //---------------------------------------------------------
+  Future<bool> loginAnon() async {
+    final uri = Uri.parse('$apiBaseAut/anon.php');
+    final res = await http.get(uri);
+    if (res.statusCode != 200) return false;
+    final data = jsonDecode(res.body) as Map<String, dynamic>;
+    final token = data['token'] as String;
+
+    await _storage.write(key: 'jwt_token', value: token);
+
+    // salva token e usalo negli header:
+    // headers: {'Authorization': 'Bearer $token'}
+    return data['ok'] == true;
   }
 
-  return (sec / 60).round();
-}
+  //-----------------------------------------------------------
+  // Converte una lista di "dettagli" in 7 valori (minuti) lun→dom
+  // per il grafico settimanale
+  //-----------------------------------------------------------
+  List<int> datiSettimanali(List<dynamic>? lista, {DateTime? endDate}) {
+    final end = (endDate ?? DateTime.now()).toLocal();
+    final giorni = List.generate(7, (i) {
+      final d = end.subtract(Duration(days: 6 - i));
+      return _ymd(d);
+    });
+
+    final mappa = <String, int>{};
+
+    for (final e in (lista ?? [])) {
+      if (e == null) continue;
+      String dataStr = '';
+
+      // prova chiavi comuni: 'data' (API older), 'inizio_locale', 'data_ora_inizio'
+      if (e is Map<String, dynamic>) {
+        if (e.containsKey('data') && (e['data'] != null)) {
+          dataStr = e['data'].toString();
+        } else {
+          final ts = _parseTs(
+              e['inizio_locale'] ?? e['data_ora_inizio'] ?? e['data_ora']);
+          if (ts != null) dataStr = _ymd(ts.toLocal());
+        }
+      }
+
+      if (dataStr.isEmpty) continue;
+
+      final durataSec =
+          int.tryParse((e['durata_sec'] ?? e['durata'] ?? 0).toString()) ?? 0;
+      final valoreMin = (durataSec ~/ 60);
+
+      mappa[dataStr] = (mappa[dataStr] ?? 0) + valoreMin;
+    }
+
+    return giorni.map((d) => mappa[d] ?? 0).toList();
+  }
+
+  //-----------------------------------------------------------
+  // Fonde segmenti contigui dello stesso livello
+  //-----------------------------------------------------------
+  List<Map<String, dynamic>> fuseSegments(List<Map<String, dynamic>> raw) {
+    // raw = datiLivelli[livello]!
+    // Assumiamo che ogni elemento abbia:
+    //   data_ora_inizio, data_ora_fine, durata_sec, distanza_metri, fonte, livello
+    // Ordino per inizio
+    raw.sort((a, b) {
+      final ai = DateTime.parse(a['data_ora_inizio']);
+      final bi = DateTime.parse(b['data_ora_inizio']);
+      return ai.compareTo(bi);
+    });
+
+    final fused = <Map<String, dynamic>>[];
+    for (final seg in raw) {
+      if (fused.isEmpty) {
+        fused.add({...seg});
+        continue;
+      }
+
+      final last = fused.last;
+
+      final sameLevel = seg['livello'] == last['livello'];
+      final lastEnd = DateTime.parse(last['data_ora_fine']);
+      final thisStart = DateTime.parse(seg['data_ora_inizio']);
+      final gapSec = thisStart.difference(lastEnd).inSeconds.abs();
+
+      final gapOk = gapSec <= 120; // per esempio: continuità entro 2 minuti
+
+      if (sameLevel && gapOk) {
+        // allunga il blocco precedente
+        last['data_ora_fine'] = seg['data_ora_fine'];
+        last['durata_sec'] =
+            (last['durata_sec'] ?? 0) + (seg['durata_sec'] ?? 0);
+        last['distanza_metri'] =
+            (last['distanza_metri'] ?? 0) + (seg['distanza_metri'] ?? 0);
+        // fonte puoi tenerla dalla prima oppure mettere "mix"
+      } else {
+        fused.add({...seg});
+      }
+    }
+
+    return fused;
+  }
 
 //-----------------------------------------------------------
 // fine classe principale
 //-----------------------------------------------------------
-
-/// --------------------------------------------------------------
-/// Costruisce il widget di intestazione per un livello specifico
-/// -----------------------------------------------------------------
-class DettagliLivelloPage extends StatelessWidget {
-  final int livello;
-
-  const DettagliLivelloPage({super.key, required this.livello});
-
-  @override
-  Widget build(BuildContext context) {
-    // Se ti servono utenteId e nomeId, recuperali qui da SharedPreferences
-    return Scaffold(
-      appBar: AppBar(title: Text('${context.t.form_crono_08} ${livello + 1}')),
-      body: Center(
-        child: Text(
-          '${context.t.form_crono_09} ${livello + 1}',
-          style: TextStyle(fontSize: 24),
-        ),
-      ),
-    );
-  }
-}
-
-//----------------------------------------------------------------------
-// Widget di caricamento
-//----------------------------------------------------------------------
-class _LoadingCard extends StatelessWidget {
-  const _LoadingCard();
-  @override
-  Widget build(BuildContext context) => Container(
-        height: 260,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: Colors.blueGrey[50],
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.blueGrey.shade300),
-        ),
-        child: const CircularProgressIndicator(),
-      );
-}
-
-//---------------------------------------------------------------------
-// info
-//---------------------------------------------------------------------
-class _LockedInfo extends StatelessWidget {
-  final String text;
-  const _LockedInfo({required this.text});
-  @override
-  Widget build(BuildContext context) => Container(
-        height: 120,
-        alignment: Alignment.center,
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.orange.shade50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.orange.shade200),
-        ),
-        child: Text(text, textAlign: TextAlign.center),
-      );
-}
-
-//---------------------------------------------------------------
-// export dati
-//-----------------------------------------------------------------------
-class _ExportChip extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-  const _ExportChip({required this.label, required this.onTap});
-  @override
-  Widget build(BuildContext context) => ActionChip(
-        label: Text(label),
-        avatar: const Icon(Icons.download),
-        onPressed: onTap,
-      );
 }

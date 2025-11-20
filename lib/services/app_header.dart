@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../lingua.dart';
 import 'locale_controller.dart'; // <— importa
+import '../services/app_icons.dart';
 
 class AppHeader extends StatelessWidget implements PreferredSizeWidget {
   final bool showBack;
@@ -20,7 +21,7 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final title = context.t.appTitle;
     final subtitle = context.t.appSubTitle;
-    final logoAsset = 'assets/logo.png';
+    final logoAsset = AppIcons.logo;
 
     final theme = Theme.of(context);
     final cs = theme.colorScheme;

@@ -172,7 +172,7 @@ RichText(
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
       TextSpan(text: '  ${context.t.um_metri} ${totaliLivello(riepilogo1, 1)['metri']}  '),
-      TextSpan(text: '${context.t.um_passi} ${totaliLivello(riepilogo1, 1)['passi']}'),
+      //TextSpan(text: '${context.t.um_passi} ${totaliLivello(riepilogo1, 1)['passi']}'),
     ],
   ),
 ),
@@ -193,7 +193,7 @@ RichText(
               const Divider(),
 
               // Messaggio export come prima (resta per CSV/GPX)
-              if (!gpxEnabled || !csvEnabled)
+              if (!shareEnabled)
                 Align(
                   alignment: Alignment.centerRight,
                   child: Padding(
@@ -238,7 +238,8 @@ RichText(
     return '${context.t.card_settimana} • ${format(primoGiorno)} • ${format(ultimoGiorno)}';
   }
 
-//----------------------------------------------------------------
+  
+  //----------------------------------------------------------------
   // Calcola i totali per un livello specifico
   //----------------------------------------------------------------
   Map<String, dynamic> totaliLivello(List<dynamic> sessioni, int livello) {

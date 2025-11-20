@@ -24,7 +24,7 @@ class UserService {
           await prefs.setString("idUserGenerico", idUserGenerico);
         }
       } catch (e) {
-        print('Errore chiamata API: $e');
+        //print('Errore chiamata API: $e');
         await scriviLog('Errore chiamata API: $e');
       }
     }

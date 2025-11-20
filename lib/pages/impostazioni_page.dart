@@ -11,6 +11,8 @@ import '../db.dart'; // Importa la costante globale
 import '../lingua.dart';
 import '../safe_state.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../services/locale_controller.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ImpostazioniPage extends StatefulWidget {
   final String utenteId;
@@ -41,6 +43,8 @@ class _ImpostazioniPageState extends State<ImpostazioniPage> with SafeState {
   final _oldPasswordCtrl = TextEditingController();
   final _newPasswordCtrl = TextEditingController();
   final _confirmPasswordCtrl = TextEditingController();
+
+  final lc = LocaleController.instance;
 
   //-----------------------------------------------------------
   // Inizializza  lo stato
@@ -218,6 +222,8 @@ class _ImpostazioniPageState extends State<ImpostazioniPage> with SafeState {
   //-----------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
+    final lc =
+        LocaleController.instance; // prendo il singleton, niente listener qui
     final professioni = [
       'Student',
       'Employee',
@@ -294,7 +300,8 @@ class _ImpostazioniPageState extends State<ImpostazioniPage> with SafeState {
               Card(
                 child: DropdownButtonFormField<String>(
                   initialValue: datiUtente?['country_code'],
-                  decoration: InputDecoration(labelText: context.t.form_reg_country),
+                  decoration:
+                      InputDecoration(labelText: context.t.form_reg_country),
                   items: [
                     DropdownMenuItem(value: 'IT', child: Text('Italy')),
                     DropdownMenuItem(value: 'FR', child: Text('France')),
@@ -332,13 +339,55 @@ class _ImpostazioniPageState extends State<ImpostazioniPage> with SafeState {
                   },
                 ),
               ),
+
+              // ...dopo la Card di ultimo accesso
+              Card(
+                margin: const EdgeInsets.all(12),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: ListenableBuilder(
+                    listenable: lc, // riassegna la spunta quando cambia il tema
+                    builder: (_, __) {
+                      return Column(
+                        children: [
+                          RadioListTile<AppTheme>(
+                            title: const Text('System (white)'),
+                            value: AppTheme.systemWhite,
+                            groupValue: lc.appTheme,
+                            onChanged: (v) => lc.setAppTheme(v!),
+                          ),
+                          RadioListTile<AppTheme>(
+                            title: const Text('Light (pastel green)'),
+                            value: AppTheme.lightPastelGreen,
+                            groupValue: lc.appTheme,
+                            onChanged: (v) => lc.setAppTheme(v!),
+                          ),
+                          RadioListTile<AppTheme>(
+                            title: const Text('Light (pastel pink)'),
+                            value: AppTheme.darkPink,
+                            groupValue: lc.appTheme,
+                            onChanged: (v) => lc.setAppTheme(v!),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ),
+              //-----------------------------------------------------
+              // ultima accesso
+              //-----------------------------------------------------
               Card(
                 child: ListTile(
                   title: Text(context.t.form_reg_ult_accesso),
                   subtitle: Text(datiUtente?['ultimo_accesso'] ?? ''),
                 ),
               ),
-              const SizedBox(height: 24),
+
+              //-----------------------------------------------------
+              // Consensi
+              //-----------------------------------------------------
+              const SizedBox(height: 20),
               Text(
                 context.t.form_reg_consensi,
                 style: Theme.of(context).textTheme.titleLarge,
@@ -724,7 +773,49 @@ class _ImpostazioniPageState extends State<ImpostazioniPage> with SafeState {
                 ),
               ),
 
-              // ...existing code...
+              //-----------------------------------------------------
+              // ... dentro la tua colonna/lista impostazioni:
+              const SizedBox(height: 16),
+              Card(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                elevation: 1,
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading:
+                          const Icon(Icons.delete_forever, color: Colors.red),
+                      title: const Text('Request account cancellation'),
+                      subtitle: const Text(
+                          'Removes profile, activities, locations, and linked subscriptions'),
+                      onTap: () =>
+                          _openUrl('https://mytrak.app/delete-account.html'),
+                      // in alternativa: onLongPress: _emailSupport, per shortcut email
+                    ),
+                    const Divider(height: 0),
+                    ListTile(
+                      leading: const Icon(Icons.privacy_tip_outlined),
+                      title: const Text('Privacy Policy'),
+                      onTap: () => _openUrl('https://mytrak.app/privacy.html'),
+                    ),
+                    const Divider(height: 0),
+                    ListTile(
+                      leading: const Icon(Icons.description_outlined),
+                      title: const Text('Terms of Service'),
+                      onTap: () => _openUrl('https://mytrak.app/terms.html'),
+                    ),
+                    // opzionale: contatto diretto
+                    const Divider(height: 0),
+                    ListTile(
+                      leading: const Icon(Icons.email_outlined),
+                      title: const Text('Support to mail'),
+                      subtitle: const Text('support@mytrak.app'),
+                      onTap: _emailSupport,
+                    ),
+                  ],
+                ),
+              ),
+              //-----------------------------------------------------
 
               const SizedBox(height: 24),
               Center(
@@ -749,11 +840,39 @@ class _ImpostazioniPageState extends State<ImpostazioniPage> with SafeState {
                   ),
                 ),
               ),
+
+                    const SizedBox(height: 24),
+                    AppFooter(), // <-- ora scorre con la pagina
+                    const SizedBox(height: 8),
+
             ],
           ),
         ),
       ),
-      bottomNavigationBar: const AppFooter(),
+      
+      // BOTTONE fisso in basso
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          child: SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton.icon(
+              icon: const Icon(Icons.home),
+              label: Text(context.t.bottom_dashboard),
+              onPressed: () {
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                } else {
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, '/home', (r) => false);
+                }
+              },
+            ),
+          ),
+        ),
+      ),
+
     );
   }
 
@@ -875,7 +994,6 @@ class _ImpostazioniPageState extends State<ImpostazioniPage> with SafeState {
   Future<bool> salvaEsclusioneTemporale(EsclusioneTemporale esclusione) async {
     final url = Uri.parse('$apiBaseUrl/esclusioni_temporali_save.php');
 
-  
     final res = await http.post(
       url,
       headers: _authHeaders(_jwtToken!),
@@ -887,4 +1005,30 @@ class _ImpostazioniPageState extends State<ImpostazioniPage> with SafeState {
     }
     return false;
   }
+}
+
+//---------------------------------------------------------------------
+// Apri URL esterno
+//---------------------------------------------------------------------
+Future<void> _openUrl(String url) async {
+  final uri = Uri.parse(url);
+  if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+    // fallback silenzioso, oppure mostra uno SnackBar
+  }
+}
+
+//---------------------------------------------------------------------
+// Invia email al supporto
+//---------------------------------------------------------------------
+Future<void> _emailSupport() async {
+  final uri = Uri(
+    scheme: 'mailto',
+    path: 'support@mytrak.app',
+    queryParameters: {
+      'subject': 'MoveUP – account cancellation request',
+      'body':
+          'Hi, I would like to delete my account.\nEmail: \nUser ID (if known): \nNote: ',
+    },
+  );
+  await launchUrl(uri);
 }

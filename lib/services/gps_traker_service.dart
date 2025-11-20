@@ -1,135 +1,83 @@
+// lib/services/gps_tracker_service.dart
 import 'dart:async';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:geolocator/geolocator.dart';
-import 'package:intl/intl.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 
-class GpsTrackerService {
-  final int gpsSampleSec; // es. 5
-  final int gpsMinDistanceM; // es. 8
-  final int gpsBatchSec; // es. 30
-
-  final String apiBase; // es. https://mytrak.app/move/api
-  final String jwt; // Bearer token
-  final int utenteId; // opzionale: se admin, altrimenti usa token lato server
-
-  Timer? _sampleTimer;
-  Timer? _batchTimer;
-  Position? _lastSavedPos;
-  final List<Map<String, dynamic>> _buffer = [];
-
+class GpsTrackerService { 
   GpsTrackerService({
-    required this.gpsSampleSec,
-    required this.gpsMinDistanceM,
-    required this.gpsBatchSec,
-    required this.apiBase,
-    required this.jwt,
-    required this.utenteId,
+    required this.enqueue,        // funzione che salva in coda (la tua)
+    this.intervalSec = 10,
+    this.minDistanceM = 5,
   });
 
-  Future<void> start() async {
-    await _ensurePermissions();
+  final Future<bool> Function(Position pos) enqueue; // esegue il tuo _enqueueFromPosition
+  final int intervalSec;
+  final int minDistanceM;
 
-    // Timer di campionamento
-    _sampleTimer?.cancel();
-    _sampleTimer = Timer.periodic(Duration(seconds: gpsSampleSec), (_) async {
-      try {
-        final pos = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: gpsSampleSec),
-        );
+  StreamSubscription<Position>? _sub;
+  bool get isRunning => _sub != null;
 
-        // distanza minima
-        final shouldStore = () {
-          if (_lastSavedPos == null) return true;
-          final d = Geolocator.distanceBetween(
-            _lastSavedPos!.latitude,
-            _lastSavedPos!.longitude,
-            pos.latitude,
-            pos.longitude,
+  /// Avvia lo stream (Foreground Service su Android)
+  Future<bool> start() async {
+    // 1) servizi & permessi (metti qui i tuoi check come già hai)
+    if (!await Geolocator.isLocationServiceEnabled()) {
+      await Geolocator.openLocationSettings();
+      return false;
+    }
+    var p = await Geolocator.checkPermission();
+    if (p == LocationPermission.denied) p = await Geolocator.requestPermission();
+    if (p == LocationPermission.denied || p == LocationPermission.deniedForever) {
+      await Geolocator.openAppSettings();
+      return false;
+    }
+
+    // 2) settings (Android → foreground)
+    final locationSettings = (Platform.isAndroid && !kIsWeb)
+        ? AndroidSettings(
+            accuracy: LocationAccuracy.best,
+            intervalDuration: Duration(seconds: intervalSec),
+            distanceFilter: minDistanceM,
+            foregroundNotificationConfig: const ForegroundNotificationConfig(
+              notificationTitle: 'MoveUP is active',
+              notificationText: 'GPS tracking in progress',
+              enableWakeLock: true,
+            ),
+          )
+        : LocationSettings(
+            accuracy: LocationAccuracy.best,
+            distanceFilter: minDistanceM,
           );
-          return d >= gpsMinDistanceM;
-        }();
 
-        if (shouldStore) {
-          _lastSavedPos = pos;
-          // ISO 8601 con timezone
-          final tsIso = DateTime.now().toIso8601String();
-          _buffer.add({
-            "lat": pos.latitude,
-            "lon": pos.longitude,
-            "tsIso": tsIso,
-            // opzionali se disponibili:
-            "accM": pos.accuracy,
-            "altM": pos.altitude,
-          });
-        }
-      } catch (_) {
-        // opzionale: log
-      }
-    });
+    // 3) stream
+    await _sub?.cancel();
+    _sub = Geolocator.getPositionStream(
+      locationSettings: locationSettings,
+    ).listen((pos) async {
+      try { await enqueue(pos); } catch (_) {}
+    }, onError: (_) {});
 
-    // Timer di invio batch + ricalcolo
-    _batchTimer?.cancel();
-    _batchTimer = Timer.periodic(Duration(seconds: gpsBatchSec), (_) async {
-      await _flushBatch();
-    });
+    return true;
   }
 
+  /// Ferma lo stream e fa flush se vuoi (gestiscilo nell'enqueue/queue)
   Future<void> stop() async {
-    _sampleTimer?.cancel();
-    _batchTimer?.cancel();
-    await _flushBatch(); // invia ciò che resta
+    await _sub?.cancel();
+    _sub = null;
   }
 
-  Future<void> _flushBatch() async {
-    if (_buffer.isEmpty) return;
-
-    final points = List<Map<String, dynamic>>.from(_buffer);
-    _buffer.clear();
-
-    final uri = Uri.parse(
-        "$apiBase/posizioni_batch.php?utente_id=$utenteId"); // se non admin, puoi rimuovere la query
-    final res = await http.post(
-      uri,
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-        "Authorization": "Bearer $jwt",
-      },
-      body: jsonEncode({"points": points}),
-    );
-
-    if (res.statusCode != 200) {
-      // fallito: rimetto in coda
-      _buffer.insertAll(0, points);
-      return;
-    }
-
-    // opzionale: se vuoi un ricalcolo esplicito separato
-    // await _recalcAttivitaOggi();
-  }
-
-  Future<void> _recalcAttivitaOggi() async {
-    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    final uri = Uri.parse(
-        "$apiBase/ricalcola_attivita.php?utente_id=$utenteId&data=$today");
+  /// Fix “una tantum” (per pulsante “acquisisci ora”)
+  Future<bool> saveOnce({LocationAccuracy accuracy = LocationAccuracy.best}) async {
     try {
-      await http.post(
-        uri,
-        headers: {"Authorization": "Bearer $jwt"},
+      final pos = await Geolocator.getCurrentPosition(
+        desiredAccuracy: accuracy,
+        timeLimit: const Duration(seconds: 10),
       );
-    } catch (_) {}
+      return await enqueue(pos);
+    } catch (_) {
+      return false;
+    }
   }
 
-  Future<void> _ensurePermissions() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // chiedi all’utente di abilitare il GPS: Geolocator.openLocationSettings();
-    }
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
-    // per background su Android/iOS: gestisci le policy/permessi specifici dell’OS
-  }
+  Future<void> dispose() async => stop();
 }

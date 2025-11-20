@@ -22,17 +22,23 @@
   "sessionExpired": "Sesión expirada. Inicia sesión de nuevo.",
   "durata_abbonamento": "Duración:",
 
-  "onb1": "Registra y organiza tus movimientos en un solo lugar.",
-  "onb2": "Mira adónde va tu tiempo: casa, trabajo, desplazamientos.",
-  "onb3": "Informes y tendencias automáticos: mejora con datos.",
+ "onb1": "¿Qué hace MoveUP?",
+  "onb1_body": "MoveUP te muestra cuánto tiempo estás quieto, te mueves lento o rápido.\n¡Te sorprenderá!",
+
+  "onb2": "Cómo funciona",
+  "onb2_body": "• Inicia el seguimiento\n• Muévete 10 minutos\n• Abre el resumen de la noche\n• Compártelo con quien quieras",
+
+  "onb3": "¿Listo para empezar?",
+  "onb3_body": "Acepta las condiciones y activa el seguimiento.\nRegístrate GRATIS.\nTendrás la semana bajo control.",
+
 
   "botton_salta": "Saltar",
   "condizioni_uso": "He leído y acepto las ",
   "condizioni_uso2": "Condiciones de uso",
-  "privacy_policy": "y la ",
+  "privacy_policy": " y la ",
   "privacy_policy2": "Política de Privacidad",
   
-  "botton_prosegui": "Continuar",
+ "botton_prosegui": "Iniciar seguimiento ahora",
   "botton_indietro": "Atrás",
   "botton_avanti": "Siguiente",
 
@@ -48,6 +54,7 @@
   "user_err05": "Inicio de sesión fallido",
   "user_err06": "Iniciar sesión",
   "user_err07": "Registrarse",
+  "user_login_success": "¡Inicio de sesión exitoso!",
   
   "gps_err01": "Seguimiento GPS desactivado: actívalo en la configuración.",
   "gps_err02": "Error al guardar ubicación:",
@@ -63,12 +70,19 @@
   "gps_err12": "Seguimiento GPS ",
   "gps_err13": "Debes activar el consentimiento de seguimiento GPS en la configuración",
   "gps_err14": "Seguimiento en escucha",
-  "gps_err15": "Seguimiento desactivado",
+  "gps_err15": "Seguimiento apagado",
   "gps_err16": "Próxima detección en",
   "gps_err17": "GPS Activo",
   "gps_err18": "GPS Inactivo",
   "gps_err19": "Diario de bordo GPS",
   "gps_err20": "Ningún evento aún registrado.",
+   "gps_err21": "En pausa",
+    "gps_err22": "En escucha",
+    "gps_err23": "Iniciar seguimiento",
+    "gps_err24": "Reanudar seguimiento",
+    "gps_err25": "Pausar seguimiento",
+    "gps_err26": "Reanudar seguimiento",
+
   
   "att_err01": "Error en el recálculo de actividad:",
   "att_err02": "sin cambios respecto a ayer",
@@ -81,12 +95,13 @@
   "info_mes03": "Duración:",
   "info_mes04": "Distancia:",
   "info_mes05": "Fuente:",
-  "info_mes06": "Pasos estimados:",
-  "info_mes07": "Entiende cómo te mueves,\nmejora cada día",
+  "info_mes06": "Pasos estimados:", 
+  "info_mes07": "Entiende cómo te mueves",
+   "info_mes08": "Descubre cómo empleas tu tiempo",
 
-  "mov_inattivo": "Inactivo o parado",
-  "mov_leggero": "Movimiento ligero",
-  "mov_veloce": "Movimiento rápido",
+  "mov_inattivo": "En pausa / Parado",
+  "mov_leggero": "Movimiento lento",
+  "mov_veloce": "Desplazamiento rápido",
   
   "chart_mes01": "No hay gráficos disponibles por el momento.",
   "chart_mes02": "Cronología de niveles diarios",
@@ -97,6 +112,7 @@
 "chart_mes07": "Mi informe MoveUP de hoy",
 "cahrt_mes08": "Error al compartir:",
 "chart_mes09": "Informe MoveUP de hoy",
+"chart_mes10": "Línea temporal de niveles (por carriles)",
   
   "um_metri": "Metros:",
   "um_passi": "Pasos:",
@@ -160,6 +176,13 @@
   "bottom_cronologia": "Actividad",
   "bottom_profilo": "Perfil",
   "bottom_abbonamenti": "Suscripciones",
+  "bottom_dashboard": "Inicio",
+
+  "bottom_impostazioni_short": "Conf.",
+  "bottom_cronologia_short": "Act.",
+  "bottom_profilo_short": "Perf.",
+  "bottom_abbonamenti_short": "Susc.",
+
   "bottom_err01": "¡Función disponible solo para usuarios registrados!",
   "bottom_err02": "¡Usuario INCORRECTO!",
   "bottom_nome": "Nombre",
@@ -172,7 +195,7 @@
 
   "storico_01": "Elige cuánto historial quieres conservar. El resto crece contigo.",
     "storico_02": "Free (Anónimo)",
-    "storico_03": "Usa la app sin registrarte. Historial solo del día en curso.\nFunciones: seguimiento en vivo y resumen diario.",
+    "storico_03": "Usa la app sin registrarte.\nLa ubicación también puede recogerse en segundo plano para calcular, en tiempo real, la distancia recorrida, el tiempo en movimiento y los momentos de pausa.\nLos datos se guardan solo en tu dispositivo, valen solo para el día en curso y se eliminan automáticamente cada día.\nFunciones: seguimiento en vivo y resumen del día.",
     "storico_04": "Start (Registrado)",
     "storico_05": "Cuenta gratuita con historial de 7 días.\nFunciones: seguimiento en vivo y en segundo plano, copia de seguridad en la nube, sincronización en varios dispositivos, notificaciones.",
     "storico_06": "Basic — 30 días (De pago)",
@@ -182,21 +205,23 @@
     "storico_10": "Pro — 365 días (De pago)",
     "storico_11": "Historial de 1 año.\nFunciones: informes avanzados, filtros detallados, soporte prioritario, sin publicidad.",
     "storico_12": "Nota de privacidad:",
-    "storico_13": "Puedes cambiar o retirar tu consentimiento en cualquier momento. Sin consentimiento para el seguimiento no registramos posiciones.",
+    "storico_13": "La app puede registrar tu ubicación también en segundo plano para calcular tus desplazamientos, la distancia recorrida y el tiempo en movimiento.\nPuedes cambiar o retirar los consentimientos en cualquier momento.\nSin consentimiento al seguimiento no guardamos ninguna posición.\nSi usas la app en modo anónimo (sin registro), los datos se quedan solo en el dispositivo y se eliminan automáticamente al final del día: no mantenemos historial de días anteriores ni asociamos las posiciones a un perfil personal.",
   "storico_14": "⏳ Cargando datos…",
   
   "form_crono_01": "Actividad",
   "form_crono_02": "Resumen de actividad",
   "form_crono_03": "Bienvenido, ",
-  "form_crono_04": "Totales últimos 7 días",
+  "form_crono_04": "Resumen últimos 7 días",
   "form_crono_05": "Ninguna sesión registrada",
   "form_crono_06": "Nivel",
   "form_crono_07": "Ver detalles",
   "form_crono_08": "Detalles Nivel",
   "form_crono_09": "Detalles para el Nivel",
+  "form_crono_10": "Resumen de 8 a 14 días",
+  "form_crono_11": "Comparación semanal",
   
   "dashboard_piano": "Plan:",
-  "dashboard_msg": "Crea una cuenta (gratuita) para guardar tus datos y desbloquear la función de compartir.",
+  "dashboard_msg": "Ve a Perfil y regístrate.\nTendrás tu semana tipo",
 
   "imposta_page_studente": "Estudiante",
   "imposta_page_impiegato": "Empleado",
@@ -216,7 +241,6 @@
   "imposta_page_importo": "Importe:",
   "imposta_page_durata": "Duración:",
   "imposta_page_cancella": "Eliminación de datos: después de ",
-  "imposta_page_funzioni": "Funciones activas:",
   "imposta_page_save": "Guardar cambios",
   "imposta_page_mess1": "¡Datos personales actualizados!",
   "imposta_page_mess2": "Error: ",
@@ -230,7 +254,7 @@
   "footer_page_versione": "Versión app:",
   "header_page_banner": "Your Personal Move",
 
-"rep_day_export_locked": "Compartir requiere BASIC/PLUS/PRO",
+"rep_day_export_locked": "Compartir requiere STARTBASIC/PLUS/PRO",
   "msg_abilitato_01": "Regístrate para ver la distribución de hoy",
   "msg_abilitato_02": "Cronología disponible con BASIC. Regístrate primero.",
 
@@ -311,6 +335,7 @@
     "acquisto_piano_durata": "Duración:",
     "acquisto_piano_pagamento": "Proceder al pago",
     "acquisto_piano_stripe": "Serás redirigido a Stripe...",
+    "acquisto_piano_google": "Serás redirigido a Google...",
     "acquisto_piano_nopaga": "Pago no iniciado:",
     "acquisto_piano_attivo": "¡Plan activado!",
 
@@ -327,9 +352,9 @@
 "today_title": "Hoy",
     "today_title_closed": "Hoy — jornada terminada",
     "badge_partial": "Datos parciales",
-    "kpi_active": "Min activos",
+    "kpi_active": "Tiempo en movimiento",
     "kpi_km": "Km",
-    "kpi_sedentary": "Sedentario",
+    "kpi_sedentary": "Pausas / En pausa",
     "no_data_msg": "Aún no tenemos datos para hoy.",
     "check_location": "Permisos de ubicación",
     "check_battery": "Ahorro de batería",
@@ -358,9 +383,35 @@
   "fix_vendor_06": "Revisa el Inicio automático y la protección de apps del fabricante.",
 
   "fix_messag_01": "Ve a Ajustes → Privacidad y seguridad → Ubicación → MoveUP\nestablece “Siempre” y activa “Ubicación precisa”.\nRevisa también Ahorro de energía: podría limitar la actividad en segundo plano.",
-  "fix_chiudi_button": "Cerrar"
+  "fix_chiudi_button": "Cerrar",
+  "fix_riduci_button": "Reducir",
+  "fix_espandi_button": "Expandir",
+
+  "dettagli": "Detalles técnicos del día",
+  "posizione": "Tu ubicación",
+ "export_day": "Exportar datos del día",
+  "date_parse_error": "Error al leer la fecha",
+  "export_started": "Exportación iniciada...",
+  "download_start": "Descarga iniciada en el navegador",
+  "esportazione_file": "Exportación:",
+  "errore_http": "Error de descarga: HTTP",
+  "errore_generico": "Error de exportación:",
+
+  "dedica_title": "Dedicado a…",
+ "dedica_testo": "Mi esposa y Lova, que me dieron la fuerza para llegar hasta aquí. 💚🐾", 
 
 
+  "analisi_oggi": "Análisis de hoy",
+  "movimento": "Movimiento",
+  "non_reg": "No registrado",
+  "parziale": "Parcial",
+"completo": "Completo",
+"dati_incompleti": "Datos incompletos: el teléfono no ha registrado durante aproximadamente",
+"ottima_attivita": "Muy buena actividad hoy",
+"buona_attivita": "Buena actividad, has aprovechado bien parte del día.",
+"giorno_statico1": "Jornada bastante estática ",
+"giorno_statico2": "parado/pausa",
+"attivita_media": "Actividad media."
 
 
 }

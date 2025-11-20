@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'dart:typed_data';
+
 import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
 
@@ -60,6 +60,10 @@ class CardReportGiornaliero extends StatelessWidget {
         !isOverLimit &&
         canAdvanced &&
         (canExportCsv || canExportGpx);
+
+    //debugPrint('Riepilogo0 durata: ${riepilogo0['durata']}');
+    //debugPrint('Riepilogo1 durata: ${riepilogo1['durata']}');
+    //debugPrint('Riepilogo2 durata: ${riepilogo2['durata']}');
 
     return RepaintBoundary(
       key: _captureKey,
@@ -150,48 +154,53 @@ class CardReportGiornaliero extends StatelessWidget {
 
               // Corpo come prima
               RichText(
-  text: TextSpan(
-    style: const TextStyle(fontSize: 15, color: Colors.black),
-    children: [
-      TextSpan(text: '🛌 ${context.t.mov_inattivo} '),
-      TextSpan(
-        text: formattaMinuti(riepilogo0['durata']),
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
-    ],
-  ),
-),
-RichText(
-  text: TextSpan(
-    style: const TextStyle(fontSize: 15, color: Colors.black),
-    children: [
-      TextSpan(text: '🚶 ${context.t.mov_leggero} '),
-      TextSpan(
-        text: formattaMinuti(riepilogo1['durata']),
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
-      TextSpan(text: '  ${context.t.um_metri} ${riepilogo1['metri']}  '),
-      TextSpan(text: '${context.t.um_passi} ${riepilogo1['passi']}'),
-    ],
-  ),
-),
-RichText(
-  text: TextSpan(
-    style: const TextStyle(fontSize: 15, color: Colors.black),
-    children: [
-      TextSpan(text: '🚗 ${context.t.mov_veloce} '),
-      TextSpan(
-        text: formattaMinuti(riepilogo2['durata']),
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
-      TextSpan(text: '  ${context.t.um_km} ${riepilogo2['km'].toStringAsFixed(2)}'),
-    ],
-  ),
-),              const SizedBox(height: 8),
+                text: TextSpan(
+                  style: const TextStyle(fontSize: 15, color: Colors.black),
+                  children: [
+                    TextSpan(text: '🛌 ${context.t.mov_inattivo} '),
+                    TextSpan(
+                      text: riepilogo0['durata'],
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+              RichText(
+                text: TextSpan(
+                  style: const TextStyle(fontSize: 15, color: Colors.black),
+                  children: [
+                    TextSpan(text: '🚶 ${context.t.mov_leggero} '),
+                    TextSpan(
+                      text: riepilogo1['durata'],
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(
+                        text:
+                            '  ${context.t.um_metri} ${riepilogo1['metri']}  '),
+                    //TextSpan(text: '${context.t.um_passi} ${riepilogo1['passi']}'),
+                  ],
+                ),
+              ),
+              RichText(
+                text: TextSpan(
+                  style: const TextStyle(fontSize: 15, color: Colors.black),
+                  children: [
+                    TextSpan(text: '🚗 ${context.t.mov_veloce} '),
+                    TextSpan(
+                      text: riepilogo2['durata'],
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(
+                        text:
+                            '  ${context.t.um_km} ${riepilogo2['km'].toStringAsFixed(2)}'),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
               const Divider(),
 
               // Messaggio export come prima (resta per CSV/GPX)
-              if (!gpxEnabled || !csvEnabled)
+              if ( !shareEnabled)
                 Align(
                   alignment: Alignment.centerRight,
                   child: Padding(
@@ -258,7 +267,7 @@ RichText(
   //--------------------------------------------------------------
   Future<void> _condividi(BuildContext context) async {
     try {
-      // assicura che il frame corrente sia completato
+      // Assicura che il frame corrente sia finito
       await WidgetsBinding.instance.endOfFrame;
 
       final renderObj = _captureKey.currentContext?.findRenderObject();
@@ -266,13 +275,15 @@ RichText(
       if (boundary == null) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(context.t.chart_mes06)),
+            SnackBar(
+                content: Text(
+                    context.t.chart_mes06)), // "Niente da condividere" ecc.
           );
         }
         return;
       }
 
-      // piccolo retry se non è ancora pitturato
+      // Attendi che abbia pitturato
       var tries = 0;
       while (boundary.debugNeedsPaint && tries < 5) {
         await Future.delayed(const Duration(milliseconds: 40));
@@ -280,7 +291,8 @@ RichText(
       }
 
       final dpr = MediaQuery.of(context).devicePixelRatio;
-      final img = await boundary.toImage(pixelRatio: (dpr * 2).clamp(2.0, 4.0));
+      final pixelRatio = (dpr * 2).clamp(2.0, 4.0) as double; // ← cast a double
+      final img = await boundary.toImage(pixelRatio: pixelRatio);
       final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
       if (byteData == null) {
         throw Exception('toByteData null');
@@ -293,18 +305,19 @@ RichText(
           '${dir.path}/move_report_${DateTime.now().millisecondsSinceEpoch}.png';
       final file = await File(filePath).writeAsBytes(bytes, flush: true);
 
-      // Condividi senza affidarti a un "result" interno
+      // Condivisione (niente variabile "result")
       try {
         await Share.shareXFiles([XFile(file.path)],
             text: '${context.t.chart_mes07} 💪');
-      } catch (e) {
-        // Fallback: se shareXFiles dovesse dare problemi su alcuni device/ROM
+      } catch (_) {
+        // Fallback testo semplice
         await Share.share('${context.t.chart_mes09} 💪');
       }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${context.t.cahrt_mes08} $e')),
+          SnackBar(
+              content: Text('${context.t.cahrt_mes08} $e')), // ← typo corretto
         );
       }
     }

@@ -34,69 +34,75 @@ class _AppFooterState extends State<AppFooter> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Riga orizzontale con scritte e banner
+          // 1. Linea divisoria
+          Divider(thickness: 1, color: Colors.grey[300]),
+          // 2. Banner promozionale
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 240, 239, 235),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              context.t.footer_page_banner,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.brown[700],
+              ),
+            ),
+          ),
+          // 3. Info legali + contatti
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Info legali
               Expanded(
                 child: Text(
                   context.t.footer_page_diritti,
-                  style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[700]),
                   textAlign: TextAlign.left,
                 ),
               ),
-              // Banner o messaggio promozionale
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 240, 239, 235),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  context.t.footer_page_banner,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.brown[700],
-                  ),
-                ),
-              ),
-              // Info contatti
               Expanded(
                 child: Text(
                   '$dt_email | $dt_telefono',
-                  style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[700]),
                   textAlign: TextAlign.right,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 4),
-          // Versione app centrata
+          // 4. Versione app centrata
           if (appVersion.isNotEmpty)
-            Text(
-              '${context.t.footer_page_versione} $appVersion',
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            Padding(
+              padding: const EdgeInsets.only(top: 6.0),
+              child: Text(
+                '${context.t.footer_page_versione} $appVersion',
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                textAlign: TextAlign.center,
+              ),
             ),
-          SizedBox(height: 8),
-          // Social
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                icon: Icon(Icons.facebook, color: Colors.blue[800]),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: Icon(Icons.camera_alt, color: Colors.purple),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: Icon(Icons.alternate_email, color: Colors.lightBlue),
-                onPressed: () {},
-              ),
-            ],
+          // 5. Social in fondo
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.facebook, color: Colors.blue[800]),
+                  onPressed: () {},
+                ),
+                IconButton(
+                  icon: Icon(Icons.camera_alt, color: Colors.purple),
+                  onPressed: () {},
+                ),
+                IconButton(
+                  icon: Icon(Icons.alternate_email, color: Colors.lightBlue),
+                  onPressed: () {},
+                ),
+              ],
+            ),
           ),
         ],
       ),

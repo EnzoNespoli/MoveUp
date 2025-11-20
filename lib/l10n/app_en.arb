@@ -22,17 +22,22 @@
   "sessionExpired": "Session expired. Please log in again.",
   "durata_abbonamento": "Subscription duration:",
 
-  "onb1": "Track and organize your movements in one place.",
-  "onb2": "See where your time goes: home, work, commutes.",
-  "onb3": "Automatic reports and trends: improve with data.",
+  "onb1": "What does MoveUP do?",
+  "onb1_body": "MoveUP shows how much of your time you’re still, moving slowly, or moving fast.\nYou’ll be surprised!",
+
+  "onb2": "How it works",
+  "onb2_body": "• Start tracking\n• Move for 10 minutes\n• Open the evening summary\n• Share it with whoever you want",
+
+  "onb3": "Ready to start?",
+  "onb3_body": "Accept the terms and enable tracking.\nRegister for FREE.\nKeep your week under control.",
 
   "botton_salta": "Skip",
   "condizioni_uso": "I have read and accepted the ",
   "condizioni_uso2": "Terms of Use",
-  "privacy_policy": "and the ",
+  "privacy_policy": " and the ",
   "privacy_policy2": "Privacy Policy",
   
-  "botton_prosegui": "Continue",
+  "botton_prosegui": "Start tracking now",
   "botton_indietro": "Back",
   "botton_avanti": "Next",
 
@@ -48,6 +53,7 @@
   "user_err05": "Login failed",
   "user_err06": "Login",
   "user_err07": "Register",
+  "user_login_success": "Login successful!",
 
   "gps_err01": "GPS tracking disabled: enable it in settings.",
   "gps_err02": "Error saving location:",
@@ -63,12 +69,18 @@
   "gps_err12": "GPS Tracking ",
   "gps_err13": "You must enable GPS tracking consent in settings.",
   "gps_err14": "Tracking active",
-  "gps_err15": "Tracking disabled",
+  "gps_err15": "Tracking off",
   "gps_err16": "Next detection in",
   "gps_err17": "GPS On",
   "gps_err18": "GPS Off",
   "gps_err19": "GPS Log",
   "gps_err20": "No events recorded yet.",
+   "gps_err21": "Paused",
+    "gps_err22": "Listening",
+    "gps_err23": "Start tracking",
+    "gps_err24": "Resume tracking",
+    "gps_err25": "Pause tracking",
+    "gps_err26": "Resume tracking",
   
   "att_err01": "Activity recalculation error:",
   "att_err02": "Unchanged from yesterday",
@@ -82,10 +94,11 @@
   "info_mes04": "Distance:",
   "info_mes05": "Source:",
   "info_mes06": "Estimated steps:",
-  "info_mes07": "Understand how you move,\nimprove every day.",
+  "info_mes07": "Understand how you move",
+   "info_mes08": "Discover how you use your time",
 
-  "mov_inattivo": "Inactive or stationary",
-  "mov_leggero": "Light movement",
+  "mov_inattivo": "Pause / Stopped",
+  "mov_leggero": "Slow movement",
   "mov_veloce": "Fast movement",
   
   "chart_mes01": "No charts available at this time.",
@@ -96,7 +109,8 @@
 "chart_mes06": "Unable to generate the image. Please try again.",
 "chart_mes07": "My MoveUP Report for today",
 "cahrt_mes08": "Sharing error:",
-"chart_mes09": "MoveUP Report for today",  
+"chart_mes09": "MoveUP Report for today", 
+"chart_mes10": "Levels timeline (by lanes)",
 
   "um_metri": "Meters:",
   "um_passi": "Steps:",
@@ -160,6 +174,13 @@
   "bottom_cronologia": "Activity",
   "bottom_profilo": "Profile",
   "bottom_abbonamenti": "Subscriptions",
+  "bottom_dashboard": "Home",
+
+  "bottom_impostazioni_short": "Set.",
+  "bottom_cronologia_short": "Act.",
+  "bottom_profilo_short": "Prof.",
+  "bottom_abbonamenti_short": "Sub.",
+
   "bottom_err01": "Function available only for registered users!",
   "bottom_err02": "Invalid user!",
   "bottom_nome": "Name",
@@ -172,7 +193,7 @@
 
   "storico_01": "Choose how much history you want to keep. The rest grows with you.",
     "storico_02": "Free (Anonymous)",
-    "storico_03": "Use the app without signing up. History only for the current day.\nFeatures: live tracking and daily summary.",
+    "storico_03": "Use the app without signing up.\nYour location can also be collected in the background to calculate, in real time, distance traveled, time in movement and pause moments.\nData stays only on your device, is valid for the current day, and is deleted automatically every day.\nFeatures: live tracking and daily summary.",
     "storico_04": "Start (Registered)",
     "storico_05": "Free account with 7-day history.\nFeatures: live and background tracking, cloud backup, sync across devices, notifications.",
     "storico_06": "Basic — 30 days (Paid)",
@@ -182,21 +203,23 @@
     "storico_10": "Pro — 365 days (Paid)",
     "storico_11": "1-year history.\nFeatures: advanced reports, detailed filters, priority support, no ads.",
     "storico_12": "Privacy note:",
-    "storico_13": "You can change or withdraw consent at any time. Without consent to tracking we do not record locations.",
+    "storico_13": "The app may collect your location in the background to calculate your trips, distance traveled and time in movement.\nYou can change or withdraw consent at any time.\nWithout tracking consent we do not store locations.\nIf you use the app in anonymous mode (no registration), data stays only on the device and is automatically deleted at the end of the day: we do not keep history of previous days and we do not link locations to a personal profile.",
   "storico_14": "⏳ Loading data…",
    
   "form_crono_01": "Activity",
   "form_crono_02": "Activity Summary",
   "form_crono_03": "Welcome, ",
-  "form_crono_04": "Totals for last 7 days",
+  "form_crono_04": "Summary for last 7 days",
   "form_crono_05": "No sessions recorded",
   "form_crono_06": "Level",
   "form_crono_07": "View details",
   "form_crono_08": "Level details",
   "form_crono_09": "Details for level",
+  "form_crono_10": "Summary from 8 to 14 days",
+  "form_crono_11": "Weekly comparison",
   
   "dashboard_piano": "Plan:",
-  "dashboard_msg": "Create a (free) account to save your data and unlock sharing.",
+  "dashboard_msg": "Go to Profile and register.\nYou will have your typical week",
 
   "imposta_page_studente": "Student",
   "imposta_page_impiegato": "Employee",
@@ -230,7 +253,7 @@
   "footer_page_versione": "App version:",
     "header_page_banner": "Your Personal Move",
 
-  "rep_day_export_locked": "Sharing requires BASIC/PLUS/PRO",
+  "rep_day_export_locked": "Sharing requires START/BASIC/PLUS/PRO",
   "msg_abilitato_01": "Sign up to see today's distribution",
   "msg_abilitato_02": "Timeline available with BASIC. Please sign up first.",
 
@@ -246,7 +269,6 @@
   "card_percorso_4": "Route for",
   "card_percorso_5": "No movement on this date",
 
-  "imposta_page_funzioni": "Active features",
   "feat_tracking_live": "Live tracking",
   "feat_report_basic": "Daily report (basic)",
   "feat_report_advanced": "Advanced daily timeline",
@@ -311,6 +333,7 @@
     "acquisto_piano_durata": "Duration:",
     "acquisto_piano_pagamento": "Proceed to payment",
     "acquisto_piano_stripe": "You will be redirected to Stripe...",
+    "acquisto_piano_google": "You will be redirected to Google...",
     "acquisto_piano_nopaga": "Payment not started:",
     "acquisto_piano_attivo": "Plan activated!",
 
@@ -327,17 +350,17 @@
 "today_title": "Today",
     "today_title_closed": "Today — day finished",
     "badge_partial": "Partial data",
-    "kpi_active": "Active min",
+    "kpi_active": "Time in movement",
     "kpi_km": "Km",
-    "kpi_sedentary": "Sitting",
+    "kpi_sedentary": "Pauses / Stopped",
     "no_data_msg": "We don’t have any data for today yet.",
     "check_location": "Location permissions",
     "check_battery": "Battery saver",
     "check_gps": "GPS status",
     "insight_quality": "We’re missing data due to battery saver. Tap to fix.",
-    "insight_goal_hit": "Goal reached 🎯 Great job!",
-    "insight_goal_missing": "You’re {v1} min away from your goal.",
-    "insight_vs_yesterday": "Today you’re at {v2}% vs yesterday.",
+    "insight_goal_hit": "You reached your planned movement time today.",
+  "insight_goal_missing": "You’re {v1} min away from the planned movement time.",
+  "insight_vs_yesterday": "Today you’re at {v2}% compared to yesterday.",
 
     "fix_qualita_dati": "Data quality",
   "fix_message": "Fix these points to avoid data loss.",
@@ -358,10 +381,34 @@
   "fix_vendor_06": "Check the manufacturer’s Autostart and app protection.",
 
   "fix_messag_01": "Go to Settings → Privacy & security → Location → MoveUP\nset “Always” and enable “Precise location”.\nAlso check Power saving: it may limit background activity.",
-  "fix_chiudi_button": "Close"
+  "fix_chiudi_button": "Close",
+  "fix_riduci_button": "Minimize",
+  "fix_espandi_button": "Expand",
+
+  "dettagli": "Technical details of the day",
+  "posizione": "Your location",
+  "export_day": "Export day data",
+  "date_parse_error": "Date parse error",
+  "export_started": "Export started...",
+  "download_start": "Download started in browser",
+  "esportazione_file": "Export:",
+  "errore_http": "Download error: HTTP",
+  "errore_generico": "Export error:",
+
+  "dedica_title": "Dedicated to…",
+ "dedica_testo": "My wife and Lova, who gave me the strength to get this far. 💚🐾", 
 
 
-
-
+  "analisi_oggi": "Analysis of today",
+  "movimento": "Movement",
+  "non_reg": "Not registered",
+  "parziale": "Partial",
+"completo": "Complete",
+"dati_incompleti": "Incomplete data: the phone did not record for about",
+"ottima_attivita": "Great activity today",
+"buona_attivita": "Good activity, you used part of your day well.",
+"giorno_statico1": "Day quite static ",
+"giorno_statico2": "still/pause",
+"attivita_media": "Average activity."
     
 }

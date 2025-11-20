@@ -47,21 +47,44 @@ android {
         }
     }
 
+    // ⛔️ Non comprimere gli snapshot/dart assets (fix VM snapshot invalid)
+    androidResources {
+        noCompress += listOf(
+            "flutter_assets",
+            "vm_snapshot_data",
+            "isolate_snapshot_data",
+            "kernel_blob.bin"
+        )
+    }
+
+    // ✅ Packaging JNI legacy per compatibilità con gli split AAB
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
     buildTypes {
         getByName("release") {
-            // usa la chiave release (non più quella di debug)
+            // Firma release (tu già ce l’hai, lascio il tuo codice)
             if (keystorePropertiesFile.exists()) {
                 signingConfig = signingConfigs.getByName("release")
             }
-            isMinifyEnabled = true
-            isShrinkResources = true
+
+            // 🔎 Per il test: niente offuscamento né shrink (evita crash causati da R8)
+            isMinifyEnabled = false
+            isShrinkResources = false
+
+            // Puoi lasciare i proguardFiles, non danno fastidio anche se minify=false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
-        // debug resta com'è (firma debug automatica)
     }
+
+
+
 }
 
 flutter {

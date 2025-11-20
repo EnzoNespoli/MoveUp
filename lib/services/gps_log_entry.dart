@@ -7,6 +7,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart'
     show TargetPlatform, debugPrint, defaultTargetPlatform, kIsWeb;
 import 'package:http/http.dart' as http;
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -206,7 +207,8 @@ class GpsLogE {
       String? idLogin = prefs.getString("utenteIdLogin");
       String? idAnonimo = prefs.getString("utenteIdAnonimo");  
        
-      final appVersion = '1.0.1+4';
+      final info = await PackageInfo.fromPlatform();
+      final appVersion = '${info.version}+${info.buildNumber}';
       final platform = _platformName();
 
       final payload = batch

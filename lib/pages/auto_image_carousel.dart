@@ -84,6 +84,7 @@ class _AutoImageCarouselState extends State<AutoImageCarousel>
                     width: double.infinity,
                     height: double.infinity,
                     gaplessPlayback: true, // 🔹 niente flash bianco/nero
+                    cacheWidth: 1600,
                   ),
                 ),
               ),
@@ -103,7 +104,7 @@ class _AutoImageCarouselState extends State<AutoImageCarousel>
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 16,
+                      fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
                     maxLines: 2,

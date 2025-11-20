@@ -79,8 +79,8 @@ class _AbbonamentiPageState extends State<AbbonamentiPage> {
                   ? json.decode(e['funzioni_attive']) as Map<String, dynamic>
                   : (e['funzioni_attive'] ?? <String, dynamic>{});
 
-              print(funzioniAttiveMap.runtimeType);
-              print(funzioniAttiveMap);
+              //print(funzioniAttiveMap.runtimeType);
+              //print(funzioniAttiveMap);
 
               final funzioniAttiveList = funzioniAttiveMap.entries
                   .where((e) => e.value == true)
@@ -96,6 +96,8 @@ class _AbbonamentiPageState extends State<AbbonamentiPage> {
                 'funzioni': funzioniAttiveList,
                 // Mappa completa delle funzioni attive
                 'funzioni_attive_map': funzioniAttiveMap,
+                'google_product_id': e['google_product_id'],
+                'google_base_plan_id': e['google_base_plan_id'],
               };
             },
           ).toList();
@@ -141,9 +143,20 @@ class _AbbonamentiPageState extends State<AbbonamentiPage> {
     }
   }
 
+  //----------------------------------------------------------------
+  //  BUILD
+  //----------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     final isSmall = MediaQuery.of(context).size.width < 380;
+    final w = MediaQuery.of(context).size.width;
+    final cols =
+        (w / 360).floor().clamp(1, 3); // 1 col <360, 2 col <720, 3 col >=720
+    final aspect = (cols == 1)
+        ? 0.68 // tile più alta su schermi piccoli
+        : (cols == 2)
+            ? 0.82
+            : 0.96;
 
     return Scaffold(
       appBar: const AppHeader(showBack: true),
@@ -186,7 +199,7 @@ class _AbbonamentiPageState extends State<AbbonamentiPage> {
                         fontWeight: FontWeight.w500,
                         color: Colors.blueGrey[700],
                       ),
-                    ),
+                    ),  
                     SizedBox(height: 20),
                     GridView.builder(
                       padding: const EdgeInsets.only(bottom: 8),
@@ -195,12 +208,12 @@ class _AbbonamentiPageState extends State<AbbonamentiPage> {
                       itemCount: piani.length,
                       gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                         maxCrossAxisExtent:
-                            360, // 1 col <360px, 2 col >=360px, 3 col >=720px...
+                            720, // 1 col <360px, 2 col >=360px, 3 col >=720px...
                         mainAxisSpacing: 12,
                         crossAxisSpacing: 12,
                         childAspectRatio: isSmall
-                            ? 0.62
-                            : 0.72, // più basso = card più alte (niente overflow)
+                            ? 0.85
+                            : 1.00, // più basso = card più alte (niente overflow)
                       ),
                       itemBuilder: (context, index) {
                         final piano = piani[index];
@@ -266,9 +279,12 @@ class _AbbonamentiPageState extends State<AbbonamentiPage> {
                                   const SizedBox(height: 4),
 
                                 // chips (usa già maxChips=3)
-                                Flexible(
-                                  child: FeatureList(items: (piano['funzioni'] ?? const <String>[]), max: 3),
-                                  
+                                Expanded(
+                                  child: FeatureList(
+                                    items:
+                                        (piano['funzioni'] ?? const <String>[]),
+                                    max: 5, // massimo 8 chips
+                                  ),
                                 ),
 
                                 const Spacer(), // spinge il bottone in basso
@@ -326,12 +342,38 @@ class _AbbonamentiPageState extends State<AbbonamentiPage> {
                           ),
                         );
                       },
-                    )
+                    ),
+
+                    const SizedBox(height: 24),
+                    AppFooter(), // <-- ora scorre con la pagina
+                    const SizedBox(height: 8),
                   ],
                 ),
               ),
             ),
-      bottomNavigationBar: AppFooter(),
+
+      // BOTTONE fisso in basso
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          child: SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton.icon(
+              icon: const Icon(Icons.home),
+              label: Text(context.t.bottom_dashboard), 
+              onPressed: () {
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                } else {
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, '/home', (r) => false);
+                }
+              },
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -359,15 +401,31 @@ class FeatureList extends StatelessWidget {
   Widget build(BuildContext context) {
     final labelsMap = _featLabels(context);
 
-    // Mostra solo le prime `max` feature e mappa alle etichette localizzate
     final labels = items
-        .where((k) => labelsMap.containsKey(k)) // evita chiavi non booleane tipo history_days/gps_*
+        .where((k) => labelsMap.containsKey(k))
         .take(max)
         .map((k) => labelsMap[k] ?? k)
         .toList();
 
+    final totalCount = items.where((k) => labelsMap.containsKey(k)).length;
+
     return Column(
-      children: labels.map((text) => _FeatureRow(text: text)).toList(),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...labels.map((text) => _FeatureRow(text: text)),
+        if (totalCount > max)
+          Padding(
+            padding: const EdgeInsets.only(left: 8, top: 2),
+            child: Text(
+              'more...',
+              style: const TextStyle(
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+                color: Colors.blueGrey,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
@@ -393,7 +451,7 @@ class _FeatureRow extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              maxLines: 1,
+              maxLines: 2, // <-- permette massimo 2 righe
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
             ),

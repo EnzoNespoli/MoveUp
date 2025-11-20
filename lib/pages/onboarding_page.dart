@@ -109,13 +109,18 @@ class _OnboardingPageState extends State<OnboardingPage> {
   Widget build(BuildContext context) {
 
     final testi =  [
-    context.t.onb1,
-    context.t.onb2,
-    context.t.onb3,
-
-   
+    context.t.onb1_body,
+    context.t.onb2_body,
+    context.t.onb3_body,
     
   ];
+
+  final titoli = <String>[
+  context.t.onb1, // nuova chiave
+  context.t.onb2,                   // per ora vuoto
+  context.t.onb3,                   // per ora vuoto
+];
+
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -170,13 +175,29 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         height: 300,
                       ),
                       const SizedBox(height: 24),
-                      Text(
-                        testi[i],
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          height: 1.35,
-                        ),
-                      ),
+                      ConstrainedBox(
+  constraints: const BoxConstraints(maxWidth: 360),
+  child: Column(
+    children: [
+      Text(
+        titoli[i], // "Cosa fa MoveUP?"
+        textAlign: TextAlign.center,
+        style: theme.textTheme.headlineSmall?.copyWith(
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      const SizedBox(height: 8),
+      Text(
+        testi[i], // body
+        textAlign: TextAlign.center,
+        style: theme.textTheme.titleMedium?.copyWith(
+          height: 1.4,
+          color: theme.colorScheme.onSurface.withOpacity(0.8),
+        ),
+      ),
+    ],
+  ),
+),
                     ],
                   ),
                 ),

@@ -8,6 +8,11 @@ import '../db.dart'; // Importa la costante globale
 import '../lingua.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'funzioni_attive_form.dart';
+import '../services/purchase_service.dart';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, debugPrint, defaultTargetPlatform, kIsWeb;
+import 'package:provider/provider.dart';
 
 class AcquistaPianoPage extends StatefulWidget {
   final String utenteId;
@@ -69,7 +74,6 @@ class _AcquistaPianoPageState extends State<AcquistaPianoPage> {
     }
 
     await caricaUtente(); // <-- poi carica l'utente e aggiorna pianoAttivoId
-    
   }
 
   //-----------------------------------------------------------------------------
@@ -140,6 +144,7 @@ class _AcquistaPianoPageState extends State<AcquistaPianoPage> {
   @override
   Widget build(BuildContext context) {
     //debugPrint('AcquistaPianoPage build piano: ${widget.piano}');
+    final platform = _platformName();
     return Scaffold(
       appBar: const AppHeader(showBack: true),
       body: loading
@@ -282,29 +287,79 @@ class _AcquistaPianoPageState extends State<AcquistaPianoPage> {
                           ),
                         ),
                         label: Text(
-                          context.t.acquisto_piano_pagamento,
+                          context.t.acquisto_piano_pagamento +
+                              '( ' +
+                              platform +
+                              ':' +
+                              widget.piano['google_product_id'] +
+                              ':' +
+                              widget.piano['google_base_plan_id'] +
+                              ')',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        onPressed: () {
-                          // Sostituisci con la tua logica Stripe
-
-                          _checkout(widget.piano['id']);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(context.t.acquisto_piano_stripe),
-                            ),
-                          );
+                        onPressed: () async {
+                          if (Platform.isAndroid) {
+                            final svc = context.read<PurchaseService>();
+                            await svc.buySubscription(
+                              productId: widget.piano['google_product_id']
+                                  as String, // "move.premium"
+                              basePlanId: widget.piano['google_base_plan_id']
+                                  as String?, // "month"
+                              // offerId: widget.piano['google_offer_id'] as String?,       // es. "trial7d" (se vuoi forzare l’offerta)
+                              accountId: widget.utenteId.toString(),
+                            );
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content:
+                                      Text(context.t.acquisto_piano_google)),
+                            );
+                          } else {
+                            _checkout(widget
+                                .piano['id']); // Stripe (web / iOS per ora)
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content:
+                                      Text(context.t.acquisto_piano_stripe)),
+                            );
+                          }
                         },
                       ),
                     ),
+
+                    const SizedBox(height: 24),
+                    AppFooter(), // <-- ora scorre con la pagina
+                    const SizedBox(height: 8),
                   ],
                 ),
               ),
             ),
-      bottomNavigationBar: AppFooter(),
+
+      // BOTTONE fisso in basso
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          child: SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton.icon(
+              icon: const Icon(Icons.home),
+              label: Text(context.t.bottom_dashboard),
+              onPressed: () {
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                } else {
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, '/home', (r) => false);
+                }
+              },
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -390,5 +445,23 @@ class _AcquistaPianoPageState extends State<AcquistaPianoPage> {
     if (res.statusCode != 200) return false;
     final js = jsonDecode(res.body) as Map<String, dynamic>;
     return js['ok'] == true && (js['status'] == 'active');
+  }
+
+  String _platformName() {
+    if (kIsWeb) return 'web';
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        return 'android';
+      case TargetPlatform.iOS:
+        return 'ios';
+      case TargetPlatform.macOS:
+        return 'macos';
+      case TargetPlatform.windows:
+        return 'windows';
+      case TargetPlatform.linux:
+        return 'linux';
+      case TargetPlatform.fuchsia:
+        return 'fuchsia';
+    }
   }
 }

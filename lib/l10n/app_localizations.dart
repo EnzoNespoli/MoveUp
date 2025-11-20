@@ -194,20 +194,38 @@ abstract class AppLocalizations {
   /// No description provided for @onb1.
   ///
   /// In en, this message translates to:
-  /// **'Track and organize your movements in one place.'**
+  /// **'What does MoveUP do?'**
   String get onb1;
+
+  /// No description provided for @onb1_body.
+  ///
+  /// In en, this message translates to:
+  /// **'MoveUP shows how much of your time you’re still, moving slowly, or moving fast.\nYou’ll be surprised!'**
+  String get onb1_body;
 
   /// No description provided for @onb2.
   ///
   /// In en, this message translates to:
-  /// **'See where your time goes: home, work, commutes.'**
+  /// **'How it works'**
   String get onb2;
+
+  /// No description provided for @onb2_body.
+  ///
+  /// In en, this message translates to:
+  /// **'• Start tracking\n• Move for 10 minutes\n• Open the evening summary\n• Share it with whoever you want'**
+  String get onb2_body;
 
   /// No description provided for @onb3.
   ///
   /// In en, this message translates to:
-  /// **'Automatic reports and trends: improve with data.'**
+  /// **'Ready to start?'**
   String get onb3;
+
+  /// No description provided for @onb3_body.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept the terms and enable tracking.\nRegister for FREE.\nKeep your week under control.'**
+  String get onb3_body;
 
   /// No description provided for @botton_salta.
   ///
@@ -230,7 +248,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacy_policy.
   ///
   /// In en, this message translates to:
-  /// **'and the '**
+  /// **' and the '**
   String get privacy_policy;
 
   /// No description provided for @privacy_policy2.
@@ -242,7 +260,7 @@ abstract class AppLocalizations {
   /// No description provided for @botton_prosegui.
   ///
   /// In en, this message translates to:
-  /// **'Continue'**
+  /// **'Start tracking now'**
   String get botton_prosegui;
 
   /// No description provided for @botton_indietro.
@@ -322,6 +340,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Register'**
   String get user_err07;
+
+  /// No description provided for @user_login_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Login successful!'**
+  String get user_login_success;
 
   /// No description provided for @gps_err01.
   ///
@@ -410,7 +434,7 @@ abstract class AppLocalizations {
   /// No description provided for @gps_err15.
   ///
   /// In en, this message translates to:
-  /// **'Tracking disabled'**
+  /// **'Tracking off'**
   String get gps_err15;
 
   /// No description provided for @gps_err16.
@@ -442,6 +466,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No events recorded yet.'**
   String get gps_err20;
+
+  /// No description provided for @gps_err21.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get gps_err21;
+
+  /// No description provided for @gps_err22.
+  ///
+  /// In en, this message translates to:
+  /// **'Listening'**
+  String get gps_err22;
+
+  /// No description provided for @gps_err23.
+  ///
+  /// In en, this message translates to:
+  /// **'Start tracking'**
+  String get gps_err23;
+
+  /// No description provided for @gps_err24.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume tracking'**
+  String get gps_err24;
+
+  /// No description provided for @gps_err25.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause tracking'**
+  String get gps_err25;
+
+  /// No description provided for @gps_err26.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume tracking'**
+  String get gps_err26;
 
   /// No description provided for @att_err01.
   ///
@@ -512,19 +572,25 @@ abstract class AppLocalizations {
   /// No description provided for @info_mes07.
   ///
   /// In en, this message translates to:
-  /// **'Understand how you move,\nimprove every day.'**
+  /// **'Understand how you move'**
   String get info_mes07;
+
+  /// No description provided for @info_mes08.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover how you use your time'**
+  String get info_mes08;
 
   /// No description provided for @mov_inattivo.
   ///
   /// In en, this message translates to:
-  /// **'Inactive or stationary'**
+  /// **'Pause / Stopped'**
   String get mov_inattivo;
 
   /// No description provided for @mov_leggero.
   ///
   /// In en, this message translates to:
-  /// **'Light movement'**
+  /// **'Slow movement'**
   String get mov_leggero;
 
   /// No description provided for @mov_veloce.
@@ -586,6 +652,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'MoveUP Report for today'**
   String get chart_mes09;
+
+  /// No description provided for @chart_mes10.
+  ///
+  /// In en, this message translates to:
+  /// **'Levels timeline (by lanes)'**
+  String get chart_mes10;
 
   /// No description provided for @um_metri.
   ///
@@ -929,6 +1001,36 @@ abstract class AppLocalizations {
   /// **'Subscriptions'**
   String get bottom_abbonamenti;
 
+  /// No description provided for @bottom_dashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get bottom_dashboard;
+
+  /// No description provided for @bottom_impostazioni_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Set.'**
+  String get bottom_impostazioni_short;
+
+  /// No description provided for @bottom_cronologia_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Act.'**
+  String get bottom_cronologia_short;
+
+  /// No description provided for @bottom_profilo_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Prof.'**
+  String get bottom_profilo_short;
+
+  /// No description provided for @bottom_abbonamenti_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Sub.'**
+  String get bottom_abbonamenti_short;
+
   /// No description provided for @bottom_err01.
   ///
   /// In en, this message translates to:
@@ -986,7 +1088,7 @@ abstract class AppLocalizations {
   /// No description provided for @storico_03.
   ///
   /// In en, this message translates to:
-  /// **'Use the app without signing up. History only for the current day.\nFeatures: live tracking and daily summary.'**
+  /// **'Use the app without signing up.\nYour location can also be collected in the background to calculate, in real time, distance traveled, time in movement and pause moments.\nData stays only on your device, is valid for the current day, and is deleted automatically every day.\nFeatures: live tracking and daily summary.'**
   String get storico_03;
 
   /// No description provided for @storico_04.
@@ -1046,7 +1148,7 @@ abstract class AppLocalizations {
   /// No description provided for @storico_13.
   ///
   /// In en, this message translates to:
-  /// **'You can change or withdraw consent at any time. Without consent to tracking we do not record locations.'**
+  /// **'The app may collect your location in the background to calculate your trips, distance traveled and time in movement.\nYou can change or withdraw consent at any time.\nWithout tracking consent we do not store locations.\nIf you use the app in anonymous mode (no registration), data stays only on the device and is automatically deleted at the end of the day: we do not keep history of previous days and we do not link locations to a personal profile.'**
   String get storico_13;
 
   /// No description provided for @storico_14.
@@ -1076,7 +1178,7 @@ abstract class AppLocalizations {
   /// No description provided for @form_crono_04.
   ///
   /// In en, this message translates to:
-  /// **'Totals for last 7 days'**
+  /// **'Summary for last 7 days'**
   String get form_crono_04;
 
   /// No description provided for @form_crono_05.
@@ -1109,6 +1211,18 @@ abstract class AppLocalizations {
   /// **'Details for level'**
   String get form_crono_09;
 
+  /// No description provided for @form_crono_10.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary from 8 to 14 days'**
+  String get form_crono_10;
+
+  /// No description provided for @form_crono_11.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly comparison'**
+  String get form_crono_11;
+
   /// No description provided for @dashboard_piano.
   ///
   /// In en, this message translates to:
@@ -1118,7 +1232,7 @@ abstract class AppLocalizations {
   /// No description provided for @dashboard_msg.
   ///
   /// In en, this message translates to:
-  /// **'Create a (free) account to save your data and unlock sharing.'**
+  /// **'Go to Profile and register.\nYou will have your typical week'**
   String get dashboard_msg;
 
   /// No description provided for @imposta_page_studente.
@@ -1232,7 +1346,7 @@ abstract class AppLocalizations {
   /// No description provided for @imposta_page_funzioni.
   ///
   /// In en, this message translates to:
-  /// **'Active features'**
+  /// **'Active features:'**
   String get imposta_page_funzioni;
 
   /// No description provided for @imposta_page_save.
@@ -1304,7 +1418,7 @@ abstract class AppLocalizations {
   /// No description provided for @rep_day_export_locked.
   ///
   /// In en, this message translates to:
-  /// **'Sharing requires BASIC/PLUS/PRO'**
+  /// **'Sharing requires START/BASIC/PLUS/PRO'**
   String get rep_day_export_locked;
 
   /// No description provided for @msg_abilitato_01.
@@ -1727,6 +1841,12 @@ abstract class AppLocalizations {
   /// **'You will be redirected to Stripe...'**
   String get acquisto_piano_stripe;
 
+  /// No description provided for @acquisto_piano_google.
+  ///
+  /// In en, this message translates to:
+  /// **'You will be redirected to Google...'**
+  String get acquisto_piano_google;
+
   /// No description provided for @acquisto_piano_nopaga.
   ///
   /// In en, this message translates to:
@@ -1814,7 +1934,7 @@ abstract class AppLocalizations {
   /// No description provided for @kpi_active.
   ///
   /// In en, this message translates to:
-  /// **'Active min'**
+  /// **'Time in movement'**
   String get kpi_active;
 
   /// No description provided for @kpi_km.
@@ -1826,7 +1946,7 @@ abstract class AppLocalizations {
   /// No description provided for @kpi_sedentary.
   ///
   /// In en, this message translates to:
-  /// **'Sitting'**
+  /// **'Pauses / Stopped'**
   String get kpi_sedentary;
 
   /// No description provided for @no_data_msg.
@@ -1862,19 +1982,19 @@ abstract class AppLocalizations {
   /// No description provided for @insight_goal_hit.
   ///
   /// In en, this message translates to:
-  /// **'Goal reached 🎯 Great job!'**
+  /// **'You reached your planned movement time today.'**
   String get insight_goal_hit;
 
   /// No description provided for @insight_goal_missing.
   ///
   /// In en, this message translates to:
-  /// **'You’re {v1} min away from your goal.'**
+  /// **'You’re {v1} min away from the planned movement time.'**
   String insight_goal_missing(Object v1);
 
   /// No description provided for @insight_vs_yesterday.
   ///
   /// In en, this message translates to:
-  /// **'Today you’re at {v2}% vs yesterday.'**
+  /// **'Today you’re at {v2}% compared to yesterday.'**
   String insight_vs_yesterday(Object v2);
 
   /// No description provided for @fix_qualita_dati.
@@ -1984,6 +2104,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get fix_chiudi_button;
+
+  /// No description provided for @fix_riduci_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimize'**
+  String get fix_riduci_button;
+
+  /// No description provided for @fix_espandi_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand'**
+  String get fix_espandi_button;
+
+  /// No description provided for @dettagli.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical details of the day'**
+  String get dettagli;
+
+  /// No description provided for @posizione.
+  ///
+  /// In en, this message translates to:
+  /// **'Your location'**
+  String get posizione;
+
+  /// No description provided for @export_day.
+  ///
+  /// In en, this message translates to:
+  /// **'Export day data'**
+  String get export_day;
+
+  /// No description provided for @date_parse_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Date parse error'**
+  String get date_parse_error;
+
+  /// No description provided for @export_started.
+  ///
+  /// In en, this message translates to:
+  /// **'Export started...'**
+  String get export_started;
+
+  /// No description provided for @download_start.
+  ///
+  /// In en, this message translates to:
+  /// **'Download started in browser'**
+  String get download_start;
+
+  /// No description provided for @esportazione_file.
+  ///
+  /// In en, this message translates to:
+  /// **'Export:'**
+  String get esportazione_file;
+
+  /// No description provided for @errore_http.
+  ///
+  /// In en, this message translates to:
+  /// **'Download error: HTTP'**
+  String get errore_http;
+
+  /// No description provided for @errore_generico.
+  ///
+  /// In en, this message translates to:
+  /// **'Export error:'**
+  String get errore_generico;
+
+  /// No description provided for @dedica_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Dedicated to…'**
+  String get dedica_title;
+
+  /// No description provided for @dedica_testo.
+  ///
+  /// In en, this message translates to:
+  /// **'My wife and Lova, who gave me the strength to get this far. 💚🐾'**
+  String get dedica_testo;
+
+  /// No description provided for @analisi_oggi.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis of today'**
+  String get analisi_oggi;
+
+  /// No description provided for @movimento.
+  ///
+  /// In en, this message translates to:
+  /// **'Movement'**
+  String get movimento;
+
+  /// No description provided for @non_reg.
+  ///
+  /// In en, this message translates to:
+  /// **'Not registered'**
+  String get non_reg;
+
+  /// No description provided for @parziale.
+  ///
+  /// In en, this message translates to:
+  /// **'Partial'**
+  String get parziale;
+
+  /// No description provided for @completo.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete'**
+  String get completo;
+
+  /// No description provided for @dati_incompleti.
+  ///
+  /// In en, this message translates to:
+  /// **'Incomplete data: the phone did not record for about'**
+  String get dati_incompleti;
+
+  /// No description provided for @ottima_attivita.
+  ///
+  /// In en, this message translates to:
+  /// **'Great activity today'**
+  String get ottima_attivita;
+
+  /// No description provided for @buona_attivita.
+  ///
+  /// In en, this message translates to:
+  /// **'Good activity, you used part of your day well.'**
+  String get buona_attivita;
+
+  /// No description provided for @giorno_statico1.
+  ///
+  /// In en, this message translates to:
+  /// **'Day quite static '**
+  String get giorno_statico1;
+
+  /// No description provided for @giorno_statico2.
+  ///
+  /// In en, this message translates to:
+  /// **'still/pause'**
+  String get giorno_statico2;
+
+  /// No description provided for @attivita_media.
+  ///
+  /// In en, this message translates to:
+  /// **'Average activity.'**
+  String get attivita_media;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
