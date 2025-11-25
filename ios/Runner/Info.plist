@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Move App</string>
+	<string>MoveUP</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>move_app</string>
+	<string>MoveUP</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -45,5 +45,26 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Posizione: uso in foreground -->
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>MoveUP utilizza la tua posizione per registrare i percorsi e calcolare i tuoi livelli di movimento.</string>
+
+<!-- Posizione: sempre (se in futuro attivi tracking in background) -->
+<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+<string>MoveUP può utilizzare la tua posizione anche in background per completare i percorsi iniziati e aggiornare i report.</string>
+
+<!-- (Facoltativo ma consigliato se chiedi “Precisa”) -->
+<key>NSLocationTemporaryUsageDescriptionDictionary</key>
+<dict>
+  <key>PreciseLocation</key>
+  <string>MoveUP ha bisogno della posizione precisa per calcolare accuratamente distanza e velocità dei tuoi spostamenti.</string>
+</dict>
+<key>UIBackgroundModes</key>
+<array>
+    <string>location</string>
+</array>
+<key>NSMotionUsageDescription</key>
+<string>MoveUP utilizza i dati di movimento del dispositivo per rilevare il tipo di attività (camminata, corsa, spostamenti in auto).</string>
+
 </dict>
 </plist>
