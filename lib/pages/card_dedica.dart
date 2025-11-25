@@ -42,7 +42,7 @@ class CardDedica extends StatelessWidget {
       child: ExpansionTile(
         initiallyExpanded: false,
         title: Text(title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          //style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         children: [
           Padding(

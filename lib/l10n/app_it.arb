@@ -153,7 +153,7 @@
     "inserisci_tua_mail": "Inserisci la tua email",
     "link_mail_password": "Se l’email è registrata, ti abbiamo inviato un link per reimpostare la password.",
     "invia_richiesta_label": "Invia richiesta",
-    "condividi_button": "Condividi",
+    "condividi_button": "",
 
   "form_consensi_01": "Consensi",
   "form_consensi_02": "Acconsento al trattamento dei dati (privacy)",

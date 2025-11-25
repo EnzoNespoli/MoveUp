@@ -131,7 +131,7 @@ class CardTrackingGps extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Titolo
-                Text(context.t.gps_err12, // "Tracciamento GPS"
+                Text(context.t.gps_err12, // "Tracciamento GPS" 
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
 
@@ -178,7 +178,7 @@ class CardTrackingGps extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 13,
-                    color: Color.fromARGB(255, 14, 126, 219),
+                    color: Colors.black54,
                   ),
                 ),
 

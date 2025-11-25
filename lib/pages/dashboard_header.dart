@@ -191,7 +191,7 @@ class DashboardHeader extends StatelessWidget {
                           Theme.of(context).textTheme.headlineSmall?.copyWith(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w800,
-                                color: Colors.orange[700],
+                                color: Colors.black54,
                                 height: 1.15,
                               ),
                     ),
@@ -217,7 +217,7 @@ class DashboardHeader extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.blueGrey[900]),
+                      color: Colors.black54),
                   children: [
                     TextSpan(
                       text: '${context.t.form_crono_03} ', // "Benvenuto,"
@@ -245,7 +245,7 @@ class DashboardHeader extends StatelessWidget {
               context.t.dashboard_msg,
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.orange[700],
+                color: Colors.blueGrey[900],
                 fontWeight: FontWeight.w500,
               ),
             ),

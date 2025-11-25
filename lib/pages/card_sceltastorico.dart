@@ -20,8 +20,8 @@ class CardSceltaStorico extends StatelessWidget {
       child: ExpansionTile(
         initiallyExpanded: false,
         title: Text(
-          context.t.storico_01,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          context.t.storico_01, 
+          //style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         children: [
           Padding(

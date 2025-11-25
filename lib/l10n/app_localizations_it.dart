@@ -417,7 +417,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get invia_richiesta_label => 'Invia richiesta';
 
   @override
-  String get condividi_button => 'Condividi';
+  String get condividi_button => '';
 
   @override
   String get form_consensi_01 => 'Consensi';

@@ -60,7 +60,7 @@ class CardDiarioGps extends StatelessWidget {
       ),
       child: ExpansionTile(
         initiallyExpanded: false,
-        title: Text(context.t.gps_err19),
+        title: Text(context.t.gps_err19), 
         trailing: IconButton(
           tooltip: 'Clear log',
           icon: const Icon(Icons.delete_sweep),

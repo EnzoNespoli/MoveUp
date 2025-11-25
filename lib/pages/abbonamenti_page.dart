@@ -174,7 +174,7 @@ class _AbbonamentiPageState extends State<AbbonamentiPage> {
                         Icon(
                           Icons.workspace_premium,
                           size: 22,
-                          color: Colors.amber[800],
+                          color: Colors.blue[700],
                         ),
                         SizedBox(width: 8),
                         Text(
@@ -182,7 +182,7 @@ class _AbbonamentiPageState extends State<AbbonamentiPage> {
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
-                            color: Colors.amber[800],
+                            color: Colors.blue[700],
                           ),
                         ),
                       ],
