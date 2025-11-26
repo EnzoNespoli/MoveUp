@@ -41,7 +41,7 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
                 ? null
                 : Border(
                     // separatore sottile in dark
-                    bottom: BorderSide(color: cs.outlineVariant, width: 0.6),
+                    bottom: BorderSide(color: Colors.blueGrey, width: 0.06),
                   ),
           ),
           child: Row(

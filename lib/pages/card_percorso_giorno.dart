@@ -233,7 +233,7 @@ class _CardPercorsoGiornoState extends State<CardPercorsoGiorno> {
             color: Colors.blueGrey[50],
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
-              side: BorderSide(color: Colors.blueGrey.shade300, width: 2),
+              side: BorderSide(color: Colors.blueGrey, width: 1),
             ),
             child: content,
           )

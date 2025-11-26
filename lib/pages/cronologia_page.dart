@@ -592,7 +592,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                         side:
-                            const BorderSide(color: Colors.blueGrey, width: 2),
+                            const BorderSide(color: Colors.blueGrey, width: 1),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(12.0),
@@ -609,7 +609,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
                       color: Colors.blueGrey[50],
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: Colors.blueGrey, width: 2),
+                        side: BorderSide(color: Colors.blueGrey, width: 1),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(12.0),
@@ -621,7 +621,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.blue[700],
+                                color: Colors.black54,
                               ),
                             ),
                             SizedBox(height: 12),
@@ -697,7 +697,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
                       color: Colors.blueGrey[50],
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: Colors.blueGrey, width: 2),
+                        side: BorderSide(color: Colors.blueGrey, width: 1),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(12.0),
@@ -709,7 +709,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.blue[700],
+                                color: Colors.black54,
                               ),
                             ),
                             SizedBox(height: 12),
@@ -790,7 +790,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                         side:
-                            const BorderSide(color: Colors.blueGrey, width: 2),
+                            const BorderSide(color: Colors.blueGrey, width: 1),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(12.0),
@@ -805,7 +805,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.blue[700],
+                                      color: Colors.black54,
                                     ),
                                   ),
                                 ),
@@ -909,7 +909,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.blue[700],
+                                    color: Colors.black54,
                                   ),
                                 ),
                                 children: () {
@@ -1259,7 +1259,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
           margin: const EdgeInsets.symmetric(vertical: 8),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: Colors.blueGrey.shade300),
+            side: BorderSide(color: Colors.blueGrey, width: 1),
           ),
           child: Padding(
             padding: const EdgeInsets.all(12),

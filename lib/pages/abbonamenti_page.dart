@@ -5,9 +5,13 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../services/app_header.dart';
 import '../services/app_footer.dart';
 import '../db.dart'; // Importa la costante globale
-import 'acquista_piano_page.dart';
+import 'acquista_piano_page_google.dart';
+import 'acquista_piano_page_web.dart';
 import 'plan_feature_chips.dart';
 import '../lingua.dart'; // Importa l'estensione XStrings
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, debugPrint, defaultTargetPlatform, kIsWeb;
 
 class AbbonamentiPage extends StatefulWidget {
   final String utenteId;
@@ -148,6 +152,7 @@ class _AbbonamentiPageState extends State<AbbonamentiPage> {
   //----------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
+    final platform = _platformName();
     final isSmall = MediaQuery.of(context).size.width < 380;
     final w = MediaQuery.of(context).size.width;
     final cols =
@@ -199,7 +204,7 @@ class _AbbonamentiPageState extends State<AbbonamentiPage> {
                         fontWeight: FontWeight.w500,
                         color: Colors.blueGrey[700],
                       ),
-                    ),  
+                    ),
                     SizedBox(height: 20),
                     GridView.builder(
                       padding: const EdgeInsets.only(bottom: 8),
@@ -232,7 +237,7 @@ class _AbbonamentiPageState extends State<AbbonamentiPage> {
                             borderRadius: BorderRadius.circular(12),
                             side: isAttivo
                                 ? const BorderSide(
-                                    color: Colors.green, width: 2)
+                                    color: Colors.green, width: 1)
                                 : BorderSide(color: Colors.grey[300]!),
                           ),
                           child: Padding(
@@ -311,15 +316,21 @@ class _AbbonamentiPageState extends State<AbbonamentiPage> {
                                     width: double.infinity,
                                     child: ElevatedButton(
                                       onPressed: () {
+                                        // Determina quale pagina aprire in base alla piattaforma
+                                        final targetPage = _isNativeMobile()
+                                            ? AcquistaPianoPage(
+                                                utenteId: widget.utenteId,
+                                                piano: piano,
+                                              )
+                                            : AcquistaPianoPageWeb(
+                                                utenteId: widget.utenteId,
+                                                piano: piano,
+                                              );
+
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) =>
-                                                AcquistaPianoPage(
-                                              utenteId: widget.utenteId,
-                                              piano: piano,
-                                            ),
-                                          ),
+                                              builder: (_) => targetPage),
                                         );
                                       },
                                       child: Text(context.t.buy,
@@ -360,8 +371,13 @@ class _AbbonamentiPageState extends State<AbbonamentiPage> {
             width: double.infinity,
             height: 48,
             child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black87, // icona + testo
+                backgroundColor:
+                    Colors.grey[200], // sfondo bottone (se vuoi chiaro)
+              ),
               icon: const Icon(Icons.home),
-              label: Text(context.t.bottom_dashboard), 
+              label: Text(context.t.bottom_dashboard),
               onPressed: () {
                 if (Navigator.canPop(context)) {
                   Navigator.pop(context);
@@ -375,6 +391,31 @@ class _AbbonamentiPageState extends State<AbbonamentiPage> {
         ),
       ),
     );
+  }
+
+  String _platformName() {
+    if (kIsWeb) return 'web';
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        return 'android';
+      case TargetPlatform.iOS:
+        return 'ios';
+      case TargetPlatform.macOS:
+        return 'macos';
+      case TargetPlatform.windows:
+        return 'windows';
+      case TargetPlatform.linux:
+        return 'linux';
+      case TargetPlatform.fuchsia:
+        return 'fuchsia';
+    }
+  }
+
+  /// Ritorna true se la piattaforma è Android o iOS (nativi, non web)
+  bool _isNativeMobile() {
+    if (kIsWeb) return false;
+    return defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
   }
 }
 

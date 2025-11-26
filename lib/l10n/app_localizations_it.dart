@@ -99,7 +99,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get privacy_policy2 => 'Privacy Policy';
 
   @override
-  String get botton_prosegui => 'Avvia tracciamento ora';
+  String get botton_prosegui => 'Inizia adesso!';
 
   @override
   String get botton_indietro => 'Indietro';
@@ -1099,4 +1099,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get attivita_media => 'Attività nella media.';
+
+  @override
+  String get attivita_giorno => 'Nessuna attività registrata oggi.';
 }

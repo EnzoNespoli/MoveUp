@@ -44,7 +44,7 @@ class _CardMappaPosizioneState extends State<CardMappaPosizione> {
       margin: const EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: Colors.blueGrey, width: 2),
+        side: const BorderSide(color: Colors.blueGrey, width: 1),
       ),
       child: Padding(
         padding: const EdgeInsets.all(8),
@@ -68,7 +68,7 @@ class _CardMappaPosizioneState extends State<CardMappaPosizione> {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: Colors.blue,
+                              color: Colors.black54,
                             ),
                           ),
                         ],

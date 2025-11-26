@@ -37,7 +37,7 @@ class CardDedica extends StatelessWidget {
       margin: EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.blueGrey, width: 2),
+        side: BorderSide(color: Colors.blueGrey, width: 1),
       ),
       child: ExpansionTile(
         initiallyExpanded: false,

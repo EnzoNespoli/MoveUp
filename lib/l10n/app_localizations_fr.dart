@@ -99,7 +99,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get privacy_policy2 => 'Politique de Confidentialité';
 
   @override
-  String get botton_prosegui => 'Démarrer le suivi maintenant';
+  String get botton_prosegui => 'Commencer maintenant !';
 
   @override
   String get botton_indietro => 'Retour';
@@ -1099,4 +1099,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get attivita_media => 'Activité moyenne.';
+
+  @override
+  String get attivita_giorno => 'Aucune activité enregistrée aujourd\'hui.';
 }

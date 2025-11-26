@@ -99,7 +99,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get privacy_policy2 => 'Datenschutzrichtlinie akzeptiert';
 
   @override
-  String get botton_prosegui => 'Starte jetzt die Verfolgung';
+  String get botton_prosegui => 'Jetzt starten!';
 
   @override
   String get botton_indietro => 'Zurück';
@@ -1099,4 +1099,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get attivita_media => 'Durchschnittliche Aktivität.';
+
+  @override
+  String get attivita_giorno => 'Heute keine Aktivität aufgezeichnet.';
 }

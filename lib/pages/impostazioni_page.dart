@@ -357,7 +357,7 @@ class _ImpostazioniPageState extends State<ImpostazioniPage> with SafeState {
                             onChanged: (v) => lc.setAppTheme(v!),
                           ),
                           RadioListTile<AppTheme>(
-                            title: const Text('Light (pastel green)'),
+                            title: const Text('Light (pastel celestine)'),
                             value: AppTheme.lightPastelGreen,
                             groupValue: lc.appTheme,
                             onChanged: (v) => lc.setAppTheme(v!),
@@ -633,11 +633,11 @@ class _ImpostazioniPageState extends State<ImpostazioniPage> with SafeState {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                           borderSide: BorderSide(
-                              color: Colors.blueGrey.shade200, width: 2),
+                              color: Colors.blueGrey.shade200, width: 1),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide(color: Colors.blue, width: 2),
+                          borderSide: BorderSide(color: Colors.blue, width: 1),
                         ),
                         contentPadding: const EdgeInsets.symmetric(
                             horizontal: 18, vertical: 14),
@@ -655,11 +655,11 @@ class _ImpostazioniPageState extends State<ImpostazioniPage> with SafeState {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                           borderSide: BorderSide(
-                              color: Colors.blueGrey.shade200, width: 2),
+                              color: Colors.blueGrey.shade200, width: 1),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide(color: Colors.blue, width: 2),
+                          borderSide: BorderSide(color: Colors.blue, width: 1),
                         ),
                         contentPadding: const EdgeInsets.symmetric(
                             horizontal: 18, vertical: 14),
@@ -677,11 +677,11 @@ class _ImpostazioniPageState extends State<ImpostazioniPage> with SafeState {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                           borderSide: BorderSide(
-                              color: Colors.blueGrey.shade200, width: 2),
+                              color: Colors.blueGrey.shade200, width: 1),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide(color: Colors.blue, width: 2),
+                          borderSide: BorderSide(color: Colors.blue, width: 1),
                         ),
                         contentPadding: const EdgeInsets.symmetric(
                             horizontal: 18, vertical: 14),
@@ -858,6 +858,10 @@ class _ImpostazioniPageState extends State<ImpostazioniPage> with SafeState {
             width: double.infinity,
             height: 48,
             child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.black87,   // icona + testo
+          backgroundColor: Colors.grey[200], // sfondo bottone (se vuoi chiaro)
+        ),
               icon: const Icon(Icons.home),
               label: Text(context.t.bottom_dashboard),
               onPressed: () {

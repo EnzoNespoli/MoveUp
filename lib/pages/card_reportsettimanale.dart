@@ -69,7 +69,7 @@ class CardReportSettimanale extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 8),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Colors.blueGrey, width: 2),
+          side: const BorderSide(color: Colors.blueGrey, width: 1),
         ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -88,7 +88,7 @@ class CardReportSettimanale extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.blue[700],
+                        color: Colors.black54,
                       ),
                     ),
                   ),

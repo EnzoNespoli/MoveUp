@@ -260,7 +260,7 @@ abstract class AppLocalizations {
   /// No description provided for @botton_prosegui.
   ///
   /// In en, this message translates to:
-  /// **'Start tracking now'**
+  /// **'Start now!'**
   String get botton_prosegui;
 
   /// No description provided for @botton_indietro.
@@ -2248,6 +2248,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Average activity.'**
   String get attivita_media;
+
+  /// No description provided for @attivita_giorno.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity recorded today.'**
+  String get attivita_giorno;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

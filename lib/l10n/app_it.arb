@@ -37,7 +37,7 @@
   "privacy_policy": " e la ",
   "privacy_policy2": "Privacy Policy",
   
-  "botton_prosegui": "Avvia tracciamento ora",
+  "botton_prosegui": "Inizia adesso!",
   "botton_indietro": "Indietro",
   "botton_avanti": "Avanti",
 
@@ -408,7 +408,8 @@
 "buona_attivita": "Buona attività, una parte della giornata l'hai usata bene.",
 "giorno_statico1": "Giornata piuttosto statica ",
 "giorno_statico2": "fermo/pausa",
-"attivita_media": "Attività nella media."
+"attivita_media": "Attività nella media.",
+"attivita_giorno":"Nessuna attività registrata oggi."
 
 
 }

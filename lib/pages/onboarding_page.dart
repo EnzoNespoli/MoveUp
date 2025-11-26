@@ -22,10 +22,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final immagini = const [
     'assets/onboarding1.png',
     'assets/onboarding2.png',
-    'assets/onboarding3.png', 
+    'assets/onboarding3.png',
   ];
-
-  
 
   bool get _ultimaPagina => paginaCorrente == immagini.length - 1;
 
@@ -107,19 +105,17 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final testi = [
+      context.t.onb1_body,
+      context.t.onb2_body,
+      context.t.onb3_body,
+    ];
 
-    final testi =  [
-    context.t.onb1_body,
-    context.t.onb2_body,
-    context.t.onb3_body,
-    
-  ];
-
-  final titoli = <String>[
-  context.t.onb1, // nuova chiave
-  context.t.onb2,                   // per ora vuoto
-  context.t.onb3,                   // per ora vuoto
-];
+    final titoli = <String>[
+      context.t.onb1, // nuova chiave
+      context.t.onb2, // per ora vuoto
+      context.t.onb3, // per ora vuoto
+    ];
 
     final theme = Theme.of(context);
 
@@ -152,7 +148,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                           curve: Curves.easeInOut,
                         );
                       },
-                      child:  Text(context.t.botton_salta),
+                      child: Text(context.t.botton_salta),
                     ),
                 ],
               ),
@@ -176,28 +172,29 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       ),
                       const SizedBox(height: 24),
                       ConstrainedBox(
-  constraints: const BoxConstraints(maxWidth: 360),
-  child: Column(
-    children: [
-      Text(
-        titoli[i], // "Cosa fa MoveUP?"
-        textAlign: TextAlign.center,
-        style: theme.textTheme.headlineSmall?.copyWith(
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-      const SizedBox(height: 8),
-      Text(
-        testi[i], // body
-        textAlign: TextAlign.center,
-        style: theme.textTheme.titleMedium?.copyWith(
-          height: 1.4,
-          color: theme.colorScheme.onSurface.withOpacity(0.8),
-        ),
-      ),
-    ],
-  ),
-),
+                        constraints: const BoxConstraints(maxWidth: 360),
+                        child: Column(
+                          children: [
+                            Text(
+                              titoli[i], // "Cosa fa MoveUP?"
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              testi[i], // body
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                height: 1.4,
+                                color: theme.colorScheme.onSurface
+                                    .withOpacity(0.8),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -288,6 +285,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.black87,   // icona + testo
+          backgroundColor: Colors.grey[200], // sfondo bottone (se vuoi chiaro)
+        ),
                   onPressed: (_ultimaPagina && accettato)
                       ? () async {
                           await salvaOnboarding();
@@ -303,8 +304,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         },
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 150),
-                    child: Text(
-                      _ultimaPagina ? context.t.botton_prosegui : context.t.botton_avanti,
+                    child: Text( 
+                      _ultimaPagina
+                          ? context.t.botton_prosegui
+                          : context.t.botton_avanti,
                       key: ValueKey(_ultimaPagina),
                     ),
                   ),

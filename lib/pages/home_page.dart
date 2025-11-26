@@ -1447,7 +1447,7 @@ double _distM(double lat1, double lon1, double lat2, double lon2) {
       margin: EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.blueGrey, width: 2),
+        side: BorderSide(color: Colors.blueGrey, width: 1),
       ),
       child: ExpansionTile(
         title: Text('$titolo: ${livelli[livello]['durata']}'),
@@ -1534,7 +1534,7 @@ double _distM(double lat1, double lon1, double lat2, double lon2) {
       margin: EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.blueGrey, width: 2),
+        side: BorderSide(color: Colors.blueGrey, width: 1),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -1878,7 +1878,7 @@ double _distM(double lat1, double lon1, double lat2, double lon2) {
       margin: EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.blueGrey, width: 2),
+        side: BorderSide(color: Colors.blueGrey, width: 1),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -1895,7 +1895,7 @@ double _distM(double lat1, double lon1, double lat2, double lon2) {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    color: Colors.blueGrey[900],
+                    color: Colors.black54,
                   ),
                 ),
                 SizedBox(width: 12),
@@ -2283,7 +2283,7 @@ double _distM(double lat1, double lon1, double lat2, double lon2) {
                                               'Login successful!'
                                           : context.t.user_err05),
                                       backgroundColor:
-                                          ok ? Colors.green : Colors.red,
+                                          ok ? Colors.black54 : Colors.red,
                                       behavior: SnackBarBehavior.floating,
                                     ),
                                   );
@@ -3045,7 +3045,7 @@ double _distM(double lat1, double lon1, double lat2, double lon2) {
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
-                  color: Colors.blue[700],
+                  color: Colors.black54,
                 ),
               ),
               const SizedBox(height: 16),
@@ -3173,7 +3173,7 @@ double _distM(double lat1, double lon1, double lat2, double lon2) {
         margin: const EdgeInsets.symmetric(vertical: 8),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Colors.blueGrey, width: 2),
+          side: const BorderSide(color: Colors.blueGrey, width: 1),
         ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -3187,7 +3187,7 @@ double _distM(double lat1, double lon1, double lat2, double lon2) {
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue[700],
+                      color: Colors.black54,
                     ),
                   ),
                 ),
@@ -3399,7 +3399,7 @@ double _distM(double lat1, double lon1, double lat2, double lon2) {
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
-                  color: Colors.blue[700],
+                  color: Colors.black54,
                 ),
               ),
               const SizedBox(height: 16),
@@ -3546,7 +3546,7 @@ double _distM(double lat1, double lon1, double lat2, double lon2) {
         margin: const EdgeInsets.symmetric(vertical: 8),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Colors.blueGrey, width: 2),
+          side: const BorderSide(color: Colors.blueGrey, width: 1),
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -3559,7 +3559,7 @@ double _distM(double lat1, double lon1, double lat2, double lon2) {
                   style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue[700]),
+                      color: Colors.black54),
                 ),
               ),
               ElevatedButton.icon(
@@ -3637,7 +3637,7 @@ double _distM(double lat1, double lon1, double lat2, double lon2) {
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
-                  color: Colors.blue[700],
+                  color: Colors.black54,
                 ),
               ),
               const SizedBox(height: 16),
@@ -3718,7 +3718,7 @@ double _distM(double lat1, double lon1, double lat2, double lon2) {
         margin: const EdgeInsets.symmetric(vertical: 8),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Colors.blueGrey, width: 2),
+          side: const BorderSide(color: Colors.blueGrey, width: 1),
         ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -3734,7 +3734,7 @@ double _distM(double lat1, double lon1, double lat2, double lon2) {
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
-                        color: Colors.blue[700],
+                        color: Colors.black54,
                       ),
                     ),
                   ),
@@ -3891,8 +3891,8 @@ double _distM(double lat1, double lon1, double lat2, double lon2) {
                         )),
                       ),
                       const SizedBox(width: 12),
-                      const Expanded(
-                          child: Text('Nessuna attività registrata oggi.')),
+                      Expanded(
+                          child: Text(context.t.attivita_giorno)),
                     ],
                   );
                 }

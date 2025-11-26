@@ -169,7 +169,7 @@ class _AcquistaPianoPageState extends State<AcquistaPianoPage> {
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
-                            color: Colors.amber[800],
+                            color: Colors.blue[700],
                           ),
                         ),
                       ],
@@ -181,7 +181,7 @@ class _AcquistaPianoPageState extends State<AcquistaPianoPage> {
                       elevation: 2,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
-                        side: BorderSide(color: Colors.orange, width: 2),
+                        side: BorderSide(color: Colors.orange, width: 1),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -203,7 +203,7 @@ class _AcquistaPianoPageState extends State<AcquistaPianoPage> {
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
-                                      color: Colors.orange[800],
+                                      color: Colors.blue[700],
                                     ),
                                   ),
                                   SizedBox(height: 8),
@@ -236,7 +236,7 @@ class _AcquistaPianoPageState extends State<AcquistaPianoPage> {
                       color: Colors.blueGrey[50],
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: Colors.blueGrey, width: 2),
+                        side: BorderSide(color: Colors.blueGrey, width: 1),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(18.0),
@@ -346,7 +346,11 @@ class _AcquistaPianoPageState extends State<AcquistaPianoPage> {
             width: double.infinity,
             height: 48,
             child: ElevatedButton.icon(
-              icon: const Icon(Icons.home),
+              style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.black87,   // icona + testo
+          backgroundColor: Colors.grey[200], // sfondo bottone (se vuoi chiaro)
+        ),
+              icon: const Icon(Icons.navigate_before),
               label: Text(context.t.bottom_dashboard),
               onPressed: () {
                 if (Navigator.canPop(context)) {

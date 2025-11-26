@@ -221,7 +221,7 @@ class DashboardHeader extends StatelessWidget {
                   children: [
                     TextSpan(
                       text: '${context.t.form_crono_03} ', // "Benvenuto,"
-                      style: TextStyle(color: Colors.blue[700]),
+                      style: TextStyle(color: Colors.black54),
                     ),
                     TextSpan(
                         text:
@@ -230,7 +230,7 @@ class DashboardHeader extends StatelessWidget {
                         text: ' ($utenteId) ',
                         style: const TextStyle(fontSize: 12)),
                     TextSpan(
-                        text: '!', style: TextStyle(color: Colors.blue[700])),
+                        text: '!', style: TextStyle(color: Colors.black54)),
                   ],
                 ),
               ),
@@ -294,7 +294,7 @@ class DashboardHeader extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   _messaggioLabel(context, dailyAnalysis!),
-                  style: const TextStyle(fontSize: 13),
+                  style: const TextStyle(fontSize: 13, color: Colors.blue), 
                 ),
                 const SizedBox(height: 8),
                 Row(
