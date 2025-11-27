@@ -197,7 +197,14 @@ class _HomePageState extends State<HomePage> {
       LocationPermission permission = await Geolocator.checkPermission();
 
       if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
+        try {
+          permission = await Geolocator.requestPermission();
+        } catch (e) {
+          setState(() {
+            gpsErrore = "Errore richiesta permessi GPS: $e";
+          });
+          return;
+        }
       }
       
       if (permission == LocationPermission.denied) {
@@ -907,7 +914,12 @@ class _HomePageState extends State<HomePage> {
       var permission = await Geolocator.checkPermission();
 
       if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
+        try {
+          permission = await Geolocator.requestPermission();
+        } catch (e) {
+          setState(() => gpsErrore = "Errore richiesta permessi GPS: $e");
+          return;
+        }
       }
       
       if (permission == LocationPermission.denied) {
