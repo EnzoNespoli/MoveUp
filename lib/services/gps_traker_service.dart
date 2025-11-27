@@ -4,14 +4,15 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:geolocator/geolocator.dart';
 
-class GpsTrackerService { 
+class GpsTrackerService {
   GpsTrackerService({
-    required this.enqueue,        // funzione che salva in coda (la tua)
+    required this.enqueue, // funzione che salva in coda (la tua)
     this.intervalSec = 10,
     this.minDistanceM = 5,
   });
 
-  final Future<bool> Function(Position pos) enqueue; // esegue il tuo _enqueueFromPosition
+  final Future<bool> Function(Position pos)
+      enqueue; // esegue il tuo _enqueueFromPosition
   final int intervalSec;
   final int minDistanceM;
 
@@ -26,7 +27,7 @@ class GpsTrackerService {
         await Geolocator.openLocationSettings();
         return false;
       }
-      
+
       var p = await Geolocator.checkPermission();
       if (p == LocationPermission.denied) {
         try {
@@ -37,13 +38,14 @@ class GpsTrackerService {
           return false;
         }
       }
-      
+
       // Controlla se abbiamo i permessi necessari
-      if (p == LocationPermission.denied || p == LocationPermission.deniedForever) {
+      if (p == LocationPermission.denied ||
+          p == LocationPermission.deniedForever) {
         await Geolocator.openAppSettings();
         return false;
       }
-      
+
       // Su iOS, verifica che abbiamo almeno "While Using"
       if (p == LocationPermission.unableToDetermine) {
         return false;
@@ -71,7 +73,9 @@ class GpsTrackerService {
       _sub = Geolocator.getPositionStream(
         locationSettings: locationSettings,
       ).listen((pos) async {
-        try { await enqueue(pos); } catch (_) {}
+        try {
+          await enqueue(pos);
+        } catch (_) {}
       }, onError: (_) {});
 
       return true;
@@ -88,7 +92,8 @@ class GpsTrackerService {
   }
 
   /// Fix “una tantum” (per pulsante “acquisisci ora”)
-  Future<bool> saveOnce({LocationAccuracy accuracy = LocationAccuracy.best}) async {
+  Future<bool> saveOnce(
+      {LocationAccuracy accuracy = LocationAccuracy.best}) async {
     try {
       final pos = await Geolocator.getCurrentPosition(
         desiredAccuracy: accuracy,

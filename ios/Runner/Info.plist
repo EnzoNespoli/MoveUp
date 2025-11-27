@@ -21,7 +21,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>33</string>
+	<string>34</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -49,8 +49,6 @@
 	<string>MoveUP utilizza la tua posizione per registrare i percorsi e calcolare i tuoi livelli di movimento.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>MoveUP può utilizzare la tua posizione anche in background per completare i percorsi iniziati e aggiornare i report.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>MoveUP può utilizzare la tua posizione in ogni momento per registrare in modo continuo i tuoi spostamenti e aggiornare i report.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>MoveUP utilizza i dati di movimento del dispositivo per rilevare il tipo di attività (camminata, corsa, spostamenti in auto).</string>
 	<key>UIBackgroundModes</key>

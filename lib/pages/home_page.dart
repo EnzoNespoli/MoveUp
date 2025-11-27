@@ -201,29 +201,29 @@ class _HomePageState extends State<HomePage> {
           permission = await Geolocator.requestPermission();
         } catch (e) {
           setState(() {
-            gpsErrore = "Errore richiesta permessi GPS: $e";
+            gpsErrore = "Error requesting GPS permissions: $e";
           });
           return;
         }
       }
-      
+
       if (permission == LocationPermission.denied) {
         setState(() {
           gpsErrore = context.t.errore_001;
         });
         return;
       }
-      
+
       if (permission == LocationPermission.deniedForever) {
         setState(() {
           gpsErrore = context.t.errore_002;
         });
         return;
       }
-      
+
       if (permission == LocationPermission.unableToDetermine) {
         setState(() {
-          gpsErrore = "Impossibile determinare i permessi GPS";
+          gpsErrore = "Impossible to determine GPS permissions";
         });
         return;
       }
@@ -921,17 +921,17 @@ class _HomePageState extends State<HomePage> {
           return;
         }
       }
-      
+
       if (permission == LocationPermission.denied) {
         setState(() => gpsErrore = context.t.gps_err04);
         return;
       }
-      
+
       if (permission == LocationPermission.deniedForever) {
         setState(() => gpsErrore = context.t.gps_err05);
         return;
       }
-      
+
       if (permission == LocationPermission.unableToDetermine) {
         setState(() => gpsErrore = "Impossibile determinare i permessi GPS");
         return;
@@ -1135,17 +1135,17 @@ class _HomePageState extends State<HomePage> {
   //------------------------------------------------------------------------
   // Haversine (metri)
   //------------------------------------------------------------------------
-double _distM(double lat1, double lon1, double lat2, double lon2) {
-  const R = 6371000.0;
-  final dLat = (lat2 - lat1) * (math.pi / 180);
-  final dLon = (lon2 - lon1) * (math.pi / 180);
-  final a = math.pow(math.sin(dLat/2), 2) +
-      math.cos(lat1 * (math.pi/180)) *
-      math.cos(lat2 * (math.pi/180)) *
-      math.pow(math.sin(dLon/2), 2);
-  final c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
-  return R * c;
-}
+  double _distM(double lat1, double lon1, double lat2, double lon2) {
+    const R = 6371000.0;
+    final dLat = (lat2 - lat1) * (math.pi / 180);
+    final dLon = (lon2 - lon1) * (math.pi / 180);
+    final a = math.pow(math.sin(dLat / 2), 2) +
+        math.cos(lat1 * (math.pi / 180)) *
+            math.cos(lat2 * (math.pi / 180)) *
+            math.pow(math.sin(dLon / 2), 2);
+    final c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+    return R * c;
+  }
 
   //-------------------------------------------------------------------------
   // Mette in coda i dati gps anche a telefono spento
@@ -3919,8 +3919,7 @@ double _distM(double lat1, double lon1, double lat2, double lon2) {
                         )),
                       ),
                       const SizedBox(width: 12),
-                      Expanded(
-                          child: Text(context.t.attivita_giorno)),
+                      Expanded(child: Text(context.t.attivita_giorno)),
                     ],
                   );
                 }
@@ -4527,9 +4526,6 @@ double _distM(double lat1, double lon1, double lat2, double lon2) {
       //await _loadAll();
     }
   }
-
-
-
 
   // ----------------------------------------------
   // fine classe
