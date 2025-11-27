@@ -21,7 +21,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>30</string>
+	<string>31</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -45,25 +45,17 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-	<!-- Posizione: uso in foreground -->
-<key>NSLocationWhenInUseUsageDescription</key>
-<string>MoveUP utilizza la tua posizione per registrare i percorsi e calcolare i tuoi livelli di movimento.</string>
-
-<!-- Posizione: sempre (se in futuro attivi tracking in background) -->
-<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-<string>MoveUP può utilizzare la tua posizione anche in background per completare i percorsi iniziati e aggiornare i report.</string>
-
-<key>UIBackgroundModes</key>
-<array>
-    <string>location</string>
-</array>
-<key>NSMotionUsageDescription</key>
-<string>MoveUP utilizza i dati di movimento del dispositivo per rilevare il tipo di attività (camminata, corsa, spostamenti in auto).</string>
-
-<key>NSUserTrackingUsageDescription</key>
-<string>MoveUP utilizza l’ID pubblicitario per migliorare le statistiche e le offerte personalizzate.</string>
-<key>NSLocationAlwaysUsageDescription</key>
-<string>MoveUP può utilizzare la tua posizione in ogni momento per registrare in modo continuo i tuoi spostamenti e aggiornare i report.</string>
-
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>MoveUP utilizza la tua posizione per registrare i percorsi e calcolare i tuoi livelli di movimento.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>MoveUP può utilizzare la tua posizione anche in background per completare i percorsi iniziati e aggiornare i report.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>MoveUP può utilizzare la tua posizione in ogni momento per registrare in modo continuo i tuoi spostamenti e aggiornare i report.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>MoveUP utilizza i dati di movimento del dispositivo per rilevare il tipo di attività (camminata, corsa, spostamenti in auto).</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+	</array>
 </dict>
 </plist>
