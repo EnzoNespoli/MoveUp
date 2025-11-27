@@ -194,14 +194,20 @@ class _HomePageState extends State<HomePage> {
         return;
       }
 
+      print('=== HOME PAGE: Checking GPS permission ===');
       LocationPermission permission = await Geolocator.checkPermission();
+      print('=== HOME PAGE: Permission status: $permission ===');
 
       if (permission == LocationPermission.denied) {
-        // Apri direttamente le impostazioni invece di richiedere il permesso
+        print('=== HOME PAGE: Requesting permission ===');
+        permission = await Geolocator.requestPermission();
+        print('=== HOME PAGE: Permission after request: $permission ===');
+      }
+
+      if (permission == LocationPermission.denied) {
         setState(() {
           gpsErrore = context.t.errore_001;
         });
-        await Geolocator.openAppSettings();
         return;
       }
 
@@ -902,12 +908,18 @@ class _HomePageState extends State<HomePage> {
     _gpsInFlight = true;
     try {
       // Permessi
+      print('=== SALVA POSIZIONE: Checking GPS permission ===');
       var permission = await Geolocator.checkPermission();
+      print('=== SALVA POSIZIONE: Permission status: $permission ===');
 
       if (permission == LocationPermission.denied) {
-        // Apri direttamente le impostazioni invece di richiedere il permesso
+        print('=== SALVA POSIZIONE: Requesting permission ===');
+        permission = await Geolocator.requestPermission();
+        print('=== SALVA POSIZIONE: Permission after request: $permission ===');
+      }
+
+      if (permission == LocationPermission.denied) {
         setState(() => gpsErrore = context.t.gps_err04);
-        await Geolocator.openAppSettings();
         return;
       }
 

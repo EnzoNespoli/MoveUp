@@ -28,16 +28,21 @@ class GpsTrackerService {
         return false;
       }
 
+      print('=== GPS DEBUG: Checking permission ===');
       var p = await Geolocator.checkPermission();
+      print('=== GPS DEBUG: Permission status: $p ===');
 
-      // Se non abbiamo i permessi, apri le impostazioni
+      if (p == LocationPermission.denied) {
+        print('=== GPS DEBUG: Requesting permission ===');
+        p = await Geolocator.requestPermission();
+        print('=== GPS DEBUG: Permission after request: $p ===');
+      }
+
       if (p == LocationPermission.denied ||
           p == LocationPermission.deniedForever) {
         await Geolocator.openAppSettings();
         return false;
-      }
-
-      // Su iOS, verifica che abbiamo almeno "While Using"
+      } // Su iOS, verifica che abbiamo almeno "While Using"
       if (p == LocationPermission.unableToDetermine) {
         return false;
       }
