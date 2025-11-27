@@ -25,10 +25,20 @@ class GpsTrackerService {
       await Geolocator.openLocationSettings();
       return false;
     }
+    
     var p = await Geolocator.checkPermission();
-    if (p == LocationPermission.denied) p = await Geolocator.requestPermission();
+    if (p == LocationPermission.denied) {
+      p = await Geolocator.requestPermission();
+    }
+    
+    // Controlla se abbiamo i permessi necessari
     if (p == LocationPermission.denied || p == LocationPermission.deniedForever) {
       await Geolocator.openAppSettings();
+      return false;
+    }
+    
+    // Su iOS, verifica che abbiamo almeno "While Using"
+    if (p == LocationPermission.unableToDetermine) {
       return false;
     }
 

@@ -198,16 +198,25 @@ class _HomePageState extends State<HomePage> {
 
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          setState(() {
-            gpsErrore = context.t.errore_001;
-          });
-          return;
-        }
       }
+      
+      if (permission == LocationPermission.denied) {
+        setState(() {
+          gpsErrore = context.t.errore_001;
+        });
+        return;
+      }
+      
       if (permission == LocationPermission.deniedForever) {
         setState(() {
           gpsErrore = context.t.errore_002;
+        });
+        return;
+      }
+      
+      if (permission == LocationPermission.unableToDetermine) {
+        setState(() {
+          gpsErrore = "Impossibile determinare i permessi GPS";
         });
         return;
       }
@@ -899,13 +908,20 @@ class _HomePageState extends State<HomePage> {
 
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          setState(() => gpsErrore = context.t.gps_err04);
-          return;
-        }
       }
+      
+      if (permission == LocationPermission.denied) {
+        setState(() => gpsErrore = context.t.gps_err04);
+        return;
+      }
+      
       if (permission == LocationPermission.deniedForever) {
         setState(() => gpsErrore = context.t.gps_err05);
+        return;
+      }
+      
+      if (permission == LocationPermission.unableToDetermine) {
+        setState(() => gpsErrore = "Impossibile determinare i permessi GPS");
         return;
       }
 
