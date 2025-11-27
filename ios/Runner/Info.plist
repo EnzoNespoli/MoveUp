@@ -21,7 +21,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>28</string>
+	<string>29</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -53,13 +53,6 @@
 <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 <string>MoveUP può utilizzare la tua posizione anche in background per completare i percorsi iniziati e aggiornare i report.</string>
 
-<!-- (Facoltativo ma consigliato se chiedi “Precisa”) -->
-<key>NSLocationTemporaryUsageDescriptionDictionary</key>
-
-<dict>
-  <key>PreciseLocation</key>
-  <string>MoveUP ha bisogno della posizione precisa per calcolare accuratamente distanza e velocità dei tuoi spostamenti.</string>
-</dict>
 <key>UIBackgroundModes</key>
 <array>
     <string>location</string>
