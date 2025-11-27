@@ -21,7 +21,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>27</string>
+	<string>28</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -69,7 +69,8 @@
 
 <key>NSUserTrackingUsageDescription</key>
 <string>MoveUP utilizza l’ID pubblicitario per migliorare le statistiche e le offerte personalizzate.</string>
-
+<key>NSLocationAlwaysUsageDescription</key>
+<string>MoveUP può utilizzare la tua posizione in ogni momento per registrare in modo continuo i tuoi spostamenti e aggiornare i report.</string>
 
 </dict>
 </plist>
