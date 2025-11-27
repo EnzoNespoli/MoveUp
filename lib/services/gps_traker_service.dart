@@ -29,17 +29,8 @@ class GpsTrackerService {
       }
 
       var p = await Geolocator.checkPermission();
-      if (p == LocationPermission.denied) {
-        try {
-          p = await Geolocator.requestPermission();
-        } catch (e) {
-          // Su iOS potrebbe lanciare un'eccezione se Info.plist non è configurato correttamente
-          print('Errore durante la richiesta di permessi GPS: $e');
-          return false;
-        }
-      }
 
-      // Controlla se abbiamo i permessi necessari
+      // Se non abbiamo i permessi, apri le impostazioni
       if (p == LocationPermission.denied ||
           p == LocationPermission.deniedForever) {
         await Geolocator.openAppSettings();

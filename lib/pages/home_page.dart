@@ -197,20 +197,11 @@ class _HomePageState extends State<HomePage> {
       LocationPermission permission = await Geolocator.checkPermission();
 
       if (permission == LocationPermission.denied) {
-        try {
-          permission = await Geolocator.requestPermission();
-        } catch (e) {
-          setState(() {
-            gpsErrore = "Error requesting GPS permissions: $e";
-          });
-          return;
-        }
-      }
-
-      if (permission == LocationPermission.denied) {
+        // Apri direttamente le impostazioni invece di richiedere il permesso
         setState(() {
           gpsErrore = context.t.errore_001;
         });
+        await Geolocator.openAppSettings();
         return;
       }
 
@@ -914,16 +905,9 @@ class _HomePageState extends State<HomePage> {
       var permission = await Geolocator.checkPermission();
 
       if (permission == LocationPermission.denied) {
-        try {
-          permission = await Geolocator.requestPermission();
-        } catch (e) {
-          setState(() => gpsErrore = "Errore richiesta permessi GPS: $e");
-          return;
-        }
-      }
-
-      if (permission == LocationPermission.denied) {
+        // Apri direttamente le impostazioni invece di richiedere il permesso
         setState(() => gpsErrore = context.t.gps_err04);
+        await Geolocator.openAppSettings();
         return;
       }
 
