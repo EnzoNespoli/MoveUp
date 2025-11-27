@@ -21,7 +21,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>26</string>
+	<string>27</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -55,6 +55,7 @@
 
 <!-- (Facoltativo ma consigliato se chiedi “Precisa”) -->
 <key>NSLocationTemporaryUsageDescriptionDictionary</key>
+
 <dict>
   <key>PreciseLocation</key>
   <string>MoveUP ha bisogno della posizione precisa per calcolare accuratamente distanza e velocità dei tuoi spostamenti.</string>
@@ -65,6 +66,10 @@
 </array>
 <key>NSMotionUsageDescription</key>
 <string>MoveUP utilizza i dati di movimento del dispositivo per rilevare il tipo di attività (camminata, corsa, spostamenti in auto).</string>
+
+<key>NSUserTrackingUsageDescription</key>
+<string>MoveUP utilizza l’ID pubblicitario per migliorare le statistiche e le offerte personalizzate.</string>
+
 
 </dict>
 </plist>
