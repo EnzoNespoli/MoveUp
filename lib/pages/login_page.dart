@@ -13,7 +13,7 @@ class LoginPage extends StatelessWidget {
       MaterialPageRoute(
         builder: (_) => Scaffold(
           appBar: AppBar(title: Text("Home")),
-          body: Center(child: Text("Benvenuto nella MOVE app")),
+          body: Center(child: Text("Welcome to the MOVE app")),
         ),
       ),
     );
@@ -39,7 +39,7 @@ class LoginPage extends StatelessWidget {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => login(context),
-              child: Text('Accedi'),
+              child: Text('Login'),
             ),
           ],
         ),

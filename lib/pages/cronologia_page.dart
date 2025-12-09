@@ -482,7 +482,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
             ),
             const SizedBox(width: 6),
             IconButton(
-              tooltip: context.t.export_day ?? 'Esporta',
+              tooltip: context.t.export_day ?? 'Export Day',
               icon: const Icon(Icons.download_outlined, size: 20),
               onPressed: () {
                 final dt = _tryParseDate(dataSelezionata);
@@ -490,7 +490,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                         content: Text(context.t.date_parse_error ??
-                            'Formato data non riconosciuto')),
+                            'Format data not recognized')),
                   );
                   return;
                 }
@@ -499,7 +499,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                       content: Text(
-                          context.t.export_started ?? 'Esportazione avviata')),
+                          context.t.export_started ?? 'Export started')),
                 );
               },
             ),

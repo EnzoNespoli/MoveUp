@@ -11,7 +11,7 @@ class MapWithPieLevels extends StatelessWidget {
     this.path = const <ll.LatLng>[],
     required this.secondsByLevel, // es: {'OFF': 3600, 'L0': 1200, 'L1': 900, 'L2': 300}
     this.height = 280,
-    this.title = 'Mappa + Livelli',
+    this.title = 'Map + Levels',
   });
 
   final gmap.LatLng center;

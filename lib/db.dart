@@ -13,4 +13,4 @@ const String dt_stato = "Italy";
 const String dt_email = "info@mytrak.app";
 const String dt_email_support = "support@mytrak.app";
 const String dt_email_pec = "support@mytrak.app";
-const String dt_telefono = "+99 99999999";
+const String dt_telefono = "+39 3939018435";
