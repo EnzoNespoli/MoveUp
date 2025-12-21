@@ -4,14 +4,17 @@ import 'l10n/app_localizations.dart';
 import 'services/locale_controller.dart';
 import 'package:provider/provider.dart';
 import 'services/purchase_service.dart';
+
 import 'theme.dart'; // buildThemeStandardWhite / buildThemePastelGreen / buildThemeDarkPink
 
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
-final GlobalKey<ScaffoldMessengerState> rootMessengerKey = GlobalKey<ScaffoldMessengerState>();
+final GlobalKey<ScaffoldMessengerState> rootMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await LocaleController.instance.load(); // lingua + tema custom
+
   runApp(
     MultiProvider(
       providers: [
@@ -85,7 +88,8 @@ class _MoveAppState extends State<MoveApp> {
       supportedLocales: AppLocalizations.supportedLocales,
       localeResolutionCallback: (device, supported) {
         if (lc.locale != null) return lc.locale;
-        if (device != null && supported.any((l) => l.languageCode == device.languageCode)) {
+        if (device != null &&
+            supported.any((l) => l.languageCode == device.languageCode)) {
           return device;
         }
         return supported.first;
@@ -102,7 +106,7 @@ class _MoveAppState extends State<MoveApp> {
       home: HomePage(
         onChangeLocale: (Locale? l) {
           if (l == null) {
-            lc.useSystem();          // “Lingua di sistema (auto)”
+            lc.useSystem(); // “Lingua di sistema (auto)”
           } else {
             lc.useLang(l.languageCode); // es. 'it', 'en', ...
           }

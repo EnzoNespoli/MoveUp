@@ -66,18 +66,22 @@ class BottomNavBar extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Icon(Icons.dashboard),
           label: lblImp(),
+          tooltip: context.t.bottom_impostazioni_tt,
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.history),
           label: lblCro(),
+          tooltip: context.t.bottom_cronologia_tt,
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person),
           label: lblPro(),
+          tooltip: context.t.bottom_profilo_tt,
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.workspace_premium),
           label: lblAbb(),
+          tooltip: context.t.bottom_abbonamenti_tt,
         ),
       ],
       onTap: (index) async {

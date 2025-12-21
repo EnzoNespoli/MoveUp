@@ -1031,6 +1031,36 @@ abstract class AppLocalizations {
   /// **'Sub.'**
   String get bottom_abbonamenti_short;
 
+  /// No description provided for @bottom_impostazioni_tt.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings and consents'**
+  String get bottom_impostazioni_tt;
+
+  /// No description provided for @bottom_cronologia_tt.
+  ///
+  /// In en, this message translates to:
+  /// **'View your recorded activity'**
+  String get bottom_cronologia_tt;
+
+  /// No description provided for @bottom_profilo_tt.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up, log in or log out of your profile'**
+  String get bottom_profilo_tt;
+
+  /// No description provided for @bottom_abbonamenti_tt.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your MoveUP subscription'**
+  String get bottom_abbonamenti_tt;
+
+  /// No description provided for @bottom_dashboard_tt.
+  ///
+  /// In en, this message translates to:
+  /// **'Return to Home'**
+  String get bottom_dashboard_tt;
+
   /// No description provided for @bottom_err01.
   ///
   /// In en, this message translates to:

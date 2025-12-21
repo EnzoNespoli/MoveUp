@@ -181,6 +181,12 @@
   "bottom_profilo_short": "Prof.",
   "bottom_abbonamenti_short": "Abo.",
 
+  "bottom_impostazioni_tt": "Ouvrez les paramètres et les consentements",
+"bottom_cronologia_tt": "Voyez votre activité enregistrée",
+"bottom_profilo_tt": "Créez un compte, connectez-vous ou déconnectez-vous de votre profil",
+"bottom_abbonamenti_tt": "Gérez votre abonnement MoveUP",
+"bottom_dashboard_tt": "Retour à l’accueil",
+
   "bottom_err01": "Fonction disponible uniquement pour les utilisateurs inscrits !",
   "bottom_err02": "Utilisateur INCORRECT !",
   "bottom_nome": "Nom",

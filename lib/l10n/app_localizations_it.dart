@@ -486,6 +486,21 @@ class AppLocalizationsIt extends AppLocalizations {
   String get bottom_abbonamenti_short => 'Abb.';
 
   @override
+  String get bottom_impostazioni_tt => 'Apri le impostazioni e i consensi';
+
+  @override
+  String get bottom_cronologia_tt => 'Vedi la tua attività registrata';
+
+  @override
+  String get bottom_profilo_tt => 'Registra, accedi o esci dal tuo profilo';
+
+  @override
+  String get bottom_abbonamenti_tt => 'Gestisci l’abbonamento MoveUP';
+
+  @override
+  String get bottom_dashboard_tt => 'Torna alla Home';
+
+  @override
   String get bottom_err01 => 'Funzione disponibile solo per utenti registrati!';
 
   @override

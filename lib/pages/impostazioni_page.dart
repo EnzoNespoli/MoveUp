@@ -841,15 +841,14 @@ class _ImpostazioniPageState extends State<ImpostazioniPage> with SafeState {
                 ),
               ),
 
-                    const SizedBox(height: 24),
-                    AppFooter(), // <-- ora scorre con la pagina
-                    const SizedBox(height: 8),
-
+              const SizedBox(height: 24),
+              AppFooter(), // <-- ora scorre con la pagina
+              const SizedBox(height: 8),
             ],
           ),
         ),
       ),
-      
+
       // BOTTONE fisso in basso
       bottomNavigationBar: SafeArea(
         child: Padding(
@@ -859,9 +858,10 @@ class _ImpostazioniPageState extends State<ImpostazioniPage> with SafeState {
             height: 48,
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.black87,   // icona + testo
-          backgroundColor: Colors.grey[200], // sfondo bottone (se vuoi chiaro)
-        ),
+                foregroundColor: Colors.black87, // icona + testo
+                backgroundColor:
+                    Colors.grey[200], // sfondo bottone (se vuoi chiaro)
+              ),
               icon: const Icon(Icons.home),
               label: Text(context.t.bottom_dashboard),
               onPressed: () {
@@ -876,7 +876,6 @@ class _ImpostazioniPageState extends State<ImpostazioniPage> with SafeState {
           ),
         ),
       ),
-
     );
   }
 

@@ -179,8 +179,14 @@
   "bottom_impostazioni_short": "Imp.",
   "bottom_cronologia_short": "Att.",
   "bottom_profilo_short": "Prof.",
-  "bottom_abbonamenti_short": "Abb.",
+  "bottom_abbonamenti_short": "Abb.", 
   
+  "bottom_impostazioni_tt": "Apri le impostazioni e i consensi",
+  "bottom_cronologia_tt": "Vedi la tua attività registrata",
+  "bottom_profilo_tt": "Registra, accedi o esci dal tuo profilo",
+  "bottom_abbonamenti_tt": "Gestisci l’abbonamento MoveUP",
+  "bottom_dashboard_tt": "Torna alla Home",
+
   "bottom_err01": "Funzione disponibile solo per utenti registrati!",
   "bottom_err02": "Utente ERRATO!",
   "bottom_nome": "Nome",
@@ -410,6 +416,7 @@
 "giorno_statico2": "fermo/pausa",
 "attivita_media": "Attività nella media.",
 "attivita_giorno":"Nessuna attività registrata oggi."
+
 
 
 }

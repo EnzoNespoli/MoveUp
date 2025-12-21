@@ -16,12 +16,14 @@ import 'dart:io';
 import 'dart:io' show Platform;
 import 'bottom_navigationbar.dart';
 import 'gps_log.dart';
+import 'card_notifiche.dart';
 
 import '../services/gps_log_entry.dart';
 import '../services/app_header_bar.dart';
 import '../services/app_footer.dart';
 import '../services/app_banner.dart'; // <-- importa AppBanner
 import '../services/gps_queue.dart';
+import '../services/notification_service.dart';
 
 import '../db.dart'; // Importa la costante globale
 import '../lingua.dart';
@@ -352,6 +354,7 @@ class _HomePageState extends State<HomePage> {
     try {
       await caricaUtente(); // carica o crea utente
       await caricaLivelloUtente();
+      await _syncNotifiche();
 
       final futures = [
         ricalcolaEaggiornaAttivita('loadAll'),
@@ -1811,6 +1814,17 @@ class _HomePageState extends State<HomePage> {
                   // --- SEZIONE dettagli GPS giornaliero
                   //-----------------------------------------------------------
                   CardDiarioGps(),
+                  SizedBox(height: 20),
+
+                  //---------------------------------------------------------
+                  // --- SEZIONE NOTIFICHE
+                  //-----------------------------------------------------------
+                  CardNotifiche(
+                    service: NotificationService(),
+                    utenteId: int.tryParse(utenteId) ?? 0,
+                    token: _jwtToken ?? '',
+                    baseUrl: apiBaseUrl,
+                  ),
                   SizedBox(height: 20),
 
                   //---------------------------------------------------------
@@ -4521,6 +4535,22 @@ class _HomePageState extends State<HomePage> {
       // qui puoi ripetere la richiesta che aveva dato 401
       //await _loadAll();
     }
+  }
+
+  //----------------------------------------------------------------------
+  /// Sincronizza le notifiche dal backend
+  //----------------------------------------------------------------------
+  Future<void> _syncNotifiche() async {
+    final utente = int.tryParse(utenteId) ?? 0;
+    final token = await _storage.read(key: 'jwt_token');
+
+    if (utente <= 0 || token == null || token.isEmpty) return;
+
+    await NotificationService().syncFromApi(
+      utenteId: utente,
+      token: token,
+      baseUrl: apiBaseUrl,
+    );
   }
 
   // ----------------------------------------------

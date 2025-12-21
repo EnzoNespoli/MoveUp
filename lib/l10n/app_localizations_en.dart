@@ -486,6 +486,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bottom_abbonamenti_short => 'Sub.';
 
   @override
+  String get bottom_impostazioni_tt => 'Open settings and consents';
+
+  @override
+  String get bottom_cronologia_tt => 'View your recorded activity';
+
+  @override
+  String get bottom_profilo_tt => 'Sign up, log in or log out of your profile';
+
+  @override
+  String get bottom_abbonamenti_tt => 'Manage your MoveUP subscription';
+
+  @override
+  String get bottom_dashboard_tt => 'Return to Home';
+
+  @override
   String get bottom_err01 => 'Function available only for registered users!';
 
   @override

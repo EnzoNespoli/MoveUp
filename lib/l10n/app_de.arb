@@ -182,6 +182,12 @@
   "bottom_profilo_short": "Prof.",
   "bottom_abbonamenti_short": "Abonn.",
 
+  "bottom_impostazioni_tt": "Öffne die Einstellungen und Zustimmungen",
+"bottom_cronologia_tt": "Sieh dir deine aufgezeichnete Aktivität an",
+"bottom_profilo_tt": "Registriere dich, melde dich an oder von deinem Profil ab",
+"bottom_abbonamenti_tt": "Verwalte dein MoveUP-Abonnement",
+"bottom_dashboard_tt": "Zurück zur Startseite",
+
   "bottom_err01": "Funktion nur für registrierte Benutzer verfügbar!",
   "bottom_err02": "FALSCHER Benutzer!",
   "bottom_nome": "Name",

@@ -183,6 +183,12 @@
   "bottom_profilo_short": "Perf.",
   "bottom_abbonamenti_short": "Susc.",
 
+  "bottom_impostazioni_tt": "Abre la configuración y los consentimientos",
+"bottom_cronologia_tt": "Consulta tu actividad registrada",
+"bottom_profilo_tt": "Regístrate, inicia sesión o cierra sesión en tu perfil",
+"bottom_abbonamenti_tt": "Gestiona tu suscripción a MoveUP",
+"bottom_dashboard_tt": "Volver a Inicio",
+
   "bottom_err01": "¡Función disponible solo para usuarios registrados!",
   "bottom_err02": "¡Usuario INCORRECTO!",
   "bottom_nome": "Nombre",

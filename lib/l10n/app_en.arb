@@ -181,6 +181,12 @@
   "bottom_profilo_short": "Prof.",
   "bottom_abbonamenti_short": "Sub.",
 
+  "bottom_impostazioni_tt": "Open settings and consents",
+"bottom_cronologia_tt": "View your recorded activity",
+"bottom_profilo_tt": "Sign up, log in or log out of your profile",
+"bottom_abbonamenti_tt": "Manage your MoveUP subscription",
+"bottom_dashboard_tt": "Return to Home",
+
   "bottom_err01": "Function available only for registered users!",
   "bottom_err02": "Invalid user!",
   "bottom_nome": "Name",
