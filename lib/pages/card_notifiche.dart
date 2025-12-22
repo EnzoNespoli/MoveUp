@@ -21,7 +21,6 @@ class CardNotifiche extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final service = NotificationService();
     final df = DateFormat('dd/MM/yyyy HH:mm');
 
     IconData _icon(NotificationType type) {
@@ -102,6 +101,7 @@ class CardNotifiche extends StatelessWidget {
                   utenteId: utenteId,
                   token: token,
                   baseUrl: baseUrl,
+                  lang: Localizations.localeOf(context).languageCode,
                 );
               },
             ),
@@ -139,6 +139,7 @@ class CardNotifiche extends StatelessWidget {
                     utenteId: utenteId,
                     token: token,
                     baseUrl: baseUrl,
+                    lang: Localizations.localeOf(context).languageCode,
                   );
                 }
               },
@@ -153,6 +154,7 @@ class CardNotifiche extends StatelessWidget {
               initialData: service.current,
               builder: (context, snapshot) {
                 final notifications = snapshot.data ?? [];
+
                 if (notifications.isEmpty) {
                   return Center(
                     child: Column(
@@ -264,14 +266,22 @@ class CardNotifiche extends StatelessWidget {
                             ),
                           ],
                         ),
-                        onTap: () {
-                          // Segna come letta
+                        onTap: () async {
+                          // Segna come letta + ricarica
                           if (!notif.isRead) {
-                            service.markAsReadRemote(
+                            await service.markAsReadRemote(
                               utenteId: utenteId,
                               token: token,
                               id: notif.id,
                               baseUrl: baseUrl,
+                            );
+
+                            await service.syncFromApi(
+                              utenteId: utenteId,
+                              token: token,
+                              baseUrl: baseUrl,
+                              lang:
+                                  Localizations.localeOf(context).languageCode,
                             );
                           }
 
@@ -316,17 +326,19 @@ class CardNotifiche extends StatelessWidget {
                                   ),
                                   if (!notif.isRead)
                                     TextButton(
-                                      onPressed: () {
-                                        service.markAsReadRemote(
+                                      onPressed: () async {
+                                        await service.markAsReadRemote(
                                           utenteId: utenteId,
                                           token: token,
                                           id: notif.id,
                                           baseUrl: baseUrl,
                                         );
-                                        service.syncFromApi(
+                                        await service.syncFromApi(
                                           utenteId: utenteId,
                                           token: token,
                                           baseUrl: baseUrl,
+                                          lang: Localizations.localeOf(context)
+                                              .languageCode,
                                         );
                                         Navigator.pop(ctx);
                                       },

@@ -32,14 +32,16 @@ class NotificationService {
   Future<void> syncFromApi({
     required int utenteId,
     required String token,
-    int limit = 100,
     required String baseUrl,
+    required String lang,
+    int limit = 100,
   }) async {
     try {
       final uri =
           Uri.parse('$baseUrl/notifica_lista.php').replace(queryParameters: {
         'utente_id': utenteId.toString(),
         'limit': limit.toString(),
+        'lang': lang,
       });
 
       final res = await http.get(

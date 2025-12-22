@@ -4550,6 +4550,7 @@ class _HomePageState extends State<HomePage> {
       utenteId: utente,
       token: token,
       baseUrl: apiBaseUrl,
+      lang: Localizations.localeOf(context).languageCode,
     );
   }
 
