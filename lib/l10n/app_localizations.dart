@@ -1103,6 +1103,138 @@ abstract class AppLocalizations {
   /// **'Last location'**
   String get rep_day_mes02;
 
+  /// No description provided for @rep_day_chiedi_AI.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the AI to…'**
+  String get rep_day_chiedi_AI;
+
+  /// No description provided for @rep_day_button_01.
+  ///
+  /// In en, this message translates to:
+  /// **'Explain the day'**
+  String get rep_day_button_01;
+
+  /// No description provided for @rep_day_button_02.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip for tomorrow'**
+  String get rep_day_button_02;
+
+  /// No description provided for @rep_day_button_03.
+  ///
+  /// In en, this message translates to:
+  /// **'Why am I inactive?'**
+  String get rep_day_button_03;
+
+  /// No description provided for @rep_day_ai_loading.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI is processing your request…'**
+  String get rep_day_ai_loading;
+
+  /// No description provided for @rep_day_ai_error.
+  ///
+  /// In en, this message translates to:
+  /// **'AI error: please try again later.'**
+  String get rep_day_ai_error;
+
+  /// No description provided for @rep_day_ai_limit.
+  ///
+  /// In en, this message translates to:
+  /// **'You have reached the daily AI request limit.'**
+  String get rep_day_ai_limit;
+
+  /// No description provided for @rep_day_ai_response.
+  ///
+  /// In en, this message translates to:
+  /// **'AI response:'**
+  String get rep_day_ai_response;
+
+  /// No description provided for @rep_day_ai_info.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI response will appear here.'**
+  String get rep_day_ai_info;
+
+  /// No description provided for @rep_day_ai_error_01.
+  ///
+  /// In en, this message translates to:
+  /// **'No response available'**
+  String get rep_day_ai_error_01;
+
+  /// No description provided for @rep_day_ai_error_02.
+  ///
+  /// In en, this message translates to:
+  /// **'remaining'**
+  String get rep_day_ai_error_02;
+
+  /// No description provided for @rep_day_ai_error_03.
+  ///
+  /// In en, this message translates to:
+  /// **'I analysis not available for your plan.'**
+  String get rep_day_ai_error_03;
+
+  /// No description provided for @rep_day_ai_error_04.
+  ///
+  /// In en, this message translates to:
+  /// **'To use AI you must first enable consent in settings.'**
+  String get rep_day_ai_error_04;
+
+  /// No description provided for @rep_day_ai_error_05.
+  ///
+  /// In en, this message translates to:
+  /// **'AI function not available at this time.'**
+  String get rep_day_ai_error_05;
+
+  /// No description provided for @rep_week_insight_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'This week shows no recurring routes. Keep using MoveUP to discover your habits.'**
+  String get rep_week_insight_empty;
+
+  /// No description provided for @rep_week_insight_01.
+  ///
+  /// In en, this message translates to:
+  /// **'You followed the same route on {count} different days ({days}). This indicates a possible movement habit.'**
+  String rep_week_insight_01(Object count, Object days);
+
+  /// No description provided for @rep_week_insight_02.
+  ///
+  /// In en, this message translates to:
+  /// **'A route repeated {count} times ({days}). It could be a forming routine.'**
+  String rep_week_insight_02(Object count, Object days);
+
+  /// No description provided for @rep_week_insight_03.
+  ///
+  /// In en, this message translates to:
+  /// **'MoveUP can analyze your weekly movement habits.'**
+  String get rep_week_insight_03;
+
+  /// No description provided for @rep_week_insight_04.
+  ///
+  /// In en, this message translates to:
+  /// **'What does this week reveal'**
+  String get rep_week_insight_04;
+
+  /// No description provided for @rep_week_insight_05.
+  ///
+  /// In en, this message translates to:
+  /// **'MoveUP thinks:'**
+  String get rep_week_insight_05;
+
+  /// No description provided for @rep_week_insight_06.
+  ///
+  /// In en, this message translates to:
+  /// **'MoveUP is analyzing...'**
+  String get rep_week_insight_06;
+
+  /// No description provided for @rep_week_insight_07.
+  ///
+  /// In en, this message translates to:
+  /// **'MoveUP’s insight will appear here.'**
+  String get rep_week_insight_07;
+
   /// No description provided for @storico_01.
   ///
   /// In en, this message translates to:
@@ -1421,6 +1553,12 @@ abstract class AppLocalizations {
   /// **'Data saved!'**
   String get imposta_page_mess6;
 
+  /// No description provided for @imposta_page_ai.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Consent'**
+  String get imposta_page_ai;
+
   /// No description provided for @footer_page_diritti.
   ///
   /// In en, this message translates to:
@@ -1450,6 +1588,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sharing requires START/BASIC/PLUS/PRO'**
   String get rep_day_export_locked;
+
+  /// No description provided for @rep_day_function_ai.
+  ///
+  /// In en, this message translates to:
+  /// **'Functions available with START/BASIC/PLUS/PRO'**
+  String get rep_day_function_ai;
 
   /// No description provided for @msg_abilitato_01.
   ///
@@ -1594,6 +1738,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Viewable history'**
   String get feat_history_days;
+
+  /// No description provided for @feat_ai_enabled.
+  ///
+  /// In en, this message translates to:
+  /// **'AI enabled'**
+  String get feat_ai_enabled;
+
+  /// No description provided for @feat_ai_daily_limit.
+  ///
+  /// In en, this message translates to:
+  /// **'AI daily limit'**
+  String get feat_ai_daily_limit;
+
+  /// No description provided for @feat_ai_scope.
+  ///
+  /// In en, this message translates to:
+  /// **'AI scope'**
+  String get feat_ai_scope;
+
+  /// No description provided for @feat_ai.
+  ///
+  /// In en, this message translates to:
+  /// **'AI features'**
+  String get feat_ai;
 
   /// No description provided for @days.
   ///
@@ -2284,6 +2452,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No activity recorded today.'**
   String get attivita_giorno;
+
+  /// No description provided for @notifiche_testa.
+  ///
+  /// In en, this message translates to:
+  /// **'MoveUP Notifications'**
+  String get notifiche_testa;
+
+  /// No description provided for @notifiche_segnala.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all as read'**
+  String get notifiche_segnala;
+
+  /// No description provided for @notifiche_elimina_tutte.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all'**
+  String get notifiche_elimina_tutte;
+
+  /// No description provided for @notifiche_conferma.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get notifiche_conferma;
+
+  /// No description provided for @notifiche_conferma_msg.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to delete all notifications?'**
+  String get notifiche_conferma_msg;
+
+  /// No description provided for @notifiche_annulla.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get notifiche_annulla;
+
+  /// No description provided for @notifiche_elimina.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get notifiche_elimina;
+
+  /// No description provided for @notifiche_vuota.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications at the moment.'**
+  String get notifiche_vuota;
+
+  /// No description provided for @notifiche_segnalate.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked as read'**
+  String get notifiche_segnalate;
+
+  /// No description provided for @costi_impatto.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated impact'**
+  String get costi_impatto;
+
+  /// No description provided for @costi_calcolo.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation in progress...'**
+  String get costi_calcolo;
+
+  /// No description provided for @costi_nessuno.
+  ///
+  /// In en, this message translates to:
+  /// **'No fast movements detected this week.'**
+  String get costi_nessuno;
+
+  /// No description provided for @costi_spostamenti.
+  ///
+  /// In en, this message translates to:
+  /// **'Fast movements:'**
+  String get costi_spostamenti;
+
+  /// No description provided for @costi_stima.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimate based on'**
+  String get costi_stima;
+
+  /// No description provided for @costi_costo.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated cost:'**
+  String get costi_costo;
+
+  /// No description provided for @costi_escluso.
+  ///
+  /// In en, this message translates to:
+  /// **'Tolls/parking excluded.'**
+  String get costi_escluso;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

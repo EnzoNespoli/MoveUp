@@ -436,6 +436,9 @@ class FeatureList extends StatelessWidget {
         'rewards': context.t.feat_rewards,
         'priority_support': context.t.feat_priority_support,
         'no_ads': context.t.feat_no_ads,
+        'ai_enabled': context.t.feat_ai_enabled,
+        'ai_daily_limit': context.t.feat_ai_daily_limit,
+        'ai_scope': context.t.feat_ai_scope,
       };
 
   @override

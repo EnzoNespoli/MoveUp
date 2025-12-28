@@ -79,7 +79,7 @@ class CardNotifiche extends StatelessWidget {
                   child: const Icon(Icons.notifications, size: 20),
                 ),
                 const SizedBox(width: 12),
-                const Text('Notifiche'),
+                Text(context.t.notifiche_testa),
               ],
             );
           },
@@ -89,7 +89,7 @@ class CardNotifiche extends StatelessWidget {
           children: [
             // Segna tutte come lette
             IconButton(
-              tooltip: 'Segna tutte come lette',
+              tooltip: context.t.notifiche_segnala,
               icon: const Icon(Icons.done_all, size: 20),
               onPressed: () async {
                 await service.markAllAsReadRemote(
@@ -107,24 +107,24 @@ class CardNotifiche extends StatelessWidget {
             ),
             // Elimina tutte
             IconButton(
-              tooltip: 'Elimina tutte',
+              tooltip: context.t.notifiche_elimina_tutte,
               icon: const Icon(Icons.delete_sweep, size: 20),
               onPressed: () async {
                 final confirm = await showDialog<bool>(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    title: const Text('Conferma'),
-                    content: const Text(
-                      'Vuoi eliminare tutte le notifiche?',
+                    title: Text(context.t.notifiche_conferma),
+                    content: Text(
+                      context.t.notifiche_conferma_msg,
                     ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Annulla'),
+                        child: Text(context.t.notifiche_annulla),
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, true),
-                        child: const Text('Elimina'),
+                        child: Text(context.t.notifiche_elimina),
                       ),
                     ],
                   ),
@@ -167,7 +167,7 @@ class CardNotifiche extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Nessuna notifica',
+                          context.t.notifiche_vuota,
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 16,
@@ -342,7 +342,8 @@ class CardNotifiche extends StatelessWidget {
                                         );
                                         Navigator.pop(ctx);
                                       },
-                                      child: const Text('Segna come letta'),
+                                      child:
+                                          Text(context.t.notifiche_segnalate),
                                     ),
                                 ],
                               ),

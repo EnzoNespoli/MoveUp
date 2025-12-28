@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import '../lingua.dart';
 import 'dart:io';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../db.dart';
+import '../services/locale_controller.dart';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -9,19 +13,23 @@ import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 
-class CardReportSettimanale extends StatelessWidget {
+class CardReportSettimanale extends StatefulWidget {
   final List<dynamic> riepilogo0;
   final List<dynamic> riepilogo1;
   final List<dynamic> riepilogo2;
   final String ultimaPosizione;
-  final Map<String, dynamic> features; // dall’API /utenti_livello
+  final Map<String, dynamic> features; // dall'API /utenti_livello
   final int
       historyDaysMax; // limits.history_days_max (o features['history_days'])
   final bool isAnonymous; // user.is_anonymous
   final String planName; // livello.nome (es. "Free"/"Plus")
   final DateTime date; // data mostrata (oggi)
+  final String utenteId; // ID utente
+  final String jwtToken; // token JWT
+  final List<Map<String, dynamic>> repeatRoutes;
+  final Map<String, dynamic>? costiWeek;
 
-  CardReportSettimanale({
+  const CardReportSettimanale({
     Key? key,
     required this.riepilogo0,
     required this.riepilogo1,
@@ -32,35 +40,250 @@ class CardReportSettimanale extends StatelessWidget {
     required this.isAnonymous,
     required this.planName,
     required this.date,
+    required this.utenteId,
+    required this.jwtToken,
+    required this.repeatRoutes,
+    this.costiWeek,
   }) : super(key: key);
 
+  @override
+  State<CardReportSettimanale> createState() => _CardReportSettimanaleState();
+}
+
+class _CardReportSettimanaleState extends State<CardReportSettimanale> {
   // Key per catturare l'immagine della card "poster" offstage
   final GlobalKey _shareKey = GlobalKey();
   final GlobalKey _captureKey = GlobalKey();
 
+  // Stato per AI
+  bool _aiLoading = false;
+  String _aiResponse = '';
+  String _aiStatus = 'info'; // info | ok | blocked | error
+  String _aiQuota = ''; // es: "2/3 • restano 1"
+
+  //--------------------------------------------------------------
+  // Metodo per chiamare l'API AI
+  //--------------------------------------------------------------
+  Future<void> _callAiApi(String requestType) async {
+    if (_aiLoading) return;
+
+    setState(() {
+      _aiLoading = true;
+      _aiResponse = '';
+      _aiQuota = '';
+      _aiStatus = 'info';
+    });
+
+    try {
+      final day = widget.date.toIso8601String().split('T')[0];
+      final uri = Uri.parse(
+        '$apiBaseUrl/ai_one.php?utente_id=${widget.utenteId}&lang=${LocaleController.instance.locale?.languageCode ?? 'it'}',
+      );
+
+      final response = await http.post(
+        uri,
+        headers: {
+          'Authorization': 'Bearer ${widget.jwtToken}',
+          'Content-Type': 'application/json; charset=utf-8',
+        },
+        body: json.encode({
+          'intent': requestType,
+          'date': day,
+        }),
+      );
+
+      debugPrint('AI API response: ${response.body}');
+
+      Map<String, dynamic> data;
+      try {
+        data = json.decode(response.body) as Map<String, dynamic>;
+      } catch (_) {
+        setState(() {
+          _aiStatus = 'error';
+          _aiResponse = 'Error server response.';
+        });
+        return;
+      }
+
+      // Gestione HTTP non 200
+      if (response.statusCode != 200) {
+        final err = (data['error'] ?? 'Error server (${response.statusCode})')
+            .toString();
+        setState(() {
+          _aiStatus = 'error';
+          _aiResponse = err;
+        });
+        return;
+      }
+
+      // ✅ OK - controlla sia booleano che valore truthy
+      final isOk =
+          data['ok'] == true || data['ok'] == 1 || data['ok'] == 'true';
+      if (isOk) {
+        final reply = (data['reply'] ?? '').toString().trim();
+
+        final used = data['used'];
+        final max = data['max'];
+        final remaining = data['remaining'];
+
+        setState(() {
+          _aiStatus = 'ok';
+          _aiResponse =
+              reply.isNotEmpty ? reply : context.t.rep_day_ai_error_01;
+
+          if (used != null && max != null && remaining != null) {
+            _aiQuota =
+                '$used/$max • ${context.t.rep_day_ai_error_02} $remaining';
+          } else {
+            _aiQuota = '';
+          }
+        });
+        return;
+      }
+
+      // 🔒 BLOCCATO - controlla sia booleano che valore truthy
+      final isBlocked = data['blocked'] == true ||
+          data['blocked'] == 1 ||
+          data['blocked'] == 'true';
+      if (isBlocked) {
+        final reason = (data['reason'] ?? '').toString();
+        String msg;
+
+        switch (reason) {
+          case 'ai_non_disponibile_su_piano':
+            msg = context.t.rep_day_ai_error_03;
+            break;
+          case 'limite_giornaliero':
+            msg = context.t.rep_day_ai_limit;
+            break;
+          case 'consenso_ai_mancante':
+            msg = context.t.rep_day_ai_error_04;
+            break;
+          default:
+            msg = context.t.rep_day_ai_error_05;
+        }
+
+        // opzionale: mostra quota se presente
+        final used = data['used'];
+        final max = data['max'];
+        String quota = '';
+        if (used != null && max != null) {
+          quota = '$used/$max';
+        }
+
+        setState(() {
+          _aiStatus = 'blocked';
+          _aiResponse = quota.isNotEmpty ? '$msg ($quota)' : msg;
+          _aiQuota = '';
+        });
+        return;
+      }
+
+      // ❌ 200 ma formato inatteso
+      setState(() {
+        _aiStatus = 'error';
+        _aiResponse = 'Error server response format.';
+      });
+    } catch (e) {
+      setState(() {
+        _aiStatus = 'error';
+        _aiResponse = 'Error: $e';
+      });
+    } finally {
+      setState(() {
+        _aiLoading = false;
+      });
+    }
+  }
+
+  //--------------------------------------------------------------
+  // Metodo alternativo per generare l'insight settimanale localmente
+  //--------------------------------------------------------------
+  Future<void> _onWeeklyInsightPressed() async {
+    if (_aiLoading) return;
+
+    setState(() {
+      _aiLoading = true;
+      _aiResponse = '';
+      _aiStatus = 'info';
+    });
+
+    try {
+      // 👇 micro delay per far percepire l’analisi (e far renderizzare lo spinner)
+      await Future.delayed(const Duration(milliseconds: 600));
+
+      // widget.repeatRoutes è la lista che stai già passando
+      final routes = widget.repeatRoutes ?? [];
+
+      String frase;
+      if (routes.isEmpty) {
+        frase = context.t.rep_week_insight_empty;
+      } else {
+        final top = routes.first;
+        final count = top['count'] ?? 0;
+        final days = (top['days'] as List?)?.join(', ') ?? '';
+
+        if (count >= 3) {
+          frase = context.t.rep_week_insight_01(count, days);
+        } else {
+          frase = context.t.rep_week_insight_02(count, days);
+        }
+      }
+
+      setState(() {
+        _aiResponse = frase;
+        _aiStatus = 'ok';
+      });
+    } finally {
+      setState(() {
+        _aiLoading = false;
+      });
+    }
+  }
+
+  //--------------------------------------------------------------
+  // Build widget
+  //--------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
-    final canExportGpx = features['export_gpx'] == true;
-    final canExportCsv = features['export_csv'] == true;
-    final canAdvanced = features['report_advanced'] == true;
+    final top =
+        widget.repeatRoutes.isNotEmpty ? widget.repeatRoutes.first : null;
+
+    final int topCount =
+        (top != null && top['count'] is int) ? top['count'] as int : 0;
+
+    final List<String> topDays = (top != null && top['days'] is List)
+        ? (top['days'] as List).map((e) => e.toString()).toList()
+        : const [];
+
+    final canExportGpx = widget.features['export_gpx'] == true;
+    final canExportCsv = widget.features['export_csv'] == true;
+    final canAdvanced = widget.features['report_advanced'] == true;
+    final aiEnabled = widget.features['ai_enabled'] == true;
 
     // opzionale: blocca se data oltre il limite
-    final isOverLimit = DateTime.now().difference(date).inDays > historyDaysMax;
+    final isOverLimit =
+        DateTime.now().difference(widget.date).inDays > widget.historyDaysMax;
 
     // Condivisione immagine: consentita solo a registrati e entro limite (come concordato)
-    final shareEnabled = !isAnonymous && !isOverLimit;
+    final shareEnabled = !widget.isAnonymous && !isOverLimit;
 
     // Esportazioni tecniche: come prima
-    final gpxEnabled = !isAnonymous && canExportGpx && !isOverLimit;
-    final csvEnabled = !isAnonymous && canExportCsv && !isOverLimit;
+    final gpxEnabled = !widget.isAnonymous && canExportGpx && !isOverLimit;
+    final csvEnabled = !widget.isAnonymous && canExportCsv && !isOverLimit;
 
     // Mostra il menu "Avanzato" solo se il piano lo prevede e c'è almeno un export possibile
     // forzato per non vedere dopo togliere isAnonymous &&
-    final advancedEnabled = isAnonymous &&
-        !isAnonymous &&
+    final advancedEnabled = widget.isAnonymous &&
+        !widget.isAnonymous &&
         !isOverLimit &&
         canAdvanced &&
         (canExportCsv || canExportGpx);
+
+    final costi = widget.costiWeek;
+    final kmVeloce = (costi?['km_veloce'] as num?)?.toDouble() ?? 0.0;
+    final eurVeloce = (costi?['eur_veloce'] as num?)?.toDouble() ?? 0.0;
+    final eurKm = (costi?['eur_km'] as num?)?.toDouble() ?? 0.20;
 
     return RepaintBoundary(
       key: _captureKey,
@@ -142,7 +365,7 @@ class CardReportSettimanale extends StatelessWidget {
               ),
 
               Text(
-                _settimanaBreve(context, date),
+                _settimanaBreve(context, widget.date),
                 style: const TextStyle(fontSize: 13, color: Colors.black),
               ),
 
@@ -151,44 +374,48 @@ class CardReportSettimanale extends StatelessWidget {
 
               // Corpo come prima
               RichText(
-  text: TextSpan(
-    style: const TextStyle(fontSize: 15, color: Colors.black),
-    children: [
-      TextSpan(text: '🛌 ${context.t.mov_inattivo} '),
-      TextSpan(
-        text: '${totaliLivello(riepilogo0, 0)['durata']}',
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
-    ],
-  ),
-),
-RichText(
-  text: TextSpan(
-    style: const TextStyle(fontSize: 15, color: Colors.black),
-    children: [
-      TextSpan(text: '🚶 ${context.t.mov_leggero} '),
-      TextSpan(
-        text: '${totaliLivello(riepilogo1, 1)['durata']}',
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
-      TextSpan(text: '  ${context.t.um_metri} ${totaliLivello(riepilogo1, 1)['metri']}  '),
-      //TextSpan(text: '${context.t.um_passi} ${totaliLivello(riepilogo1, 1)['passi']}'),
-    ],
-  ),
-),
-RichText(
-  text: TextSpan(
-    style: const TextStyle(fontSize: 15, color: Colors.black),
-    children: [
-      TextSpan(text: '🚗 ${context.t.mov_veloce} '),
-      TextSpan(
-        text: '${totaliLivello(riepilogo2, 2)['durata']}',
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
-      TextSpan(text: '  ${context.t.um_km} ${totaliLivello(riepilogo2, 2)['km'].toStringAsFixed(2)}'),
-    ],
-  ),
-),
+                text: TextSpan(
+                  style: const TextStyle(fontSize: 15, color: Colors.black),
+                  children: [
+                    TextSpan(text: '🛌 ${context.t.mov_inattivo} '),
+                    TextSpan(
+                      text: '${totaliLivello(widget.riepilogo0, 0)['durata']}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+              RichText(
+                text: TextSpan(
+                  style: const TextStyle(fontSize: 15, color: Colors.black),
+                  children: [
+                    TextSpan(text: '🚶 ${context.t.mov_leggero} '),
+                    TextSpan(
+                      text: '${totaliLivello(widget.riepilogo1, 1)['durata']}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(
+                        text:
+                            '  ${context.t.um_metri} ${totaliLivello(widget.riepilogo1, 1)['metri']}  '),
+                    //TextSpan(text: '${context.t.um_passi} ${totaliLivello(widget.riepilogo1, 1)['passi']}'),
+                  ],
+                ),
+              ),
+              RichText(
+                text: TextSpan(
+                  style: const TextStyle(fontSize: 15, color: Colors.black),
+                  children: [
+                    TextSpan(text: '🚗 ${context.t.mov_veloce} '),
+                    TextSpan(
+                      text: '${totaliLivello(widget.riepilogo2, 2)['durata']}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(
+                        text:
+                            '  ${context.t.um_km} ${totaliLivello(widget.riepilogo2, 2)['km'].toStringAsFixed(2)}'),
+                  ],
+                ),
+              ),
               const SizedBox(height: 8),
               const Divider(),
 
@@ -205,6 +432,172 @@ RichText(
                   ),
                 ),
 
+              // ========== SEZIONE AI ==========
+              const Divider(height: 24),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(
+                    Icons.analytics_outlined, // icona preview
+                    color: Colors.grey.shade600,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      context.t.rep_week_insight_03,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // Messaggio se AI non abilitata
+              if (!aiEnabled)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Text(
+                      context.t.rep_day_function_ai,
+                      style: TextStyle(color: Colors.red[700], fontSize: 13),
+                    ),
+                  ),
+                ),
+
+              // Tre pulsanti con richieste fisse (solo se AI abilitata)
+              if (aiEnabled)
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    ElevatedButton(
+                      onPressed:
+                          _aiLoading ? null : () => _onWeeklyInsightPressed(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepPurple[100],
+                        foregroundColor: Colors.deepPurple[900],
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                      ),
+                      child: Text(
+                        context.t.rep_week_insight_04,
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
+
+              //------------------------------------------------
+              // sezione costi (solo se presenti)
+              //--------------------------------------------------
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.deepPurple[50],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.deepPurple.shade200),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.t.costi_impatto,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: Colors.deepPurple[900],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Se non è ancora arrivato il dato
+                    if (widget.costiWeek == null)
+                      Text(
+                        context.t.costi_calcolo,
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      )
+                    else if (kmVeloce <= 0.0)
+                      Text(
+                        context.t.costi_nessuno,
+                        style: const TextStyle(fontSize: 14),
+                      )
+                    else
+                      Text(
+                        "${context.t.costi_spostamenti} €${eurVeloce.toStringAsFixed(2)} (≈ ${kmVeloce.toStringAsFixed(1)} km)",
+                        style: const TextStyle(fontSize: 14),
+                      ),
+
+                    const SizedBox(height: 6),
+                    Text(
+                      "${context.t.costi_stima} €${eurKm.toStringAsFixed(2)}/km. ${context.t.costi_escluso}.",
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Area risposta AI (solo se AI abilitata)
+              if (aiEnabled) const SizedBox(height: 12),
+              if (aiEnabled)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.deepPurple[50],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.deepPurple.shade200),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.t.rep_week_insight_05,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: Colors.deepPurple[900],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      if (_aiLoading)
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.deepPurple,
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Text(context.t.rep_week_insight_06),
+                          ],
+                        )
+                      else if (_aiResponse.isNotEmpty)
+                        Text(
+                          _aiResponse,
+                          style: const TextStyle(fontSize: 14),
+                        )
+                      else
+                        Text(
+                          context.t.rep_week_insight_07,
+                          style:
+                              TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        ),
+                    ],
+                  ),
+                ),
+
               // --- Versione "poster" OFFSTAGE per la condivisione immagine ---
               Offstage(
                 offstage: true,
@@ -212,11 +605,11 @@ RichText(
                   key: _shareKey,
                   child: _ShareCardPoster(
                     titolo: context.t.rep_day_mes01,
-                    data: date,
-                    r0: totaliLivello(riepilogo0, 0),
-                    r1: totaliLivello(riepilogo1, 1),
-                    r2: totaliLivello(riepilogo2, 2),
-                    ultimaPosizione: ultimaPosizione,
+                    data: widget.date,
+                    r0: totaliLivello(widget.riepilogo0, 0),
+                    r1: totaliLivello(widget.riepilogo1, 1),
+                    r2: totaliLivello(widget.riepilogo2, 2),
+                    ultimaPosizione: widget.ultimaPosizione,
                   ),
                 ),
               ),
@@ -228,7 +621,7 @@ RichText(
   }
 
   //----------------------------------------------------------------
-  // Restituisce una stringa per il period di una settimana 
+  // Restituisce una stringa per il period di una settimana
   //----------------------------------------------------------------
   String _settimanaBreve(BuildContext context, DateTime d) {
     final primoGiorno = d.subtract(const Duration(days: 6));
@@ -238,7 +631,6 @@ RichText(
     return '${context.t.card_settimana} • ${format(primoGiorno)} • ${format(ultimoGiorno)}';
   }
 
-  
   //----------------------------------------------------------------
   // Calcola i totali per un livello specifico
   //----------------------------------------------------------------
@@ -338,14 +730,15 @@ RichText(
   <trk>
     <name>Report Giornaliero</name>
     <trkseg>
-      <trkpt lat="45.0" lon="9.0"><time>${date.toIso8601String()}</time></trkpt>
+      <trkpt lat="45.0" lon="9.0"><time>${widget.date.toIso8601String()}</time></trkpt>
     </trkseg>
   </trk>
 </gpx>
 ''';
 
     final dir = await getTemporaryDirectory();
-    final file = File('${dir.path}/report_${date.toIso8601String()}.gpx');
+    final file =
+        File('${dir.path}/report_${widget.date.toIso8601String()}.gpx');
     await file.writeAsString(gpx);
 
     await Share.shareXFiles([XFile(file.path)], text: 'GPX esportato!');
@@ -354,16 +747,17 @@ RichText(
   // ========== Export CSV (come prima) ==========
   Future<void> _esportaCsv(BuildContext context) async {
     final csv = StringBuffer();
-    final r0 = totaliLivello(riepilogo0, 0);
-    final r1 = totaliLivello(riepilogo1, 1);
-    final r2 = totaliLivello(riepilogo2, 2);
+    final r0 = totaliLivello(widget.riepilogo0, 0);
+    final r1 = totaliLivello(widget.riepilogo1, 1);
+    final r2 = totaliLivello(widget.riepilogo2, 2);
     csv.writeln('Tipo,Durata,Metri,Passi,KM');
     csv.writeln('Inattivo,${r0['durata']},,,');
     csv.writeln('Leggero,${r1['durata']},${r1['metri']},${r1['passi']},');
     csv.writeln('Veloce,${r2['durata']},,,${r2['km'].toStringAsFixed(2)}');
 
     final dir = await getTemporaryDirectory();
-    final file = File('${dir.path}/report_${date.toIso8601String()}.csv');
+    final file =
+        File('${dir.path}/report_${widget.date.toIso8601String()}.csv');
     await file.writeAsString(csv.toString());
 
     await Share.shareXFiles([XFile(file.path)], text: 'CSV esportato!');
@@ -464,12 +858,38 @@ class _ShareCardPoster extends StatelessWidget {
       ),
     );
   }
+
+  String _fmtDays(List<dynamic> days) {
+    // days = ["2025-12-23","2025-12-24","2025-12-26"]
+    // per ora li lasciamo così; poi li renderemo "23, 24, 26 dic"
+    return days.map((e) => e.toString()).join(', ');
+  }
+
+  String buildWeeklyRoutesInsight(List<Map<String, dynamic>> repeatRoutes) {
+    if (repeatRoutes.isEmpty) {
+      return "Questa settimana non emergono percorsi ricorrenti. Continua a usare il tracking: appena si forma una routine, te la segnalo qui.";
+    }
+
+    final top = repeatRoutes.first;
+    final count = (top['count'] ?? 0) as int;
+    final days = (top['days'] as List? ?? const []);
+
+    if (count >= 4) {
+      return "Ho notato un percorso molto ricorrente: $count volte questa settimana (${_fmtDays(days)}). Sembra una routine stabile.";
+    } else if (count == 3) {
+      return "Hai ripetuto lo stesso percorso in 3 giorni (${_fmtDays(days)}). Probabile abitudine (lavoro/scuola/attività fissa).";
+    } else {
+      // count == 2
+      return "Un percorso è comparso 2 volte questa settimana (${_fmtDays(days)}). Potrebbe essere una routine che sta iniziando.";
+    }
+  }
 }
 
-
-final _nfIt = NumberFormat("#,##0.##", "it_IT");        // 0 → "0", 2.6 → "2,6", 77.82 → "77,82"
-String fmtNum(num x, {int? fixed}) =>
-    fixed != null ? _nfIt.format(num.parse(x.toStringAsFixed(fixed))) : _nfIt.format(x);
+final _nfIt =
+    NumberFormat("#,##0.##", "it_IT"); // 0 → "0", 2.6 → "2,6", 77.82 → "77,82"
+String fmtNum(num x, {int? fixed}) => fixed != null
+    ? _nfIt.format(num.parse(x.toStringAsFixed(fixed)))
+    : _nfIt.format(x);
 
 String fmtDistanzaM(num metri) {
   return fmtNum(metri, fixed: 1);

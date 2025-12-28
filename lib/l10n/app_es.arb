@@ -198,6 +198,28 @@
 
   "rep_day_mes01": "Informe Diario",
   "rep_day_mes02": "Última ubicación",
+  "rep_day_chiedi_AI": "Pedir a la IA que…",
+  "rep_day_button_01": "Explicar el día",
+  "rep_day_button_02": "Consejo para mañana",
+  "rep_day_button_03": "¿Por qué estoy inactivo?",
+  "rep_day_ai_loading": "La IA está procesando tu solicitud…",
+  "rep_day_ai_error": "Error de IA: inténtalo de nuevo más tarde.",
+  "rep_day_ai_limit": "Has alcanzado el límite diario de solicitudes de IA.",
+  "rep_day_ai_response": "Respuesta IA:",
+  "rep_day_ai_info": "Aquí aparecerá la respuesta de la IA.",
+  "rep_day_ai_error_01": "Ninguna respuesta disponible",
+  "rep_day_ai_error_02": "restan",
+  "rep_day_ai_error_03": "Análisis de IA no disponible para tu plan.",
+  "rep_day_ai_error_04": "Para usar la IA primero debes activar el consentimiento en la configuración.",
+  "rep_day_ai_error_05": "Función de IA no disponible en este momento.",
+  "rep_week_insight_empty": "Esta semana no emergen rutas recurrentes. Sigue usando MoveUP para identificar tus hábitos.",
+  "rep_week_insight_01": "Has seguido la misma ruta en {count} días diferentes ({days}). Esto indica un posible hábito de desplazamiento.",
+  "rep_week_insight_02": "Una ruta se ha repetido {count} veces ({days}). Podría tratarse de una rutina en formación.",
+   "rep_week_insight_03": "MoveUP puede analizar tus hábitos de desplazamiento semanalmente.",
+   "rep_week_insight_04": "Qué revela esta semana",
+"rep_week_insight_05": "MoveUP piensa:",
+"rep_week_insight_06": "MoveUP está analizando...",
+"rep_week_insight_07": "Aquí aparecerá el análisis de MoveUP.",
 
   "storico_01": "Elige cuánto historial quieres conservar. El resto crece contigo.",
     "storico_02": "Free (Anónimo)",
@@ -254,6 +276,7 @@
   "imposta_page_mess4": "Error de red.",
   "imposta_page_mess5": "¡Configuraciones actualizadas!",
   "imposta_page_mess6": "¡Datos guardados!",
+  "imposta_page_ai": "Consentimiento IA",
 
   "footer_page_diritti": "© 2025 MoveUP - Todos los derechos reservados",
   "footer_page_banner": "Your Personal Move",
@@ -261,6 +284,7 @@
   "header_page_banner": "Your Personal Move",
 
 "rep_day_export_locked": "Compartir requiere STARTBASIC/PLUS/PRO",
+"rep_day_function_ai": "Funciones disponibles con START/BASIC/PLUS/PRO",
   "msg_abilitato_01": "Regístrate para ver la distribución de hoy",
   "msg_abilitato_02": "Cronología disponible con BASIC. Regístrate primero.",
 
@@ -289,6 +313,10 @@
   "feat_priority_support": "Supporto prioritario",
   "feat_no_ads": "Senza banner pubblicitari",
   "feat_history_days": "Storico consultabile",
+  "feat_ai_enabled": "AI habilitada",
+  "feat_ai_daily_limit": "ímite diario de AI",
+  "feat_ai_scope": "Ámbito de AI",
+  "feat_ai": "Funciones AI",
   
   "days": "giorni",
   "feat_gps": "Parámetros GPS del plan",
@@ -418,7 +446,26 @@
 "giorno_statico1": "Jornada bastante estática ",
 "giorno_statico2": "parado/pausa",
 "attivita_media": "Actividad media.",
-"attivita_giorno":"Ninguna actividad registrada hoy."
+"attivita_giorno":"Ninguna actividad registrada hoy.",
+
+"notifiche_testa": "Notificaciones MoveUP",
+"notifiche_segnala": "Marcar todo como leído",
+"notifiche_elimina_tutte": "Eliminar todo",
+"notifiche_conferma": "Confirmar",
+"notifiche_conferma_msg": "¿Quieres eliminar todas las notificaciones?",
+"notifiche_annulla": "Cancelar",
+"notifiche_elimina": "Eliminar",
+"notifiche_vuota": "No hay notificaciones en este momento.",
+"notifiche_segnalate": "Marcadas como leídas",
+
+"costi_impatto": "Impacto estimado",
+"costi_calcolo": "Cálculo en curso...",
+"costi_nessuno": "No se detectaron desplazamientos rápidos esta semana.",
+"costi_spostamenti": "Desplazamientos rápidos:",
+"costi_stima": "Estimación basada en",
+"costi_costo": "Costo estimado:",
+"costi_escluso": "Peajes/aparcamiento excluidos."
+
 
 
 }

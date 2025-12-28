@@ -111,9 +111,15 @@ class _HomePageState extends State<HomePage> {
   bool consensoTrackingGps = true; // valore di default
   String appVersion = '';
 
+  Map<String, dynamic>? _costiWeek;
+
   Map<int, List<dynamic>> datiLivelli = {0: [], 1: [], 2: []};
   Map<int, List<dynamic>> datiLivelliSett = {0: [], 1: [], 2: []};
   bool loading = true;
+
+  bool _routesLoading = false;
+  String _routesError = '';
+  List<Map<String, dynamic>> _repeatRoutes = [];
 
   (List<OraStat>, List<Periodo>)? datiGiornalieri;
 
@@ -301,7 +307,7 @@ class _HomePageState extends State<HomePage> {
     _jwtToken = await _storage.read(key: 'jwt_token');
 
     if (_jwtToken == null || _jwtToken!.isEmpty) {
-      final ok = await loginAnon(); // ⬅️ fai login e salva il token
+      final ok = await _loginAnon(); // ⬅️ fai login e salva il token
 
       if (!ok) {
         // Login fallito → passa ad anonimo per non bloccare l’app
@@ -324,7 +330,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     // 4) Token scaduto → provo il refresh (se disponibile)
-    final refreshed = await loginAnon(); // ⬅️ fai login e salva il token
+    final refreshed = await _loginAnon(); // ⬅️ fai login e salva il token
     if (refreshed) {
       // Refresh riuscito → aggiorno token e continuo
       _jwtToken = await _storage.read(key: 'jwt_token');
@@ -352,18 +358,19 @@ class _HomePageState extends State<HomePage> {
     }
 
     try {
-      await caricaUtente(); // carica o crea utente
-      await caricaLivelloUtente();
+      await _caricaUtente(); // carica o crea utente
+      await _caricaLivelloUtente();
       await _syncNotifiche();
 
       final futures = [
-        ricalcolaEaggiornaAttivita('loadAll'),
+        _ricalcolaEaggiornaAttivita('loadAll'),
         _caricaDatiGiornalieri(),
         _ottieniPosizione(),
-        caricaTuttiLivelli(),
+        _caricaTuttiLivelli(),
+        _loadPercorsiRipetuti(),
         _maybeRecalc(force: true),
-        aggiornaDataUltimoAccesso(),
-        callAppOpen(),
+        _aggiornaDataUltimoAccesso(),
+        _callAppOpen(),
       ];
       await Future.wait(futures);
 
@@ -380,7 +387,7 @@ class _HomePageState extends State<HomePage> {
   //---------------------------------------------------------
   // crea token chiamando login anonimo per avere autenticazione
   //---------------------------------------------------------
-  Future<bool> loginAnon() async {
+  Future<bool> _loginAnon() async {
     final uri = Uri.parse('$apiBaseAut/anon.php');
     final res = await http.get(uri);
     if (res.statusCode != 200) return false;
@@ -438,13 +445,13 @@ class _HomePageState extends State<HomePage> {
   //---------------------------------------------------------------
   // carica l'utente se esite altrimenti lo crea
   //----------------------------------------------------------------
-  Future<void> caricaUtente() async {
+  Future<void> _caricaUtente() async {
     final prefs = await SharedPreferences.getInstance();
 
     // 1) Utente loggato
     String? idLogin = prefs.getString("utenteIdLogin");
     String? nomeLogin = prefs.getString("nomeIdLogin");
-    //debugPrint("caricaUtente: idLogin=$idLogin nomeLogin=$nomeLogin");
+
     if (idLogin != null && idLogin.isNotEmpty) {
       final ok = await verificaEsistenzaUtente(idLogin);
       if (ok) {
@@ -454,20 +461,19 @@ class _HomePageState extends State<HomePage> {
           utenteTemporaneo = false;
           debugUtente = "Nome: $nomeId";
         });
-        //debugPrint("caricaUtente: utente loggato trovato $utenteId");
+
         return;
       } else {
         // ripulisci login scaduto
         await prefs.remove("utenteIdLogin");
         await prefs.remove("nomeIdLogin");
-        //debugPrint("caricaUtente: utente loggato NON trovato pulito idLogin");
       }
     }
 
     // 2) Utente anonimo
     String? idAnonimo = prefs.getString("utenteIdAnonimo");
     String? nomeAnonimo = prefs.getString("nomeIdAnonimo");
-    //debugPrint("caricaUtente: idAnonimo=$idAnonimo nomeAnonimo=$nomeAnonimo");
+
     if (idAnonimo != null && idAnonimo.isNotEmpty) {
       final ok = await verificaEsistenzaUtente(idAnonimo);
       if (ok) {
@@ -477,18 +483,18 @@ class _HomePageState extends State<HomePage> {
           utenteTemporaneo = true;
           debugUtente = "Nome: $nomeId";
         });
-        //debugPrint("caricaUtente: utente anonimo trovato $utenteId");
+
         return;
       } else {
         // ripulisci anonimo scaduto
         await prefs.remove("utenteIdAnonimo");
         await prefs.remove("nomeIdAnonimo");
-        //debugPrint("caricaUtente: utente anonimo NON trovato pulito idAnonimo");
+
         await inizializzaUtente();
         return;
       }
     }
-    //debugPrint("caricaUtente: nessun utente trovato, crea utente anonimo");
+
     // 3. Se non esiste nulla, crea utente anonimo
     await inizializzaUtente();
   }
@@ -601,7 +607,7 @@ class _HomePageState extends State<HomePage> {
   //-------------------------------------------------------------------------
   // Per il logout:
   //-------------------------------------------------------------------------
-  Future<void> eseguiLogout() async {
+  Future<void> _eseguiLogout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove("utenteIdLogin");
     await prefs.remove("nomeIdLogin");
@@ -611,7 +617,7 @@ class _HomePageState extends State<HomePage> {
     stopCountdown();
     await fermaTrackingBackground();
 
-    await callAppClose();
+    await _callAppClose();
     await _loadAll();
     await onLogoutFlow();
 
@@ -671,14 +677,14 @@ class _HomePageState extends State<HomePage> {
         });
       } else if (res.statusCode == 401) {
         await _storage.delete(key: 'jwt_token');
-        await loginAnon(); // ricreo il token
+        await _loginAnon(); // ricreo il token
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(context.t.session_expired),
             ),
           );
-          await eseguiLogout();
+          await _eseguiLogout();
         }
       }
     } catch (e) {
@@ -727,14 +733,14 @@ class _HomePageState extends State<HomePage> {
         });
       } else if (res.statusCode == 401) {
         await _storage.delete(key: 'jwt_token');
-        await loginAnon(); // ricreo il token
+        await _loginAnon(); // ricreo il token
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(context.t.session_expired),
             ),
           );
-          await eseguiLogout();
+          await _eseguiLogout();
         }
       }
     } catch (e) {
@@ -747,7 +753,7 @@ class _HomePageState extends State<HomePage> {
   //-------------------------------------------------------------------------
   // Widget principale della pagina
   //-------------------------------------------------------------------------
-  void attivaTracking(bool attiva) {
+  void _attivaTracking(bool attiva) {
     if (!mounted) return; // widget ancora vivo?
 
     if (!consensoTrackingGps && attiva) {
@@ -1119,8 +1125,6 @@ class _HomePageState extends State<HomePage> {
             '$latStr, $lonStr (±${fmtAcc(pos.accuracy ?? double.nan)}, alt. $altStr)';
       });
 
-      // (Consiglio) non chiamare ricalcolo ad ogni fix: farlo ogni N fix o a intervalli
-      //await ricalcolaEaggiornaAttivita();
       await _maybeRecalc(); // ricalcola solo se è passato l’intervallo
     } on TimeoutException {
       setState(() => gpsErrore = '${context.t.gps_err07} Timeout');
@@ -1360,7 +1364,7 @@ class _HomePageState extends State<HomePage> {
   //-------------------------------------------------------------------------
   // Ricalcola e aggiorna le attività
   //-------------------------------------------------------------------------
-  Future<void> ricalcolaEaggiornaAttivita(String txt) async {
+  Future<void> _ricalcolaEaggiornaAttivita(String txt) async {
     try {
       final res = await http.get(
         Uri.parse("$apiBaseUrl/ricalcola_attivita.php?utente_id=$utenteId"),
@@ -1369,11 +1373,10 @@ class _HomePageState extends State<HomePage> {
 
       if (res.statusCode == 401 && !_refreshingToken) {
         await handle401(); // <--- refresh token e gestisci eventuale retry
-        await ricalcolaEaggiornaAttivita(txt); // retry
+        await _ricalcolaEaggiornaAttivita(txt); // retry
         return;
       }
 
-      //debugPrint("ricalcolaEaggiornaAttivita $txt");
       final data = json.decode(res.body);
       if (data['success'] == true) {
         // 2. Solo se la ricalcolazione è andata a buon fine, aggiorna i livelli
@@ -1461,7 +1464,7 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     countdownTimer?.cancel();
     _gctrl?.dispose();
-    callAppClose();
+    _callAppClose();
     super.dispose();
   }
 
@@ -1690,7 +1693,7 @@ class _HomePageState extends State<HomePage> {
                     countdown: countdown,
                     countdownLevel: countdownLevel,
                     ascoltoSeconds: ascoltoSeconds,
-                    onTrackingChanged: attivaTracking,
+                    onTrackingChanged: _attivaTracking,
                     onPause: pausaTracking,
                     onStop: stopTracking,
                     onPlay: riprendiTracking,
@@ -1732,6 +1735,8 @@ class _HomePageState extends State<HomePage> {
                     isAnonymous: utenteTemporaneo, // bool
                     planName: livelloUtente, // "Free" | "Start" | "Basic"...
                     date: DateTime.now(),
+                    utenteId: utenteId,
+                    jwtToken: _jwtToken.toString(),
                   ),
                   //-------------------------
                   //report fine
@@ -1751,6 +1756,10 @@ class _HomePageState extends State<HomePage> {
                     isAnonymous: utenteTemporaneo, // bool
                     planName: livelloUtente, // "Free" | "Start" | "Basic"...
                     date: DateTime.now(),
+                    utenteId: utenteId,
+                    jwtToken: _jwtToken.toString(),
+                    repeatRoutes: _repeatRoutes,
+                    costiWeek: _costiWeek,
                   ),
                   //-------------------------
                   //report fine
@@ -1858,7 +1867,7 @@ class _HomePageState extends State<HomePage> {
             nomeId: nomeId,
             leggiConsensi: leggiConsensi,
             mostraLoginDialog: mostraLoginDialog,
-            eseguiLogout: eseguiLogout,
+            eseguiLogout: _eseguiLogout,
           ),
         ),
         // overlay full-screen di attesa
@@ -2099,7 +2108,7 @@ class _HomePageState extends State<HomePage> {
       }
 
       if (data['success'] == true) {
-        await callAppClose();
+        await _callAppClose();
 
         setState(() {
           utenteId = data['user_id'].toString();
@@ -2182,7 +2191,7 @@ class _HomePageState extends State<HomePage> {
   //------------------------------------------------------------------
   // Funzione per controllare se i consensi esistono
   //------------------------------------------------------------------
-  Future<bool> aggiornaDataUltimoAccesso() async {
+  Future<bool> _aggiornaDataUltimoAccesso() async {
     try {
       final res = await http.post(
         Uri.parse("$apiBaseUrl/utenti_ultimo_accesso.php?utente_id=$utenteId"),
@@ -2191,7 +2200,7 @@ class _HomePageState extends State<HomePage> {
 
       if (res.statusCode == 401 && !_refreshingToken) {
         await handle401();
-        return await aggiornaDataUltimoAccesso(); // retry
+        return await _aggiornaDataUltimoAccesso(); // retry
       }
 
       final data = json.decode(res.body);
@@ -2674,6 +2683,7 @@ class _HomePageState extends State<HomePage> {
     bool consensoPrivacy = false;
     bool consensoMarketing = false;
     bool consensoPremi = false;
+    bool consensoAi = false;
     bool consensoTrackingGps = false; // valore di default
 
     await showDialog(
@@ -2707,6 +2717,11 @@ class _HomePageState extends State<HomePage> {
                     setState(() => consensoTrackingGps = v ?? false),
                 title: Text(context.t.form_consensi_05),
               ),
+              CheckboxListTile(
+                value: consensoAi,
+                onChanged: (v) => setState(() => consensoAi = v ?? false),
+                title: Text(context.t.imposta_page_ai),
+              ),
             ],
           ),
           actions: [
@@ -2717,6 +2732,7 @@ class _HomePageState extends State<HomePage> {
                   consensoPrivacy,
                   consensoMarketing,
                   consensoPremi,
+                  consensoAi,
                   consensoTrackingGps, // passa anche questo
                 );
                 Navigator.pop(context);
@@ -2737,6 +2753,7 @@ class _HomePageState extends State<HomePage> {
     bool privacy,
     bool marketing,
     bool premi,
+    bool ai,
     bool trackingGps, // nuovo parametro
   ) async {
     try {
@@ -2748,6 +2765,7 @@ class _HomePageState extends State<HomePage> {
           'consenso_privacy': privacy ? 1 : 0,
           'consenso_marketing': marketing ? 1 : 0,
           'consenso_premi': premi ? 1 : 0,
+          'consenso_ai': ai ? 1 : 0,
           'tracking_gps': trackingGps ? 1 : 0, // qui usi il valore scelto
           'tracking_modalita': 'preciso',
           'frequenza_tracking_sec': 200,
@@ -2762,6 +2780,7 @@ class _HomePageState extends State<HomePage> {
           privacy,
           marketing,
           premi,
+          ai,
           trackingGps,
         );
       }
@@ -2922,13 +2941,69 @@ class _HomePageState extends State<HomePage> {
   }
 
   //--------------------------------------------------------------
+  // percorsi ripetuti
+  //--------------------------------------------------------------
+  Future<void> _loadPercorsiRipetuti() async {
+    setState(() {
+      _routesLoading = true;
+      _routesError = '';
+    });
+
+    try {
+      final oggi = DateTime.now();
+      final dataStr = "${oggi.year.toString().padLeft(4, '0')}-"
+          "${oggi.month.toString().padLeft(2, '0')}-"
+          "${oggi.day.toString().padLeft(2, '0')}";
+      final url =
+          "$apiBaseUrl/percorsi_ripetuti.php?utente_id=$utenteId&data=$dataStr";
+      final res = await http.get(Uri.parse(url), headers: _authHeaders());
+
+      if (res.statusCode == 401 && !_refreshingToken) {
+        await handle401(); // <--- refresh token e gestisci eventuale retry
+        await _loadPercorsiRipetuti(); // retry
+        return;
+      }
+
+      if (res.statusCode != 200) {
+        setState(() {
+          _routesError = "Errore server (${res.statusCode})";
+        });
+        return;
+      }
+
+      final data = jsonDecode(res.body);
+      if (data['ok'] != true) {
+        setState(() {
+          _routesError =
+              data['msg']?.toString() ?? "Errore nel caricamento percorsi";
+        });
+        return;
+      }
+
+      final items = (data['items'] as List? ?? []).cast<Map<String, dynamic>>();
+
+      setState(() {
+        _repeatRoutes = items; // qui puoi fare .take(1).toList() se vuoi top1
+      });
+    } catch (e) {
+      setState(() {
+        _routesError = "Errore: $e";
+      });
+    } finally {
+      setState(() {
+        _routesLoading = false;
+      });
+    }
+  }
+
+  //--------------------------------------------------------------
   // Carica i dati per tutti i livelli
   //--------------------------------------------------------------
-  Future<void> caricaTuttiLivelli() async {
+  Future<void> _caricaTuttiLivelli() async {
     setState(() => loading = true);
 
     for (int livello = 0; livello <= 2; livello++) {
-      await caricaSettimana(livello);
+      await _caricaSettimana(livello);
     }
 
     setState(() => loading = false);
@@ -2937,17 +3012,18 @@ class _HomePageState extends State<HomePage> {
   //--------------------------------------------------------------
   // legge i dati di 7 giorni per livello
   //--------------------------------------------------------------
-  Future<void> caricaSettimana(int livello) async {
+  Future<void> _caricaSettimana(int livello) async {
     final oggi = DateTime.now();
-    final dataStr =
-        "${oggi.year.toString().padLeft(4, '0')}${oggi.month.toString().padLeft(2, '0')}${oggi.day.toString().padLeft(2, '0')}";
+    final dataStr = "${oggi.year.toString().padLeft(4, '0')}-"
+        "${oggi.month.toString().padLeft(2, '0')}-"
+        "${oggi.day.toString().padLeft(2, '0')}";
     final url =
         "$apiBaseUrl/settimana_livello_totale.php?utente_id=$utenteId&livello=$livello&data=$dataStr";
     final res = await http.get(Uri.parse(url), headers: _authHeaders());
 
     if (res.statusCode == 401 && !_refreshingToken) {
       await handle401(); // <--- refresh token e gestisci eventuale retry
-      await caricaSettimana(livello); // retry
+      await _caricaSettimana(livello); // retry
       return;
     }
 
@@ -2961,13 +3037,17 @@ class _HomePageState extends State<HomePage> {
 
       setState(() {
         datiLivelli[livello] = dettagli is List ? dettagli : [];
-        //datiLivelliSett[livello] = json.decode(res.body)['dettagli'] ?? [];
-        datiLivelliSett[livello] =
-            totali; // <-- la card settimanale userà questo
+        datiLivelliSett[livello] = totali; // <-- la card userà questo
+        if (livello == 2) {
+          final costi = body['costi'];
+          if (costi is Map) {
+            _costiWeek = Map<String, dynamic>.from(costi);
+          }
+        }
       });
     } else if (res.statusCode == 401) {
       await _storage.delete(key: 'jwt_token');
-      await loginAnon(); // ricreo il token
+      await _loginAnon(); // ricreo il token
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -4067,14 +4147,14 @@ class _HomePageState extends State<HomePage> {
   //-----------------------------------------------------------
   // Carica il livello utente
   //-----------------------------------------------------------
-  Future<void> caricaLivelloUtente() async {
+  Future<void> _caricaLivelloUtente() async {
     try {
       final url = "$apiBaseUrl/utenti_livello.php?utente_id=$utenteId";
       final res = await http.get(Uri.parse(url), headers: _authHeaders());
 
       if (res.statusCode == 401 && !_refreshingToken) {
         await handle401(); // refresh token
-        await caricaLivelloUtente(); // retry
+        await _caricaLivelloUtente(); // retry
         return;
       }
 
@@ -4197,7 +4277,7 @@ class _HomePageState extends State<HomePage> {
         now.difference(_lastRecalcAt!).inSeconds >= gpsuploadsec) {
       try {
         //debugPrint('Ricalcolo attività...$now');
-        await ricalcolaEaggiornaAttivita('maybeRecalc'); // <-- la tua funzione
+        await _ricalcolaEaggiornaAttivita('maybeRecalc'); // <-- la tua funzione
         _lastRecalcAt = now;
       } catch (_) {
         // opzionale: log/banner
@@ -4349,7 +4429,7 @@ class _HomePageState extends State<HomePage> {
 //----------------------------------------------------------------------
 // Chiama /app_open.php con { permesso_gps: ... }
 //-----------------------------------------------------------------------
-  Future<void> callAppOpen() async {
+  Future<void> _callAppOpen() async {
     try {
       final body = json.encode({
         'utente_id': utenteId.toString(),
@@ -4363,7 +4443,7 @@ class _HomePageState extends State<HomePage> {
 
       if (res.statusCode == 401 && !_refreshingToken) {
         await handle401(); // <--- refresh token e gestisci eventuale retry
-        await callAppOpen(); // ricarica i dati dopo il refresh
+        await _callAppOpen(); // ricarica i dati dopo il refresh
         return;
       }
     } catch (e) {
@@ -4374,7 +4454,7 @@ class _HomePageState extends State<HomePage> {
 //----------------------------------------------------------------------
 // Chiama /app_close.php con { motivo: ... } (default 'exit_user')
 //----------------------------------------------------------------------
-  Future<void> callAppClose([String motivo = 'exit_user']) async {
+  Future<void> _callAppClose([String motivo = 'exit_user']) async {
     try {
       final body = json.encode({
         'utente_id': utenteId.toString(),
@@ -4388,7 +4468,7 @@ class _HomePageState extends State<HomePage> {
 
       if (res.statusCode == 401 && !_refreshingToken) {
         await handle401(); // <--- refresh token e gestisci eventuale retry
-        await callAppClose(motivo); // ricarica i dati dopo il refresh
+        await _callAppClose(motivo); // ricarica i dati dopo il refresh
         return;
       }
     } catch (e) {
@@ -4527,7 +4607,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> handle401() async {
     if (_refreshingToken) return;
     _refreshingToken = true;
-    final ok = await loginAnon();
+    final ok = await _loginAnon();
     _refreshingToken = false;
     if (ok) {
       _jwtToken = await _storage.read(key: 'jwt_token');

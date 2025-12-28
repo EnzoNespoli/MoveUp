@@ -196,7 +196,29 @@
 
   "rep_day_mes01": "Rapport Quotidien",
   "rep_day_mes02": "Dernière position",
- 
+  "rep_day_chiedi_AI": "Demander à l’IA de…",
+  "rep_day_button_01": "Expliquer la journée",
+  "rep_day_button_02": "Conseil pour demain",
+  "rep_day_button_03": "Pourquoi suis-je inactif ?",
+  "rep_day_ai_loading": "L’IA traite votre demande…",
+  "rep_day_ai_error": "Erreur IA : veuillez réessayer plus tard.",
+  "rep_day_ai_limit": "Vous avez atteint la limite quotidienne de requêtes IA.",
+  "rep_day_ai_response": "Réponse IA:",
+  "rep_day_ai_info": "La réponse de l'IA apparaîtra ici.",
+  "rep_day_ai_error_01": "Aucune réponse disponible",
+  "rep_day_ai_error_02": "restent",
+  "rep_day_ai_error_03": "Analyse IA non disponible pour votre plan.",
+  "rep_day_ai_error_04": "Pour utiliser l’IA, vous devez d’abord activer le consentement dans les paramètres.",
+  "rep_day_ai_error_05": "Fonction IA non disponible pour le moment.",
+  "rep_week_insight_empty": "Cette semaine, aucun itinéraire récurrent n'apparaît. Continuez à utiliser MoveUP pour découvrir vos habitudes.",
+  "rep_week_insight_01": "Vous avez suivi le même itinéraire pendant {count} jours différents ({days}). Cela indique une possible habitude de déplacement.",
+  "rep_week_insight_02": "Un itinéraire s'est répété {count} fois ({days}). Il pourrait s'agir d'une routine en formation.",
+  "rep_week_insight_03": "MoveUP peut analyser vos habitudes de déplacement hebdomadaires.",
+  "rep_week_insight_04": "Ce que révèle cette semaine",
+"rep_week_insight_05": "MoveUP pense :",
+"rep_week_insight_06": "MoveUP analyse...",
+"rep_week_insight_07": "L’analyse de MoveUP apparaîtra ici.",
+
   "storico_01": "Choisissez la durée d’historique à conserver. Le reste grandit avec vous.",
     "storico_02": "Free (Anonyme)",
      "storico_03": "Utilise l’app sans t’inscrire.\nTa position peut aussi être relevée en arrière-plan pour calculer en temps réel la distance parcourue, le temps en mouvement et les moments d’arrêt.\nLes données restent uniquement sur ton appareil, ne valent que pour la journée en cours et sont supprimées automatiquement chaque jour.\nFonctions : suivi en direct et récapitulatif de la journée.",
@@ -253,6 +275,7 @@
   "imposta_page_mess4": "Erreur réseau.",
   "imposta_page_mess5": "Paramètres mis à jour !",
   "imposta_page_mess6": "Données enregistrées !",
+  "imposta_page_ai": "Consentement IA",
 
   "footer_page_diritti": "© 2025 MoveUP - Tous droits réservés",
   "footer_page_banner": "Your Personal Move",
@@ -260,6 +283,7 @@
     "header_page_banner": "Your Personal Move",
 
   "rep_day_export_locked": "Le partage nécessite START/BASIC/PLUS/PRO",
+  "rep_day_function_ai": "Fonctions disponibles avec START/BASIC/PLUS/PRO",
   "msg_abilitato_01": "Inscrivez-vous pour voir la répartition d’aujourd’hui",
   "msg_abilitato_02": "Chronologie disponible avec BASIC. Inscrivez-vous d’abord.",
 
@@ -287,6 +311,10 @@
   "feat_priority_support": "Support prioritaire",
   "feat_no_ads": "Sans publicité",
   "feat_history_days": "Historique disponible",
+  "feat_ai_enabled": "AI activée",
+  "feat_ai_daily_limit": "Limite quotidienne AI",
+  "feat_ai_scope": "Portée AI",
+  "feat_ai": "Fonctions AI",
 
   "days": "jours",
   "feat_gps": "Paramètres GPS du forfait",
@@ -417,7 +445,28 @@
 "giorno_statico1": "Journée plutôt statique ",
 "giorno_statico2": "immobile/pause",
 "attivita_media": "Activité moyenne.",
-"attivita_giorno":"Aucune activité enregistrée aujourd'hui."
+"attivita_giorno":"Aucune activité enregistrée aujourd'hui.",
+
+"notifiche_testa": "Notifications MoveUP",
+"notifiche_segnala": "Marquer tout comme lu",
+"notifiche_elimina_tutte": "Tout supprimer",
+"notifiche_conferma": "Confirmer",
+"notifiche_conferma_msg": "Voulez-vous supprimer toutes les notifications ?",
+"notifiche_annulla": "Annuler",
+"notifiche_elimina": "Supprimer",
+"notifiche_vuota": "Aucune notification pour le moment.",
+"notifiche_segnalate": "Marquées comme lues",
+
+"costi_impatto": "Impact estimé",
+"costi_calcolo": "Calcul en cours...",
+"costi_nessuno": "Aucun déplacement rapide détecté cette semaine.",
+"costi_spostamenti": "Déplacements rapides :",
+"costi_stima": "Estimation basée sur",
+"costi_costo": "Coût estimé :",
+"costi_escluso": "Péages/stationnement exclus."
+
+
+
 
 
 }

@@ -455,6 +455,17 @@ class _ImpostazioniPageState extends State<ImpostazioniPage> with SafeState {
                     },
                   ),
                 ),
+                Card(
+                  child: SwitchListTile(
+                    title: Text(context.t.imposta_page_ai),
+                    value: (impostazioniUtente!['consenso_ai'] ?? 0) == 1,
+                    onChanged: (val) {
+                      setState(
+                        () => impostazioniUtente!['consenso_ai'] = val ? 1 : 0,
+                      );
+                    },
+                  ),
+                ),
                 //-------------------
                 // data consenso
                 //-------------------
@@ -935,6 +946,7 @@ class _ImpostazioniPageState extends State<ImpostazioniPage> with SafeState {
       'consenso_marketing': impostazioniUtente?['consenso_marketing'] ?? 0,
       'consenso_premi': impostazioniUtente?['consenso_premi'] ?? 0,
       'consenso_privacy': impostazioniUtente?['consenso_privacy'] ?? 0,
+      'consenso_ai': impostazioniUtente?['consenso_ai'] ?? 0,
       'data_consenso': impostazioniUtente?['data_consenso'],
       'frequenza_tracking':
           impostazioniUtente?['frequenza_tracking_sec']?.toString(),

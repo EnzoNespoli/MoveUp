@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import '../lingua.dart';
 import 'dart:io';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../db.dart';
+import '../services/locale_controller.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
 
-class CardReportGiornaliero extends StatelessWidget {
+class CardReportGiornaliero extends StatefulWidget {
   final Map<String, dynamic> riepilogo0;
   final Map<String, dynamic> riepilogo1;
   final Map<String, dynamic> riepilogo2;
@@ -19,8 +22,10 @@ class CardReportGiornaliero extends StatelessWidget {
   final bool isAnonymous; // user.is_anonymous
   final String planName; // livello.nome (es. "Free"/"Plus")
   final DateTime date; // data mostrata (oggi)
+  final String utenteId; // ID utente per watermark
+  final String jwtToken; // token JWT per autenticazione API
 
-  CardReportGiornaliero({
+  const CardReportGiornaliero({
     Key? key,
     required this.riepilogo0,
     required this.riepilogo1,
@@ -31,32 +36,184 @@ class CardReportGiornaliero extends StatelessWidget {
     required this.isAnonymous,
     required this.planName,
     required this.date,
+    required this.utenteId,
+    required this.jwtToken,
   }) : super(key: key);
 
+  @override
+  State<CardReportGiornaliero> createState() => _CardReportGiornalieroState();
+}
+
+class _CardReportGiornalieroState extends State<CardReportGiornaliero> {
   // Key per catturare l'immagine della card "poster" offstage
   final GlobalKey _shareKey = GlobalKey();
   final GlobalKey _captureKey = GlobalKey();
 
+  // Stato per AI
+  bool _aiLoading = false;
+  String _aiResponse = '';
+
+  String _aiStatus = 'info'; // info | ok | blocked | error
+  String _aiQuota = ''; // es: "2/3 • restano 1"
+
+  //--------------------------------------------------------------
+  // Metodo per chiamare l'API AI
+  //--------------------------------------------------------------
+  Future<void> _callAiApi(String requestType) async {
+    if (_aiLoading) return;
+
+    setState(() {
+      _aiLoading = true;
+      _aiResponse = '';
+      _aiQuota = '';
+      _aiStatus = 'info';
+    });
+
+    try {
+      final day = widget.date.toIso8601String().split('T')[0];
+      final uri = Uri.parse(
+        '$apiBaseUrl/ai_one.php?utente_id=${widget.utenteId}&lang=${LocaleController.instance.locale?.languageCode ?? 'it'}',
+      );
+
+      final response = await http.post(
+        uri,
+        headers: {
+          'Authorization': 'Bearer ${widget.jwtToken}',
+          'Content-Type': 'application/json; charset=utf-8',
+        },
+        body: json.encode({
+          'intent': requestType,
+          'date': day,
+        }),
+      );
+
+      Map<String, dynamic> data;
+      try {
+        data = json.decode(response.body) as Map<String, dynamic>;
+      } catch (_) {
+        setState(() {
+          _aiStatus = 'error';
+          _aiResponse = 'Error server response.';
+        });
+        return;
+      }
+
+      // Gestione HTTP non 200
+      if (response.statusCode != 200) {
+        final err = (data['error'] ?? 'Error server (${response.statusCode})')
+            .toString();
+        setState(() {
+          _aiStatus = 'error';
+          _aiResponse = err;
+        });
+        return;
+      }
+
+      // ✅ OK - controlla sia booleano che valore truthy
+      final isOk =
+          data['ok'] == true || data['ok'] == 1 || data['ok'] == 'true';
+      if (isOk) {
+        final reply = (data['reply'] ?? '').toString().trim();
+
+        final used = data['used'];
+        final max = data['max'];
+        final remaining = data['remaining'];
+
+        setState(() {
+          _aiStatus = 'ok';
+          _aiResponse =
+              reply.isNotEmpty ? reply : context.t.rep_day_ai_error_01;
+
+          if (used != null && max != null && remaining != null) {
+            _aiQuota =
+                '$used/$max • ${context.t.rep_day_ai_error_02} $remaining';
+          } else {
+            _aiQuota = '';
+          }
+        });
+        return;
+      }
+
+      // 🔒 BLOCCATO - controlla sia booleano che valore truthy
+      final isBlocked = data['blocked'] == true ||
+          data['blocked'] == 1 ||
+          data['blocked'] == 'true';
+      if (isBlocked) {
+        final reason = (data['reason'] ?? '').toString();
+        String msg;
+
+        switch (reason) {
+          case 'ai_non_disponibile_su_piano':
+            msg = context.t.rep_day_ai_error_03;
+            break;
+          case 'limite_giornaliero':
+            msg = context.t.rep_day_ai_limit;
+            break;
+          case 'consenso_ai_mancante':
+            msg = context.t.rep_day_ai_error_04;
+            break;
+          default:
+            msg = context.t.rep_day_ai_error_05;
+        }
+
+        // opzionale: mostra quota se presente
+        final used = data['used'];
+        final max = data['max'];
+        String quota = '';
+        if (used != null && max != null) {
+          quota = '$used/$max';
+        }
+
+        setState(() {
+          _aiStatus = 'blocked';
+          _aiResponse = quota.isNotEmpty ? '$msg ($quota)' : msg;
+          _aiQuota = '';
+        });
+        return;
+      }
+
+      // ❌ 200 ma formato inatteso
+      setState(() {
+        _aiStatus = 'error';
+        _aiResponse = 'Error server response format.';
+      });
+    } catch (e) {
+      setState(() {
+        _aiStatus = 'error';
+        _aiResponse = 'Error: $e';
+      });
+    } finally {
+      setState(() {
+        _aiLoading = false;
+      });
+    }
+  }
+
+  //--------------------------------------------------------------
+  // Build widget
+  //--------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
-    final canExportGpx = features['export_gpx'] == true;
-    final canExportCsv = features['export_csv'] == true;
-    final canAdvanced = features['report_advanced'] == true;
+    final canExportGpx = widget.features['export_gpx'] == true;
+    final canExportCsv = widget.features['export_csv'] == true;
+    final canAdvanced = widget.features['report_advanced'] == true;
+    final aiEnabled = widget.features['ai_enabled'] == true;
 
     // opzionale: blocca se data oltre il limite
-    final isOverLimit = DateTime.now().difference(date).inDays > historyDaysMax;
+    final isOverLimit =
+        DateTime.now().difference(widget.date).inDays > widget.historyDaysMax;
 
     // Condivisione immagine: consentita solo a registrati e entro limite (come concordato)
-    final shareEnabled = !isAnonymous && !isOverLimit;
+    final shareEnabled = !widget.isAnonymous && !isOverLimit;
 
     // Esportazioni tecniche: come prima
-    final gpxEnabled = !isAnonymous && canExportGpx && !isOverLimit;
-    final csvEnabled = !isAnonymous && canExportCsv && !isOverLimit;
+    final gpxEnabled = !widget.isAnonymous && canExportGpx && !isOverLimit;
+    final csvEnabled = !widget.isAnonymous && canExportCsv && !isOverLimit;
 
     // Mostra il menu "Avanzato" solo se il piano lo prevede e c'è almeno un export possibile
     // forzato per non vedere dopo togliere isAnonymous &&
-    final advancedEnabled = isAnonymous &&
-        !isAnonymous &&
+    final advancedEnabled = widget.isAnonymous &&
+        !widget.isAnonymous &&
         !isOverLimit &&
         canAdvanced &&
         (canExportCsv || canExportGpx);
@@ -145,7 +302,7 @@ class CardReportGiornaliero extends StatelessWidget {
               const SizedBox(height: 8),
 
               Text(
-                _giornoBreve(context, date),
+                _giornoBreve(context, widget.date),
                 style: const TextStyle(fontSize: 13, color: Colors.black),
               ),
 
@@ -159,7 +316,7 @@ class CardReportGiornaliero extends StatelessWidget {
                   children: [
                     TextSpan(text: '🛌 ${context.t.mov_inattivo} '),
                     TextSpan(
-                      text: riepilogo0['durata'],
+                      text: widget.riepilogo0['durata'],
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -171,13 +328,13 @@ class CardReportGiornaliero extends StatelessWidget {
                   children: [
                     TextSpan(text: '🚶 ${context.t.mov_leggero} '),
                     TextSpan(
-                      text: riepilogo1['durata'],
+                      text: widget.riepilogo1['durata'],
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     TextSpan(
                         text:
-                            '  ${context.t.um_metri} ${riepilogo1['metri']}  '),
-                    //TextSpan(text: '${context.t.um_passi} ${riepilogo1['passi']}'),
+                            '  ${context.t.um_metri} ${widget.riepilogo1['metri']}  '),
+                    //TextSpan(text: '${context.t.um_passi} ${widget.riepilogo1['passi']}'),
                   ],
                 ),
               ),
@@ -187,12 +344,12 @@ class CardReportGiornaliero extends StatelessWidget {
                   children: [
                     TextSpan(text: '🚗 ${context.t.mov_veloce} '),
                     TextSpan(
-                      text: riepilogo2['durata'],
+                      text: widget.riepilogo2['durata'],
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     TextSpan(
                         text:
-                            '  ${context.t.um_km} ${riepilogo2['km'].toStringAsFixed(2)}'),
+                            '  ${context.t.um_km} ${widget.riepilogo2['km'].toStringAsFixed(2)}'),
                   ],
                 ),
               ),
@@ -200,7 +357,7 @@ class CardReportGiornaliero extends StatelessWidget {
               const Divider(),
 
               // Messaggio export come prima (resta per CSV/GPX)
-              if ( !shareEnabled)
+              if (!shareEnabled)
                 Align(
                   alignment: Alignment.centerRight,
                   child: Padding(
@@ -212,6 +369,148 @@ class CardReportGiornaliero extends StatelessWidget {
                   ),
                 ),
 
+              // ========== SEZIONE AI ==========
+              const Divider(height: 24),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(Icons.psychology,
+                      color: Colors.deepPurple, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    context.t.rep_day_chiedi_AI,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.deepPurple[700],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // Messaggio se AI non abilitata
+              if (!aiEnabled)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Text(
+                      context.t.rep_day_function_ai,
+                      style: TextStyle(color: Colors.red[700], fontSize: 13),
+                    ),
+                  ),
+                ),
+
+              // Tre pulsanti con richieste fisse (solo se AI abilitata)
+              if (aiEnabled)
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    ElevatedButton(
+                      onPressed: _aiLoading
+                          ? null
+                          : () => _callAiApi('spiega_giornata'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepPurple[100],
+                        foregroundColor: Colors.deepPurple[900],
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                      ),
+                      child: Text(
+                        context.t.rep_day_button_01,
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: _aiLoading
+                          ? null
+                          : () => _callAiApi('consiglio_semplice'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepPurple[100],
+                        foregroundColor: Colors.deepPurple[900],
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                      ),
+                      child: Text(
+                        context.t.rep_day_button_02,
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed:
+                          _aiLoading ? null : () => _callAiApi('perche_fermo'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepPurple[100],
+                        foregroundColor: Colors.deepPurple[900],
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                      ),
+                      child: Text(
+                        context.t.rep_day_button_03,
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
+
+              // Area risposta AI (solo se AI abilitata)
+              if (aiEnabled) const SizedBox(height: 12),
+              if (aiEnabled)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.deepPurple[50],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.deepPurple.shade200),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.t.rep_day_ai_response,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: Colors.deepPurple[900],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      if (_aiLoading)
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.deepPurple,
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Text(context.t.rep_day_ai_loading),
+                          ],
+                        )
+                      else if (_aiResponse.isNotEmpty)
+                        Text(
+                          _aiResponse,
+                          style: const TextStyle(fontSize: 14),
+                        )
+                      else
+                        Text(
+                          context.t.rep_day_ai_info,
+                          style:
+                              TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        ),
+                    ],
+                  ),
+                ),
+
               // --- Versione "poster" OFFSTAGE per la condivisione immagine ---
               Offstage(
                 offstage: true,
@@ -219,11 +518,11 @@ class CardReportGiornaliero extends StatelessWidget {
                   key: _shareKey,
                   child: _ShareCardPoster(
                     titolo: context.t.rep_day_mes01,
-                    data: date,
-                    r0: riepilogo0,
-                    r1: riepilogo1,
-                    r2: riepilogo2,
-                    ultimaPosizione: ultimaPosizione,
+                    data: widget.date,
+                    r0: widget.riepilogo0,
+                    r1: widget.riepilogo1,
+                    r2: widget.riepilogo2,
+                    ultimaPosizione: widget.ultimaPosizione,
                   ),
                 ),
               ),
@@ -323,7 +622,9 @@ class CardReportGiornaliero extends StatelessWidget {
     }
   }
 
+  //--------------------------------------------------------------
   // ========== Export GPX (come prima) ==========
+  //--------------------------------------------------------------
   Future<void> _esportaGpx(BuildContext context) async {
     final gpx = '''
 <?xml version="1.0" encoding="UTF-8"?>
@@ -331,31 +632,35 @@ class CardReportGiornaliero extends StatelessWidget {
   <trk>
     <name>Report Giornaliero</name>
     <trkseg>
-      <trkpt lat="45.0" lon="9.0"><time>${date.toIso8601String()}</time></trkpt>
+      <trkpt lat="45.0" lon="9.0"><time>${widget.date.toIso8601String()}</time></trkpt>
     </trkseg>
   </trk>
 </gpx>
 ''';
 
     final dir = await getTemporaryDirectory();
-    final file = File('${dir.path}/report_${date.toIso8601String()}.gpx');
+    final file =
+        File('${dir.path}/report_${widget.date.toIso8601String()}.gpx');
     await file.writeAsString(gpx);
 
     await Share.shareXFiles([XFile(file.path)], text: 'GPX esportato!');
   }
 
+  //--------------------------------------------------------------
   // ========== Export CSV (come prima) ==========
+  //--------------------------------------------------------------
   Future<void> _esportaCsv(BuildContext context) async {
     final csv = StringBuffer();
     csv.writeln('Tipo,Durata,Metri,Passi,KM');
-    csv.writeln('Inattivo,${riepilogo0['durata']},,,');
+    csv.writeln('Inattivo,${widget.riepilogo0['durata']},,,');
     csv.writeln(
-        'Leggero,${riepilogo1['durata']},${riepilogo1['metri']},${riepilogo1['passi']},');
+        'Leggero,${widget.riepilogo1['durata']},${widget.riepilogo1['metri']},${widget.riepilogo1['passi']},');
     csv.writeln(
-        'Veloce,${riepilogo2['durata']},,,${riepilogo2['km'].toStringAsFixed(2)}');
+        'Veloce,${widget.riepilogo2['durata']},,,${widget.riepilogo2['km'].toStringAsFixed(2)}');
 
     final dir = await getTemporaryDirectory();
-    final file = File('${dir.path}/report_${date.toIso8601String()}.csv');
+    final file =
+        File('${dir.path}/report_${widget.date.toIso8601String()}.csv');
     await file.writeAsString(csv.toString());
 
     await Share.shareXFiles([XFile(file.path)], text: 'CSV esportato!');
@@ -365,7 +670,9 @@ class CardReportGiornaliero extends StatelessWidget {
 // Azioni del menu Avanzato
 enum _AdvAction { csv, gpx }
 
+//--------------------------------------------------------------
 // ===== Poster condivisibile (semplice, brandizzabile) =====
+//--------------------------------------------------------------
 class _ShareCardPoster extends StatelessWidget {
   final String titolo;
   final DateTime data;
@@ -382,6 +689,9 @@ class _ShareCardPoster extends StatelessWidget {
     required this.ultimaPosizione,
   }) : super(key: key);
 
+  //--------------------------------------------------------------
+  // Build widget
+  //--------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     // Formato quadrato 1080x1080 pensato per chat/social

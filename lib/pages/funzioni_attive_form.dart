@@ -20,35 +20,37 @@ class FunzioniAttiveForm extends StatelessWidget {
         //'rewards': context.t.feat_rewards,
         'priority_support': context.t.feat_priority_support,
         'no_ads': context.t.feat_no_ads,
+        'ai_enabled': context.t.feat_ai_enabled,
+        'ai_daily_limit': context.t.feat_ai_daily_limit,
+        'ai_scope': context.t.feat_ai_scope,
       };
 
   Map<String, dynamic> _toMap(dynamic x) {
-  if (x == null) return {};
-  if (x is Map) return Map<String, dynamic>.from(x);
+    if (x == null) return {};
+    if (x is Map) return Map<String, dynamic>.from(x);
 
-  if (x is String) {
-    try {
-      final decoded = jsonDecode(x);
-      return _toMap(decoded);
-    } catch (_) {
-      return {};
+    if (x is String) {
+      try {
+        final decoded = jsonDecode(x);
+        return _toMap(decoded);
+      } catch (_) {
+        return {};
+      }
     }
+
+    if (x is List) {
+      // ['rewards','no_ads'] -> {'rewards': true, 'no_ads': true}
+      return {for (final k in x) k.toString(): true};
+    }
+
+    return {};
   }
-
-  if (x is List) {
-    // ['rewards','no_ads'] -> {'rewards': true, 'no_ads': true}
-    return { for (final k in x) k.toString(): true };
-  }
-
-  return {};
-}
-
 
   @override
-Widget build(BuildContext context) {
-  //debugPrint('FunzioniAttiveForm input: ${funzioniAttive.runtimeType} -> $funzioniAttive');
-  final Map<String, dynamic> f = _toMap(funzioniAttive);
-  //debugPrint('FunzioniAttiveForm parsed: ${f.runtimeType} -> $f');
+  Widget build(BuildContext context) {
+    //debugPrint('FunzioniAttiveForm input: ${funzioniAttive.runtimeType} -> $funzioniAttive');
+    final Map<String, dynamic> f = _toMap(funzioniAttive);
+    //debugPrint('FunzioniAttiveForm parsed: ${f.runtimeType} -> $f');
 
     // 2) Etichette "umane"
     final labels = _featLabels(context);
@@ -69,16 +71,19 @@ Widget build(BuildContext context) {
     ].where((k) => f.containsKey(k)).toList();
 
     // Parametri GPS presenti?
-    final hasGps = 
-        f.containsKey('gps_accuracy_mode') ||
+    final hasGps = f.containsKey('gps_accuracy_mode') ||
         f.containsKey('gps_max_acc_m') ||
         f.containsKey('gps_sample_sec') ||
         f.containsKey('gps_min_distance_m') ||
         f.containsKey('gps_upload_sec') ||
         f.containsKey('gps_background');
 
+    // Parametri AI presenti?
+    final hasAi = f.containsKey('ai_enabled') ||
+        f.containsKey('ai_daily_limit') ||
+        f.containsKey('ai_scope');
+
     return Card(
-      
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -127,49 +132,45 @@ Widget build(BuildContext context) {
                 ],
               ),
               const SizedBox(height: 6),
-
-                if (f['gps_sample_sec'] != null)
+              if (f['gps_sample_sec'] != null)
                 _kvTile(
                   icon: Icons.timer_outlined,
-                  title: context.t.feat_gps_sample_sec, // "Campionamento (secondi)"
+                  title: context
+                      .t.feat_gps_sample_sec, // "Campionamento (secondi)"
                   value:
                       '${f['gps_sample_sec']} ${context.t.unit_seconds}', // "60 secondi"
                 ),
-
               if (f['gps_accuracy_mode'] != null)
                 _kvTile(
                   icon: Icons.timer_outlined,
-                  title: context.t.feat_gps_accuracy_mode, // "Massima accuratezza (metri)"
-                  value:
-                      '${f['gps_accuracy_mode']} ', // "20 metri"
+                  title: context.t
+                      .feat_gps_accuracy_mode, // "Massima accuratezza (metri)"
+                  value: '${f['gps_accuracy_mode']} ', // "20 metri"
                 ),
-
-
               if (f['gps_max_acc_m'] != null)
                 _kvTile(
                   icon: Icons.timer_outlined,
-                  title: context.t.feat_gps_max_acc_m, // "Massima accuratezza (metri)"
+                  title: context
+                      .t.feat_gps_max_acc_m, // "Massima accuratezza (metri)"
                   value:
                       '${f['gps_max_acc_m']} ${context.t.unit_meters}', // "20 metri"
                 ),
-                
-
               if (f['gps_min_distance_m'] != null)
                 _kvTile(
                   icon: Icons.straighten,
-                  title: context.t.feat_gps_min_distance_m, // "Distanza minima (metri)"
+                  title: context
+                      .t.feat_gps_min_distance_m, // "Distanza minima (metri)"
                   value:
                       '${f['gps_min_distance_m']} ${context.t.unit_meters}', // "20 metri"
                 ),
-
               if (f['gps_upload_sec'] != null)
                 _kvTile(
                   icon: Icons.cloud_upload_outlined,
-                  title: context.t.feat_gps_upload_sec, // "Invio in batch (secondi)"
+                  title: context
+                      .t.feat_gps_upload_sec, // "Invio in batch (secondi)"
                   value:
                       '${f['gps_upload_sec']} ${context.t.unit_seconds}', // "180 secondi"
                 ),
-
               if (f['gps_background'] != null)
                 ListTile(
                   dense: true,
@@ -177,10 +178,52 @@ Widget build(BuildContext context) {
                     f['gps_background'] == true
                         ? Icons.check_circle
                         : Icons.radio_button_unchecked,
-                    color:
-                        f['gps_background'] == true ? Colors.green : Colors.grey,
+                    color: f['gps_background'] == true
+                        ? Colors.green
+                        : Colors.grey,
                   ),
-                  title: Text(context.t.feat_gps_background), // "Tracking in background"
+                  title: Text(context
+                      .t.feat_gps_background), // "Tracking in background"
+                ),
+            ],
+
+            // Sezione AI
+            if (hasAi) ...[
+              const Divider(height: 16),
+              Row(
+                children: [
+                  const Icon(Icons.psychology, color: Colors.deepPurple),
+                  const SizedBox(width: 6),
+                  Text(
+                    context.t.feat_ai, // "Funzioni AI"
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w700, fontSize: 15),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              if (f['ai_enabled'] != null)
+                ListTile(
+                  dense: true,
+                  leading: Icon(
+                    f['ai_enabled'] == true
+                        ? Icons.check_circle
+                        : Icons.radio_button_unchecked,
+                    color: f['ai_enabled'] == true ? Colors.green : Colors.grey,
+                  ),
+                  title: Text(labels['ai_enabled'] ?? 'AI Enabled'),
+                ),
+              if (f['ai_daily_limit'] != null)
+                _kvTile(
+                  icon: Icons.query_stats,
+                  title: labels['ai_daily_limit'] ?? 'Daily AI Queries',
+                  value: '${f['ai_daily_limit']}',
+                ),
+              if (f['ai_scope'] != null)
+                _kvTile(
+                  icon: Icons.analytics_outlined,
+                  title: labels['ai_scope'] ?? 'AI Scope',
+                  value: '${f['ai_scope']}',
                 ),
             ],
           ],
@@ -190,12 +233,14 @@ Widget build(BuildContext context) {
   }
 
   // helper per righe chiave:valore
-  Widget _kvTile({required IconData icon, required String title, required String value}) {
+  Widget _kvTile(
+      {required IconData icon, required String title, required String value}) {
     return ListTile(
       dense: true,
       leading: Icon(icon, color: Colors.blueGrey),
       title: Text(title),
-      trailing: Text(value, style: const TextStyle(fontWeight: FontWeight.w600)),
+      trailing:
+          Text(value, style: const TextStyle(fontWeight: FontWeight.w600)),
     );
   }
 }

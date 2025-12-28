@@ -522,6 +522,76 @@ class AppLocalizationsFr extends AppLocalizations {
   String get rep_day_mes02 => 'Dernière position';
 
   @override
+  String get rep_day_chiedi_AI => 'Demander à l’IA de…';
+
+  @override
+  String get rep_day_button_01 => 'Expliquer la journée';
+
+  @override
+  String get rep_day_button_02 => 'Conseil pour demain';
+
+  @override
+  String get rep_day_button_03 => 'Pourquoi suis-je inactif ?';
+
+  @override
+  String get rep_day_ai_loading => 'L’IA traite votre demande…';
+
+  @override
+  String get rep_day_ai_error => 'Erreur IA : veuillez réessayer plus tard.';
+
+  @override
+  String get rep_day_ai_limit => 'Vous avez atteint la limite quotidienne de requêtes IA.';
+
+  @override
+  String get rep_day_ai_response => 'Réponse IA:';
+
+  @override
+  String get rep_day_ai_info => 'La réponse de l\'IA apparaîtra ici.';
+
+  @override
+  String get rep_day_ai_error_01 => 'Aucune réponse disponible';
+
+  @override
+  String get rep_day_ai_error_02 => 'restent';
+
+  @override
+  String get rep_day_ai_error_03 => 'Analyse IA non disponible pour votre plan.';
+
+  @override
+  String get rep_day_ai_error_04 => 'Pour utiliser l’IA, vous devez d’abord activer le consentement dans les paramètres.';
+
+  @override
+  String get rep_day_ai_error_05 => 'Fonction IA non disponible pour le moment.';
+
+  @override
+  String get rep_week_insight_empty => 'Cette semaine, aucun itinéraire récurrent n\'apparaît. Continuez à utiliser MoveUP pour découvrir vos habitudes.';
+
+  @override
+  String rep_week_insight_01(Object count, Object days) {
+    return 'Vous avez suivi le même itinéraire pendant $count jours différents ($days). Cela indique une possible habitude de déplacement.';
+  }
+
+  @override
+  String rep_week_insight_02(Object count, Object days) {
+    return 'Un itinéraire s\'est répété $count fois ($days). Il pourrait s\'agir d\'une routine en formation.';
+  }
+
+  @override
+  String get rep_week_insight_03 => 'MoveUP peut analyser vos habitudes de déplacement hebdomadaires.';
+
+  @override
+  String get rep_week_insight_04 => 'Ce que révèle cette semaine';
+
+  @override
+  String get rep_week_insight_05 => 'MoveUP pense :';
+
+  @override
+  String get rep_week_insight_06 => 'MoveUP analyse...';
+
+  @override
+  String get rep_week_insight_07 => 'L’analyse de MoveUP apparaîtra ici.';
+
+  @override
   String get storico_01 => 'Choisissez la durée d’historique à conserver. Le reste grandit avec vous.';
 
   @override
@@ -681,6 +751,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get imposta_page_mess6 => 'Données enregistrées !';
 
   @override
+  String get imposta_page_ai => 'Consentement IA';
+
+  @override
   String get footer_page_diritti => '© 2025 MoveUP - Tous droits réservés';
 
   @override
@@ -694,6 +767,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get rep_day_export_locked => 'Le partage nécessite START/BASIC/PLUS/PRO';
+
+  @override
+  String get rep_day_function_ai => 'Fonctions disponibles avec START/BASIC/PLUS/PRO';
 
   @override
   String get msg_abilitato_01 => 'Inscrivez-vous pour voir la répartition d’aujourd’hui';
@@ -766,6 +842,18 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get feat_history_days => 'Historique disponible';
+
+  @override
+  String get feat_ai_enabled => 'AI activée';
+
+  @override
+  String get feat_ai_daily_limit => 'Limite quotidienne AI';
+
+  @override
+  String get feat_ai_scope => 'Portée AI';
+
+  @override
+  String get feat_ai => 'Fonctions AI';
 
   @override
   String get days => 'jours';
@@ -1117,4 +1205,52 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get attivita_giorno => 'Aucune activité enregistrée aujourd\'hui.';
+
+  @override
+  String get notifiche_testa => 'Notifications MoveUP';
+
+  @override
+  String get notifiche_segnala => 'Marquer tout comme lu';
+
+  @override
+  String get notifiche_elimina_tutte => 'Tout supprimer';
+
+  @override
+  String get notifiche_conferma => 'Confirmer';
+
+  @override
+  String get notifiche_conferma_msg => 'Voulez-vous supprimer toutes les notifications ?';
+
+  @override
+  String get notifiche_annulla => 'Annuler';
+
+  @override
+  String get notifiche_elimina => 'Supprimer';
+
+  @override
+  String get notifiche_vuota => 'Aucune notification pour le moment.';
+
+  @override
+  String get notifiche_segnalate => 'Marquées comme lues';
+
+  @override
+  String get costi_impatto => 'Impact estimé';
+
+  @override
+  String get costi_calcolo => 'Calcul en cours...';
+
+  @override
+  String get costi_nessuno => 'Aucun déplacement rapide détecté cette semaine.';
+
+  @override
+  String get costi_spostamenti => 'Déplacements rapides :';
+
+  @override
+  String get costi_stima => 'Estimation basée sur';
+
+  @override
+  String get costi_costo => 'Coût estimé :';
+
+  @override
+  String get costi_escluso => 'Péages/stationnement exclus.';
 }

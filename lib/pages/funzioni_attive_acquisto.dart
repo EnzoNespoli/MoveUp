@@ -51,6 +51,11 @@ class FunzioniAttiveForm extends StatelessWidget {
     final gpsUpload = f['gps_upload_sec'];
     final gpsBackground = f['gps_background'];
 
+    // campi AI
+    final aiEnabled = f['ai_enabled'];
+    final aiDailyLimit = f['ai_daily_limit'];
+    final aiScope = f['ai_scope'];
+
     // lista booleani “classici”
     final featureKeys = labels.keys.where((k) => f.containsKey(k)).toList();
 
@@ -103,7 +108,6 @@ class FunzioniAttiveForm extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 6),
-
               if (gpsSample != null)
                 _kvTile(
                   icon: Icons.timer_outlined,
@@ -134,6 +138,48 @@ class FunzioniAttiveForm extends StatelessWidget {
                   title: Text(context.t.feat_gps_background),
                 ),
             ],
+
+            // Sezione AI
+            if (aiEnabled != null ||
+                aiDailyLimit != null ||
+                aiScope != null) ...[
+              const Divider(height: 16),
+              Row(
+                children: [
+                  const Icon(Icons.psychology, color: Colors.deepPurple),
+                  const SizedBox(width: 6),
+                  Text(
+                    context.t.feat_ai,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w700, fontSize: 15),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              if (aiEnabled != null)
+                ListTile(
+                  dense: true,
+                  leading: Icon(
+                    aiEnabled == true
+                        ? Icons.check_circle
+                        : Icons.radio_button_unchecked,
+                    color: aiEnabled == true ? Colors.green : Colors.grey,
+                  ),
+                  title: Text(labels['ai_enabled'] ?? 'AI Enabled'),
+                ),
+              if (aiDailyLimit != null)
+                _kvTile(
+                  icon: Icons.query_stats,
+                  title: labels['ai_daily_limit'] ?? 'Daily AI Queries',
+                  value: '$aiDailyLimit',
+                ),
+              if (aiScope != null)
+                _kvTile(
+                  icon: Icons.analytics_outlined,
+                  title: labels['ai_scope'] ?? 'AI Scope',
+                  value: '$aiScope',
+                ),
+            ],
           ],
         ),
       ),
@@ -141,9 +187,7 @@ class FunzioniAttiveForm extends StatelessWidget {
   }
 
   Widget _kvTile(
-      {required IconData icon,
-      required String title,
-      required String value}) {
+      {required IconData icon, required String title, required String value}) {
     return ListTile(
       dense: true,
       leading: Icon(icon, color: Colors.blueGrey),
