@@ -1064,6 +1064,23 @@ class _HomePageState extends State<HomePage> {
               .toUtc();
       final String tsIso = tsDt.toIso8601String();
 
+      await sendDebugLog(
+        tag: 'gps_pre_enqueue',
+        message: 'GPS ok, pronto per enqueue',
+        payload: {
+          'utenteId': utenteId,
+          'tsIso': tsIso,
+          'lat': pos.latitude,
+          'lon': pos.longitude,
+          'accM': precisione,
+          'altM': altitudine,
+          'speedKmh': double.parse(speedKmh.toStringAsFixed(2)),
+          'heading': pos.heading,
+          'minMoveM': minMoveM,
+          'accMax': accMax,
+        },
+      );
+
       // metti in coda
       final ok_gps = q.enqueue(
         lat: pos.latitude,
@@ -1076,6 +1093,17 @@ class _HomePageState extends State<HomePage> {
         zona: 'auto',
         modalita: 'preciso',
         // lvl: opzionale se già calcoli L0/L1/L2 lato client
+      );
+
+      await sendDebugLog(
+        tag: 'gps_enqueue',
+        message: 'enqueue eseguito',
+        payload: {
+          //'ok': ok_gps,
+          'tsIso': tsIso,
+          'lat': pos.latitude,
+          'lon': pos.longitude,
+        },
       );
 
       // dopo i filtri, PRIMA dell'enqueue
@@ -1104,6 +1132,16 @@ class _HomePageState extends State<HomePage> {
         _lastTs = nowUtc;
 
         await q.maybeFlush();
+
+        await sendDebugLog(
+          tag: 'gps_flush_done',
+          message: 'maybeFlush completato',
+          payload: {
+            'tsIso': tsIso,
+            // se hai un modo per sapere quanti sono rimasti, mettilo qui
+            // 'queueLen': q.length,
+          },
+        );
       } catch (e) {
         //
       }
@@ -4645,6 +4683,45 @@ class _HomePageState extends State<HomePage> {
       baseUrl: apiBaseUrl,
       lang: Localizations.localeOf(context).languageCode,
     );
+  }
+
+  //----------------------------------------------------------------------
+  // Invia un log di debug al backend
+  //----------------------------------------------------------------------
+  Future<void> sendDebugLog({
+    required String tag,
+    required String message,
+    Map<String, dynamic>? payload,
+  }) async {
+    // Toggle locale (così lo spegni senza ricompilare backend)
+    const bool enabled = true;
+    if (!enabled) return;
+
+    try {
+      final body = {
+        'utente_id': int.tryParse(utenteId),
+        'platform': Theme.of(context).platform.name, // o 'ios'/'android'
+        'app_version': '1.0.1', // se vuoi: PackageInfoPlus
+        'build': '40', // se vuoi: PackageInfoPlus
+        'tag': tag,
+        'message': message,
+        'payload': payload,
+      };
+
+      final res = await http.post(
+        Uri.parse('$apiBaseUrl/debug_log.php'),
+        headers: {
+          'Content-Type': 'application/json',
+          ...(_jwtToken != null ? _authHeaders() : {}),
+        },
+        body: jsonEncode(body),
+      );
+
+      // opzionale: se vuoi vedere esito
+      // debugPrint('debug_log: ${res.statusCode} ${res.body}');
+    } catch (_) {
+      // non bloccare mai l'app per colpa del debug
+    }
   }
 
   // ----------------------------------------------
