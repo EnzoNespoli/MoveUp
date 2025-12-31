@@ -359,22 +359,29 @@ class _HomePageState extends State<HomePage> {
 
     try {
       await _caricaUtente(); // carica o crea utente
-      await _caricaLivelloUtente();
-      await _syncNotifiche();
+      //await _caricaLivelloUtente();
+      //await _syncNotifiche();
 
+      // 1) PRIMA ricalcola (una sola volta)
+      await _ricalcolaEaggiornaAttivita('loadAll');
+      _lastRecalcAt = DateTime.now(); // così magariRecalc non lo rifà subito
+
+      // 2) POI carica il resto in parallelo
       final futures = [
-        _ricalcolaEaggiornaAttivita('loadAll'),
         _caricaDatiGiornalieri(),
         _ottieniPosizione(),
         _caricaTuttiLivelli(),
         _loadPercorsiRipetuti(),
-        _maybeRecalc(force: true),
+        //_maybeRecalc(force: true),
         _aggiornaDataUltimoAccesso(),
         _callAppOpen(),
+        _syncNotifiche(),
+        _caricaLivelloUtente(),
       ];
       await Future.wait(futures);
 
-      _loadDailyAnalysis();
+      // 3) Infine analisi UI (dopo che i dati sono stati ricaricati)
+      await _loadDailyAnalysis();
 
       _lastLat = _lastLon = null;
       _initQueue();
@@ -1380,7 +1387,13 @@ class _HomePageState extends State<HomePage> {
       final data = json.decode(res.body);
       if (data['success'] == true) {
         // 2. Solo se la ricalcolazione è andata a buon fine, aggiorna i livelli
-        await aggiornaRiepilogoLivelli();
+        //await aggiornaRiepilogoLivelli();
+        await Future.wait([
+          aggiornaRiepilogoLivelli(),
+          _caricaDatiGiornalieri(),
+          _caricaTuttiLivelli(),
+        ]);
+        await _loadDailyAnalysis();
       } else {
         setState(() {
           gpsErrore = '❌ ${context.t.att_err01} ${data['message'] ?? ''}';
