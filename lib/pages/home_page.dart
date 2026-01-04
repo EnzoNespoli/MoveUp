@@ -1034,16 +1034,6 @@ class _HomePageState extends State<HomePage> {
       // Timestamp safe (alcune piattaforme possono dare null)
       final ts = (pos.timestamp ?? DateTime.now()).toUtc().toIso8601String();
 
-      // Salva via API
-      //await salvaPosizione(
-      //  utenteId,
-      //  pos.latitude,
-      //  pos.longitude,
-      //  ts,
-      //  precisione,
-      //  altitudine,
-      //);
-
       await _ensureQueue();
 
       final q = gpsQueue!; // ora è safe usarla
@@ -1280,10 +1270,13 @@ class _HomePageState extends State<HomePage> {
                   enableWakeLock: true,
                 ),
               )
-            : LocationSettings(
+            : AppleSettings(
                 accuracy: LocationAccuracy.best,
                 distanceFilter:
                     (features?['gps_min_distance_m'] as num?)?.toInt() ?? 20,
+                allowBackgroundLocationUpdates: true,
+                pauseLocationUpdatesAutomatically: false,
+                showBackgroundLocationIndicator: true, // SOLO in test
               ));
 
     // 🔄 Avvia lo stream
