@@ -143,7 +143,6 @@ class _AcquistaPianoPageState extends State<AcquistaPianoPage> {
   //-----------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
-    //debugPrint('AcquistaPianoPage build piano: ${widget.piano}');
     final platform = _platformName();
     return Scaffold(
       appBar: const AppHeader(showBack: true),
@@ -347,9 +346,10 @@ class _AcquistaPianoPageState extends State<AcquistaPianoPage> {
             height: 48,
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.black87,   // icona + testo
-          backgroundColor: Colors.grey[200], // sfondo bottone (se vuoi chiaro)
-        ),
+                foregroundColor: Colors.black87, // icona + testo
+                backgroundColor:
+                    Colors.grey[200], // sfondo bottone (se vuoi chiaro)
+              ),
               icon: const Icon(Icons.navigate_before),
               label: Text(context.t.bottom_dashboard),
               onPressed: () {

@@ -81,7 +81,6 @@ class GpsQueue {
     final ageOk = now.difference(_lastFlushAt) >= uploadEvery;
     final sizeOk = _queue.length >= batchSize;
     final backoffOk = now.isAfter(_nextRetryAt);
-    //debugPrint('⏳ maybeFlush: queue=${_queue.length} ageOk=$ageOk sizeOk=$sizeOk backoffOk=$backoffOk inFlight=$_inFlight' );
     if (!(force || sizeOk || ageOk) || !backoffOk || _queue.isEmpty) return;
     await _flushOnce();
   }
@@ -94,8 +93,6 @@ class GpsQueue {
     try {
       final take = _queue.length > batchSize ? batchSize : _queue.length;
       final points = _queue.take(take).toList();
-
-      //debugPrint('🚀 Inviando batch GPS di $points punti... ');
 
       // 👇 Log: stai inviando N elementi
       GpsLog.instance.logFlushed(points.length);

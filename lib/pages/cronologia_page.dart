@@ -498,8 +498,8 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
                 _downloadCsv(dt);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                      content: Text(
-                          context.t.export_started ?? 'Export started')),
+                      content:
+                          Text(context.t.export_started ?? 'Export started')),
                 );
               },
             ),
@@ -1309,10 +1309,6 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
                     final bbox =
                         (data['bbox'] is List) ? (data['bbox'] as List) : null;
 
-                    // DEBUG (vedi se arrivano davvero segmenti e quanti punti hanno)
-                    // debugPrint('segments=${segments.length}  bbox=$bbox');
-                    // if (segments.isNotEmpty) debugPrint('first seg: ${segments.first}');
-
                     return {
                       'segments': segments,
                       'bbox': bbox,
@@ -1694,7 +1690,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
     _refreshingToken = false;
     if (ok) {
       _jwtToken = await _storage.read(key: 'jwt_token');
-      debugPrint('Token rinnovato dopo 401 $_jwtToken');
+
       // qui puoi ripetere la richiesta che aveva dato 401
       //await _loadAll();
     }

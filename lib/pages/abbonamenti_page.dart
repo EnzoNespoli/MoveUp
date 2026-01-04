@@ -83,9 +83,6 @@ class _AbbonamentiPageState extends State<AbbonamentiPage> {
                   ? json.decode(e['funzioni_attive']) as Map<String, dynamic>
                   : (e['funzioni_attive'] ?? <String, dynamic>{});
 
-              //print(funzioniAttiveMap.runtimeType);
-              //print(funzioniAttiveMap);
-
               final funzioniAttiveList = funzioniAttiveMap.entries
                   .where((e) => e.value == true)
                   .map((e) => e.key)

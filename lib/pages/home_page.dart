@@ -100,6 +100,7 @@ class _HomePageState extends State<HomePage> {
   StreamSubscription<Position>? _bgSub;
   Position? _lastPos;
   DateTime? _lastTs;
+  DateTime? lastGpsTsUtc;
 
   // 1) State
 
@@ -165,7 +166,6 @@ class _HomePageState extends State<HomePage> {
     GpsLogE.instance.configureE(
       onAuthExpired: () {
         // opzionale: mostra snackbar / forza relogin / refresh token
-        //debugPrint('JWT expired while flushing gps logs');
       },
       enabled: true, // metti false se vuoi spegnere la telemetria in prod
     );
@@ -202,14 +202,12 @@ class _HomePageState extends State<HomePage> {
         return;
       }
 
-      print('=== HOME PAGE: Checking GPS permission ===');
+      // Checking GPS permission
       LocationPermission permission = await Geolocator.checkPermission();
-      print('=== HOME PAGE: Permission status: $permission ===');
 
       if (permission == LocationPermission.denied) {
-        print('=== HOME PAGE: Requesting permission ===');
+        // Requesting permission
         permission = await Geolocator.requestPermission();
-        print('=== HOME PAGE: Permission after request: $permission ===');
       }
 
       if (permission == LocationPermission.denied) {
@@ -911,7 +909,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   //-------------------------------------------------------------------------
-  // Salva i dati del gps _gpslog a video _gpslogE su file
+  // Salva i dati del gps su _gpslog, a video su _gpslogE su file txt
+  //
+  // MOVE considera valida una giornata quando
+  // sec_totali == sec_classificati.
+  // La durata può essere < 86400 per motivi reali
+  // (GPS off, timezone, primo/ultimo fix).
+  //
   //-------------------------------------------------------------------------
   Future<void> salvaPosizioneReale() async {
     if (!consensoTrackingGps) {
@@ -924,14 +928,10 @@ class _HomePageState extends State<HomePage> {
     _gpsInFlight = true;
     try {
       // Permessi
-      print('=== SALVA POSIZIONE: Checking GPS permission ===');
       var permission = await Geolocator.checkPermission();
-      print('=== SALVA POSIZIONE: Permission status: $permission ===');
 
       if (permission == LocationPermission.denied) {
-        print('=== SALVA POSIZIONE: Requesting permission ===');
         permission = await Geolocator.requestPermission();
-        print('=== SALVA POSIZIONE: Permission after request: $permission ===');
       }
 
       if (permission == LocationPermission.denied) {
@@ -1008,7 +1008,7 @@ class _HomePageState extends State<HomePage> {
       }
 
       // Filtro movimento minimo
-      double deltaM = 999999;
+      double deltaM = 0.0;
       if (_lastLat != null && _lastLon != null) {
         deltaM = Geolocator.distanceBetween(
           _lastLat!,
@@ -1017,24 +1017,17 @@ class _HomePageState extends State<HomePage> {
           pos.longitude,
         );
         if (deltaM < minMoveM) {
-          GpsLog.instance.logError(
-            'Minimum motion filter failed: $deltaM < $minMoveM',
-          );
+          // Sei fermo: velocità forzata a zero
+          speedKmh = 0.0;
 
-          // su errore:
-          GpsLogE.instance.add(GpsLogEntryE(
-            ts: DateTime.now(),
-            status: GpsLogStatusE.error,
+          // Log informativo (non error)
+          GpsLog.instance.logQueued(
             lat: pos.latitude,
             lon: pos.longitude,
             accM: precisione,
-            altM: altitudine,
-            msg: 'Minimum motion filter failed: $deltaM < $minMoveM',
-            errorCode: 'HTTP_500',
-          ));
-
-          // troppo vicino all’ultimo punto utile: ignora silenziosamente
-          return;
+            altM: altitudine.isNaN ? 0.0 : altitudine,
+          );
+          // ⚠️ NESSUN return
         }
       }
 
@@ -1064,23 +1057,6 @@ class _HomePageState extends State<HomePage> {
               .toUtc();
       final String tsIso = tsDt.toIso8601String();
 
-      await sendDebugLog(
-        tag: 'gps_pre_enqueue',
-        message: 'GPS ok, pronto per enqueue',
-        payload: {
-          'utenteId': utenteId,
-          'tsIso': tsIso,
-          'lat': pos.latitude,
-          'lon': pos.longitude,
-          'accM': precisione,
-          'altM': altitudine,
-          'speedKmh': double.parse(speedKmh.toStringAsFixed(2)),
-          'heading': pos.heading,
-          'minMoveM': minMoveM,
-          'accMax': accMax,
-        },
-      );
-
       // metti in coda
       final ok_gps = q.enqueue(
         lat: pos.latitude,
@@ -1093,17 +1069,6 @@ class _HomePageState extends State<HomePage> {
         zona: 'auto',
         modalita: 'preciso',
         // lvl: opzionale se già calcoli L0/L1/L2 lato client
-      );
-
-      await sendDebugLog(
-        tag: 'gps_enqueue',
-        message: 'enqueue eseguito',
-        payload: {
-          //'ok': ok_gps,
-          'tsIso': tsIso,
-          'lat': pos.latitude,
-          'lon': pos.longitude,
-        },
       );
 
       // dopo i filtri, PRIMA dell'enqueue
@@ -1132,16 +1097,6 @@ class _HomePageState extends State<HomePage> {
         _lastTs = nowUtc;
 
         await q.maybeFlush();
-
-        await sendDebugLog(
-          tag: 'gps_flush_done',
-          message: 'maybeFlush completato',
-          payload: {
-            'tsIso': tsIso,
-            // se hai un modo per sapere quanti sono rimasti, mettilo qui
-            // 'queueLen': q.length,
-          },
-        );
       } catch (e) {
         //
       }
@@ -1273,6 +1228,10 @@ class _HomePageState extends State<HomePage> {
     _lastPos = pos;
     _lastTs = nowUtc;
 
+    setState(() {
+      lastGpsTsUtc = _lastTs; // UTC
+    });
+
     if (updateUI && mounted) {
       setState(() {
         gpsErrore = '';
@@ -1281,7 +1240,7 @@ class _HomePageState extends State<HomePage> {
         final altStr =
             pos.altitude.isFinite ? pos.altitude.toStringAsFixed(1) : '—';
 
-// accuracy can be very large initially (network fix). Format smartly:
+        // accuracy can be very large initially (network fix). Format smartly:
         String fmtAcc(double a) => (!a.isFinite)
             ? '—'
             : (a >= 1000)
@@ -1348,62 +1307,6 @@ class _HomePageState extends State<HomePage> {
     try {
       await gpsQueue?.maybeFlush();
     } catch (_) {}
-  }
-
-  //-------------------------------------------------------------------------
-  // Salva la posizione tramite API DEPRECATE
-  //-------------------------------------------------------------------------
-  Future<void> salvaPosizione(
-    String utenteId,
-    double latitudine,
-    double longitudine,
-    String timestamp,
-    double precisioneM,
-    double altitudineM,
-  ) async {
-    try {
-      final uri = Uri.parse("$apiBaseUrl/posizioni.php");
-      final headers = {
-        'Content-Type': 'application/json; charset=utf-8',
-        if (_jwtToken != null)
-          ..._authHeaders(), // deve includere Authorization
-      };
-      final body = json.encode({
-        'utente_id': utenteId,
-        'latitudine': latitudine,
-        'longitudine': longitudine,
-        'timestamp': timestamp,
-        'precisione_m': precisioneM,
-        'altitudine_m': altitudineM,
-      });
-
-      final res = await http.post(uri, headers: headers, body: body);
-
-      if (res.statusCode == 401 && !_refreshingToken) {
-        await handle401(); // <--- refresh token e gestisci eventuale retry
-        await salvaPosizione(
-          utenteId,
-          latitudine,
-          longitudine,
-          timestamp,
-          precisioneM,
-          altitudineM,
-        ); // retry
-        return;
-      }
-
-      if (res.statusCode != 200) {
-        return;
-      }
-      final data = json.decode(res.body);
-      if (data['success'] == true) {
-        //ok
-      } else {
-        // errore API
-      }
-    } catch (e) {
-      // errore rete
-    }
   }
 
   //-------------------------------------------------------------------------
@@ -1749,6 +1652,7 @@ class _HomePageState extends State<HomePage> {
                     onStop: stopTracking,
                     onPlay: riprendiTracking,
                     ultimaPosizione: ultimaPosizione,
+                    lastGpsTsUtc: lastGpsTsUtc,
                   ),
                   SizedBox(height: 20),
                   //---------------------------------------------
@@ -3119,7 +3023,6 @@ class _HomePageState extends State<HomePage> {
   // riempie se nessun dato
   //-----------------------------------------------------------------
   List<int> datiSettimanali(List<dynamic>? lista) {
-    //debugPrint("datiSettimanali: lista=$lista");
     // 1. Calcola le 7 date (da oggi a oggi-6) in formato 'YYYY-MM-DD'
     final oggi = DateTime.now();
     final giorni = List.generate(7, (i) {
@@ -4327,7 +4230,6 @@ class _HomePageState extends State<HomePage> {
         _lastRecalcAt == null ||
         now.difference(_lastRecalcAt!).inSeconds >= gpsuploadsec) {
       try {
-        //debugPrint('Ricalcolo attività...$now');
         await _ricalcolaEaggiornaAttivita('maybeRecalc'); // <-- la tua funzione
         _lastRecalcAt = now;
       } catch (_) {
@@ -4350,6 +4252,7 @@ class _HomePageState extends State<HomePage> {
     // pulizia stato & token...
     _lastLat = _lastLon = null;
     _lastTs = null;
+    lastGpsTsUtc = null;
   }
 
 //-----------------------------------------------------------------
@@ -4662,7 +4565,7 @@ class _HomePageState extends State<HomePage> {
     _refreshingToken = false;
     if (ok) {
       _jwtToken = await _storage.read(key: 'jwt_token');
-      //debugPrint('Token rinnovato dopo 401 $_jwtToken');
+
       // qui puoi ripetere la richiesta che aveva dato 401
       //await _loadAll();
     }
@@ -4683,45 +4586,6 @@ class _HomePageState extends State<HomePage> {
       baseUrl: apiBaseUrl,
       lang: Localizations.localeOf(context).languageCode,
     );
-  }
-
-  //----------------------------------------------------------------------
-  // Invia un log di debug al backend
-  //----------------------------------------------------------------------
-  Future<void> sendDebugLog({
-    required String tag,
-    required String message,
-    Map<String, dynamic>? payload,
-  }) async {
-    // Toggle locale (così lo spegni senza ricompilare backend)
-    const bool enabled = true;
-    if (!enabled) return;
-
-    try {
-      final body = {
-        'utente_id': int.tryParse(utenteId),
-        'platform': Theme.of(context).platform.name, // o 'ios'/'android'
-        'app_version': '1.0.1', // se vuoi: PackageInfoPlus
-        'build': '40', // se vuoi: PackageInfoPlus
-        'tag': tag,
-        'message': message,
-        'payload': payload,
-      };
-
-      final res = await http.post(
-        Uri.parse('$apiBaseUrl/debug_log.php'),
-        headers: {
-          'Content-Type': 'application/json',
-          ...(_jwtToken != null ? _authHeaders() : {}),
-        },
-        body: jsonEncode(body),
-      );
-
-      // opzionale: se vuoi vedere esito
-      // debugPrint('debug_log: ${res.statusCode} ${res.body}');
-    } catch (_) {
-      // non bloccare mai l'app per colpa del debug
-    }
   }
 
   // ----------------------------------------------

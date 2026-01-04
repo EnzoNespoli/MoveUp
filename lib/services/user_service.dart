@@ -24,7 +24,6 @@ class UserService {
           await prefs.setString("idUserGenerico", idUserGenerico);
         }
       } catch (e) {
-        //print('Errore chiamata API: $e');
         await scriviLog('Errore chiamata API: $e');
       }
     }
@@ -39,7 +38,7 @@ class UserService {
   static Future<void> scriviLog(String messaggio) async {
     if (kIsWeb) {
       // Su web: stampa solo su console (o usa localStorage se vuoi)
-      print('[WEB LOG] $messaggio');
+
       return;
     }
     final directory = await getApplicationDocumentsDirectory();

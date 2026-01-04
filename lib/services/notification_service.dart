@@ -51,7 +51,6 @@ class NotificationService {
           'Content-Type': 'application/json; charset=utf-8',
         },
       );
-      debugPrint('lista_notifiche: ${res.statusCode} ${res.body}');
 
       if (res.statusCode != 200) return;
 
@@ -104,7 +103,6 @@ class NotificationService {
           'id': int.tryParse(id) ?? id,
         }),
       );
-      debugPrint('markAsReadRemote: ${res.statusCode} ${res.body}');
     } catch (_) {
       // Silenzioso
     }
@@ -132,7 +130,6 @@ class NotificationService {
           'utente_id': utenteId,
         }),
       );
-      debugPrint('markAllAsReadRemote: ${res.statusCode} ${res.body}');
     } catch (_) {
       // Silenzioso
     }
@@ -161,7 +158,6 @@ class NotificationService {
           'utente_id': utenteId,
         }),
       );
-      debugPrint('deleteAllRemote: ${res.statusCode} ${res.body}');
     } catch (_) {
       // Silenzioso
     }

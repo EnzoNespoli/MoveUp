@@ -218,10 +218,6 @@ class _CardReportGiornalieroState extends State<CardReportGiornaliero> {
         canAdvanced &&
         (canExportCsv || canExportGpx);
 
-    //debugPrint('Riepilogo0 durata: ${riepilogo0['durata']}');
-    //debugPrint('Riepilogo1 durata: ${riepilogo1['durata']}');
-    //debugPrint('Riepilogo2 durata: ${riepilogo2['durata']}');
-
     return RepaintBoundary(
       key: _captureKey,
       child: Card(

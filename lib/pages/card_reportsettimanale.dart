@@ -92,8 +92,6 @@ class _CardReportSettimanaleState extends State<CardReportSettimanale> {
         }),
       );
 
-      debugPrint('AI API response: ${response.body}');
-
       Map<String, dynamic> data;
       try {
         data = json.decode(response.body) as Map<String, dynamic>;

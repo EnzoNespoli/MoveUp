@@ -7,7 +7,7 @@ class GpsQueue {
   GpsQueue({
     required this.apiBaseUrl,
     required this.utenteId,
-    required this.authHeaders,            // () => Map<String,String>
+    required this.authHeaders, // () => Map<String,String>
     this.batchSize = 20,
     this.uploadEvery = const Duration(seconds: 180),
   });
@@ -25,17 +25,16 @@ class GpsQueue {
   DateTime _nextRetryAt = DateTime.fromMillisecondsSinceEpoch(0);
   int _retryStep = 0;
 
-  String? lastRejectReason;  // <-- NUOVO
+  String? lastRejectReason; // <-- NUOVO
   int get length => _queue.length;
-  
 
   void enqueue({
     required double lat,
     required double lon,
-    required String tsIso,         // UTC ISO8601
+    required String tsIso, // UTC ISO8601
     required double accM,
     required double altM,
-    String? lvl,                   // "L0"/"L1"/"L2" opzionale
+    String? lvl, // "L0"/"L1"/"L2" opzionale
   }) {
     _queue.add({
       'ts': tsIso,
@@ -83,8 +82,6 @@ class GpsQueue {
           'points': points,
         }),
       );
-
-    //debugPrint('GPS batch upload response: ${res.body}'); 
 
       if (res.statusCode == 200) {
         final data = json.decode(res.body);

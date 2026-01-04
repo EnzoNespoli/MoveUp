@@ -70,8 +70,8 @@ class GpsLogE {
   void setVerbose(bool v) => _verbose = v;
 
   void _log(String msg) {
-    if (_verbose){
-      //debugPrint('[GpsLogE] $msg');
+    if (_verbose) {
+      //
     }
   }
 
@@ -205,8 +205,8 @@ class GpsLogE {
       final prefs = await SharedPreferences.getInstance();
       // 1) Utente loggato
       String? idLogin = prefs.getString("utenteIdLogin");
-      String? idAnonimo = prefs.getString("utenteIdAnonimo");  
-       
+      String? idAnonimo = prefs.getString("utenteIdAnonimo");
+
       final info = await PackageInfo.fromPlatform();
       final appVersion = '${info.version}+${info.buildNumber}';
       final platform = _platformName();
@@ -216,15 +216,13 @@ class GpsLogE {
           .toList();
 
       final utenteId = (idLogin != null && idLogin.isNotEmpty)
-    ? idLogin
-    : (idAnonimo != null && idAnonimo.isNotEmpty ? idAnonimo : null);
-
-      //debugPrint('utenteId: $utenteId - token: $token ');
+          ? idLogin
+          : (idAnonimo != null && idAnonimo.isNotEmpty ? idAnonimo : null);
 
       final url = '$apiBaseUrl/gps_debug_log.php?utente_id=$utenteId';
 
       _log('POST $url items=${payload.length}');
-        final res = await http.post(
+      final res = await http.post(
         Uri.parse(url),
         headers: {
           'Authorization': 'Bearer $token',
@@ -232,7 +230,7 @@ class GpsLogE {
         },
         body: jsonEncode(payload),
       );
-     
+
       _log('HTTP ${res.statusCode} bodyLen=${res.body.length}');
 
       if (res.statusCode == 401) {

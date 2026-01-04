@@ -28,14 +28,10 @@ class GpsTrackerService {
         return false;
       }
 
-      print('=== GPS DEBUG: Checking permission ===');
       var p = await Geolocator.checkPermission();
-      print('=== GPS DEBUG: Permission status: $p ===');
 
       if (p == LocationPermission.denied) {
-        print('=== GPS DEBUG: Requesting permission ===');
         p = await Geolocator.requestPermission();
-        print('=== GPS DEBUG: Permission after request: $p ===');
       }
 
       if (p == LocationPermission.denied ||
@@ -76,7 +72,6 @@ class GpsTrackerService {
 
       return true;
     } catch (e) {
-      print('Errore generale in start(): $e');
       return false;
     }
   }
