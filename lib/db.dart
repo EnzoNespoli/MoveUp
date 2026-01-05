@@ -14,3 +14,10 @@ const String dt_email = "info@mytrak.app";
 const String dt_email_support = "support@mytrak.app";
 const String dt_email_pec = "support@mytrak.app";
 const String dt_telefono = "+39 3939018435";
+//---------------------------------------------------------------------
+// social
+//---------------------------------------------------------------------
+const String social_facebook = "https://www.facebook.com/mytrak.app";
+const String social_instagram = "https://www.instagram.com/mytrak.app";
+const String social_x = "https://x.com/mytrak.app";
+//-------------------------------------------------------------------------------

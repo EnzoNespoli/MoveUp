@@ -11,6 +11,7 @@ class DashboardHeader extends StatelessWidget {
   final String Function(int?, String) labelGiorni;
   final Color Function(int?, String) coloreGiorni;
   final Widget chipGiorni;
+  final Function(BuildContext) mostraLoginDialog;
   // 👇 nuovo
   final DailyAnalysis? dailyAnalysis;
 
@@ -24,6 +25,7 @@ class DashboardHeader extends StatelessWidget {
     required this.labelGiorni,
     required this.coloreGiorni,
     required this.chipGiorni,
+    required this.mostraLoginDialog,
     this.dailyAnalysis, // 👈 opzionale
   }) : super(key: key);
 
@@ -241,12 +243,19 @@ class DashboardHeader extends StatelessWidget {
         if (livelloUtente == 'Free')
           Padding(
             padding: const EdgeInsets.only(top: 8, left: 30),
-            child: Text(
-              context.t.dashboard_msg,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.blueGrey[900],
-                fontWeight: FontWeight.w500,
+            child: InkWell(
+              onTap: () {
+                mostraLoginDialog(context);
+              },
+              borderRadius: BorderRadius.circular(6),
+              child: Text(
+                context.t
+                    .dashboard_msg, // "Vai su Profilo e registrati. Avrai la tua settimana tipo"
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),
@@ -294,7 +303,7 @@ class DashboardHeader extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   _messaggioLabel(context, dailyAnalysis!),
-                  style: const TextStyle(fontSize: 13, color: Colors.blue), 
+                  style: const TextStyle(fontSize: 13, color: Colors.blue),
                 ),
                 const SizedBox(height: 8),
                 Row(

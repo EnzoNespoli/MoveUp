@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+
 import '../l10n/app_localizations.dart';
 import '../lingua.dart';
 import 'locale_controller.dart'; // <— importa
 import '../services/app_icons.dart';
+import '../services/help_page.dart';
 
 class AppHeader extends StatelessWidget implements PreferredSizeWidget {
   final bool showBack;
@@ -106,6 +108,16 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
                     ),
                   ],
                 ),
+              ),
+              // HELP
+              IconButton(
+                tooltip: context.t.help_title, // "Aiuto"
+                icon: Icon(Icons.help_outline, color: cs.primary),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const HelpPage()),
+                  );
+                },
               ),
 
               // Popup lingua (opzionale)

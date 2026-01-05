@@ -2548,6 +2548,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tolls/parking excluded.'**
   String get costi_escluso;
+
+  /// No description provided for @help_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get help_title;
+
+  /// No description provided for @help_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequently Asked Questions about MoveUP'**
+  String get help_subtitle;
+
+  /// No description provided for @help_q1_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Is MoveUP tracking me right now?'**
+  String get help_q1_title;
+
+  /// No description provided for @help_q2_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Does it work even if the app is closed or the phone is locked?'**
+  String get help_q2_title;
+
+  /// No description provided for @help_q3_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Why do I need to allow location access \"Always\"?'**
+  String get help_q3_title;
+
+  /// No description provided for @help_q4_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Does it consume a lot of battery?'**
+  String get help_q4_title;
+
+  /// No description provided for @help_q5_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Why do I sometimes see \"WAITING\"?'**
+  String get help_q5_title;
+
+  /// No description provided for @help_q6_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Does MoveUP track me even when I am not moving?'**
+  String get help_q6_title;
+
+  /// No description provided for @help_q7_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Why do I see fewer data today compared to yesterday?'**
+  String get help_q7_title;
+
+  /// No description provided for @help_q8_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I pause or stop tracking?'**
+  String get help_q8_title;
+
+  /// No description provided for @help_q9_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Are my data private?'**
+  String get help_q9_title;
+
+  /// No description provided for @help_q10_title.
+  ///
+  /// In en, this message translates to:
+  /// **'What happens if I uninstall the app?'**
+  String get help_q10_title;
+
+  /// No description provided for @help_q1_body.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes. If you see the status LIVE or Listening, MoveUP is tracking your movements even with the screen turned off.'**
+  String get help_q1_body;
+
+  /// No description provided for @help_q2_body.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes. MoveUP can continue working even when the screen is off, if you have granted tracking permission.'**
+  String get help_q2_body;
+
+  /// No description provided for @help_q3_body.
+  ///
+  /// In en, this message translates to:
+  /// **'To allow MoveUP to work correctly even when you are not actively using the app, for example with the screen turned off.'**
+  String get help_q3_body;
+
+  /// No description provided for @help_q4_body.
+  ///
+  /// In en, this message translates to:
+  /// **'MoveUP uses GPS intelligently. Battery consumption depends on how much you move, but it is optimized for daily use.'**
+  String get help_q4_body;
+
+  /// No description provided for @help_q5_body.
+  ///
+  /// In en, this message translates to:
+  /// **'\"WAITING\" means that MoveUP is active but is waiting for a new movement or a valid GPS signal.'**
+  String get help_q5_body;
+
+  /// No description provided for @help_q6_body.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes. Periods of inactivity are also important to correctly analyze your day.'**
+  String get help_q6_body;
+
+  /// No description provided for @help_q7_body.
+  ///
+  /// In en, this message translates to:
+  /// **'This is normal. It depends on how much you moved, GPS signal quality, and any pauses in tracking.'**
+  String get help_q7_body;
+
+  /// No description provided for @help_q8_body.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes. You can pause or stop tracking at any time from the main screen.'**
+  String get help_q8_body;
+
+  /// No description provided for @help_q9_body.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes. Your movement data are personal and are used only for the app’s features.'**
+  String get help_q9_body;
+
+  /// No description provided for @help_q10_body.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking stops immediately. You can reinstall MoveUP at any time.'**
+  String get help_q10_body;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

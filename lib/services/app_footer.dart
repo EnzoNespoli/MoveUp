@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:move_app/db.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../lingua.dart';
+import '../services/social.dart';
 
 class AppFooter extends StatefulWidget {
   const AppFooter({super.key});
@@ -86,23 +87,7 @@ class _AppFooterState extends State<AppFooter> {
           // 5. Social in fondo
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.facebook, color: Colors.blue[800]),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: Icon(Icons.camera_alt, color: Colors.purple),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: Icon(Icons.alternate_email, color: Colors.lightBlue),
-                  onPressed: () {},
-                ),
-              ],
-            ),
+            child: const SocialRow(),
           ),
         ],
       ),

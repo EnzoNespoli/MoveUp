@@ -1253,4 +1253,70 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get costi_escluso => 'Maut/Parken nicht enthalten.';
+
+  @override
+  String get help_title => 'Hilfe';
+
+  @override
+  String get help_subtitle => 'Häufig gestellte Fragen zu MoveUP';
+
+  @override
+  String get help_q1_title => 'Wird MoveUP mich gerade verfolgen?';
+
+  @override
+  String get help_q2_title => 'Funktioniert es auch, wenn die App geschlossen oder das Telefon gesperrt ist?';
+
+  @override
+  String get help_q3_title => 'Warum muss ich die Standortfreigabe \"Immer\" erlauben?';
+
+  @override
+  String get help_q4_title => 'Verbraucht es viel Akku?';
+
+  @override
+  String get help_q5_title => 'Warum sehe ich manchmal \"WARTET\"?';
+
+  @override
+  String get help_q6_title => 'Erfasst MoveUP mich auch, wenn ich mich nicht bewege?';
+
+  @override
+  String get help_q7_title => 'Warum sehe ich heute weniger Daten als gestern?';
+
+  @override
+  String get help_q8_title => 'Kann ich das Tracking pausieren oder stoppen?';
+
+  @override
+  String get help_q9_title => 'Sind meine Daten privat?';
+
+  @override
+  String get help_q10_title => 'Was passiert, wenn ich die App deinstalliere?';
+
+  @override
+  String get help_q1_body => 'Ja. Wenn du den Status LIVE oder Zuhören siehst, erfasst MoveUP deine Bewegungen auch bei ausgeschaltetem Bildschirm.';
+
+  @override
+  String get help_q2_body => 'Ja. MoveUP kann auch bei ausgeschaltetem Bildschirm weiterarbeiten, wenn du die Tracking-Berechtigung erteilt hast.';
+
+  @override
+  String get help_q3_body => 'Damit MoveUP auch dann korrekt funktioniert, wenn du die App nicht aktiv nutzt, zum Beispiel bei ausgeschaltetem Bildschirm.';
+
+  @override
+  String get help_q4_body => 'MoveUP nutzt GPS auf intelligente Weise. Der Verbrauch hängt davon ab, wie viel du dich bewegst, ist aber für den täglichen Gebrauch optimiert.';
+
+  @override
+  String get help_q5_body => '\"WARTET\" bedeutet, dass MoveUP aktiv ist, aber auf eine neue Bewegung oder ein gültiges GPS-Signal wartet.';
+
+  @override
+  String get help_q6_body => 'Ja. Auch Phasen der Inaktivität sind wichtig, um deinen Tag korrekt zu analysieren.';
+
+  @override
+  String get help_q7_body => 'Das ist normal. Es hängt davon ab, wie viel du dich bewegt hast, von der GPS-Signalqualität und von eventuellen Pausen im Tracking.';
+
+  @override
+  String get help_q8_body => 'Ja. Du kannst das Tracking jederzeit über den Hauptbildschirm pausieren oder stoppen.';
+
+  @override
+  String get help_q9_body => 'Ja. Deine Bewegungsdaten sind privat und werden nur für die Funktionen der App verwendet.';
+
+  @override
+  String get help_q10_body => 'Das Tracking wird sofort beendet. Du kannst MoveUP jederzeit erneut installieren.';
 }

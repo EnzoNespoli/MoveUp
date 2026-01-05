@@ -129,7 +129,11 @@ class CardTrackingGps extends StatelessWidget {
 
             final nowUtc = DateTime.now().toUtc();
             final live = _isLive(nowUtc);
-            final lastSeen = _lastSeenText(nowUtc);
+            final lastSeen =
+                _lastSeenText(nowUtc); // secondi trascorsi dall'ultimo fix
+            final lastSeenNo = ' ';
+            debugPrint(
+                'Last seen: $lastSeen - Ultimo invio: $lastGpsTsUtc - Live: $live'); // spazio vuoto di default
             Widget statusText() => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -181,7 +185,7 @@ class CardTrackingGps extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            ' $lastSeen',
+                            ' $lastSeenNo',
                             style: TextStyle(
                                 fontSize: 11, color: Colors.blueGrey.shade600),
                           ),

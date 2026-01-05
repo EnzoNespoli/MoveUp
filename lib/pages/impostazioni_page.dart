@@ -821,7 +821,7 @@ class _ImpostazioniPageState extends State<ImpostazioniPage> with SafeState {
                       leading: const Icon(Icons.email_outlined),
                       title: const Text('Support to mail'),
                       subtitle: const Text('support@mytrak.app'),
-                      onTap: _emailSupport,
+                      onTap: () => _emailSupport(widget.utenteId),
                     ),
                   ],
                 ),
@@ -1032,18 +1032,28 @@ Future<void> _openUrl(String url) async {
   }
 }
 
-//---------------------------------------------------------------------
-// Invia email al supporto
-//---------------------------------------------------------------------
-Future<void> _emailSupport() async {
-  final uri = Uri(
-    scheme: 'mailto',
-    path: 'support@mytrak.app',
-    queryParameters: {
-      'subject': 'MoveUP – account cancellation request',
-      'body':
-          'Hi, I would like to delete my account.\nEmail: \nUser ID (if known): \nNote: ',
-    },
+// ---------------------------------------------------------------------
+// Invia email al supporto (generica)
+// ---------------------------------------------------------------------
+Future<void> _emailSupport(String userId) async {
+  final to = 'support@mytrak.app';
+
+  final subject = 'MoveUP - Support request';
+  final body = [
+    'Hi,',
+    '',
+    'I need support with MoveUP.',
+    '',
+    'Email:',
+    'User ID : $userId',
+    'Device (iOS/Android):',
+    'App version:',
+    'Note:',
+  ].join('\n');
+
+  final uri = Uri.parse(
+    'mailto:$to?subject=${Uri.encodeComponent(subject)}&body=${Uri.encodeComponent(body)}',
   );
-  await launchUrl(uri);
+
+  await launchUrl(uri, mode: LaunchMode.externalApplication);
 }

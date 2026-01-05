@@ -461,13 +461,33 @@
 "costi_spostamenti": "Spostamenti veloci:",
 "costi_stima": "Stima basata su",
 "costi_costo": "Costo stimato:",
-"costi_escluso": "Pedaggi/parcheggi esclusi." 
+"costi_escluso": "Pedaggi/parcheggi esclusi.", 
 
+"help_title": "Help",
+"help_subtitle": "Domande frequenti su MoveUP",
 
+"help_q1_title": "MoveUP mi sta tracciando anche ora?",
+"help_q2_title": "Funziona anche se l’app è chiusa o il telefono è bloccato?",
+"help_q3_title": "Perché devo autorizzare la posizione \"Sempre\"?",
+"help_q4_title": "Consuma molta batteria?",
+"help_q5_title": "Perché a volte vedo \"IN ATTESA\"?",
+"help_q6_title": "MoveUP registra anche quando sono fermo?",
+"help_q7_title": "Perché oggi vedo meno dati rispetto a ieri?",
+"help_q8_title": "Posso fermare o mettere in pausa il tracciamento?",
+"help_q9_title": "I miei dati sono privati?",
+"help_q10_title": "Cosa succede se disinstallo l’app?",
 
+"help_q1_body": "Sì. Se vedi lo stato LIVE o In ascolto, MoveUP sta registrando i tuoi movimenti anche a schermo spento.",
+"help_q2_body": "Sì. MoveUP può continuare a funzionare anche con lo schermo spento, se hai dato il consenso al tracciamento.",
+"help_q3_body": "Per permettere a MoveUP di funzionare correttamente anche quando non stai usando attivamente l’app, ad esempio con lo schermo spento.",
+"help_q4_body": "MoveUP utilizza il GPS in modo intelligente. Il consumo dipende da quanto ti muovi, ma è ottimizzato per l’uso quotidiano.",
+"help_q5_body": "IN ATTESA significa che MoveUP è attivo ma sta aspettando un nuovo movimento o un segnale GPS valido.",
+"help_q6_body": "Sì. Anche i periodi di inattività sono importanti per analizzare correttamente la tua giornata.",
+"help_q7_body": "È normale. Dipende da quanto ti sei mosso, dalla qualità del segnale GPS e da eventuali pause nel tracciamento.",
+"help_q8_body": "Sì. Puoi mettere in pausa o fermare il tracciamento in qualsiasi momento dalla schermata principale.",
+"help_q9_body": "Sì. I tuoi dati di movimento sono personali e vengono utilizzati solo per le funzionalità dell’app.",
+"help_q10_body": "Il tracciamento si interrompe immediatamente. Puoi reinstallare MoveUP in qualsiasi momento."
 
-
-
-
+ 
 
 }

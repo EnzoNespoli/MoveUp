@@ -463,7 +463,32 @@
 "costi_spostamenti": "Déplacements rapides :",
 "costi_stima": "Estimation basée sur",
 "costi_costo": "Coût estimé :",
-"costi_escluso": "Péages/stationnement exclus."
+"costi_escluso": "Péages/stationnement exclus.",
+
+"help_title": "Aide",
+"help_subtitle": "Questions fréquentes sur MoveUP",
+
+"help_q1_title": "MoveUP me suit-il en ce moment ?",
+"help_q2_title": "Fonctionne-t-il même si l’application est fermée ou le téléphone verrouillé ?",
+"help_q3_title": "Pourquoi dois-je autoriser la localisation \"Toujours\" ?",
+"help_q4_title": "Consomme-t-il beaucoup de batterie ?",
+"help_q5_title": "Pourquoi vois-je parfois \"EN ATTENTE\" ?",
+"help_q6_title": "MoveUP me suit-il même lorsque je suis immobile ?",
+"help_q7_title": "Pourquoi ai-je moins de données aujourd’hui qu’hier ?",
+"help_q8_title": "Puis-je mettre en pause ou arrêter le suivi ?",
+"help_q9_title": "Mes données sont-elles privées ?",
+"help_q10_title": "Que se passe-t-il si je désinstalle l’application ?", 
+
+"help_q1_body": "Oui. Si vous voyez l’état LIVE ou En écoute, MoveUP enregistre vos déplacements même lorsque l’écran est éteint.",
+"help_q2_body": "Oui. MoveUP peut continuer à fonctionner même avec l’écran éteint, si vous avez donné l’autorisation de suivi.",
+"help_q3_body": "Pour permettre à MoveUP de fonctionner correctement même lorsque vous n’utilisez pas activement l’application, par exemple avec l’écran éteint.",
+"help_q4_body": "MoveUP utilise le GPS de manière intelligente. La consommation dépend de vos déplacements, mais elle est optimisée pour un usage quotidien.",
+"help_q5_body": "\"EN ATTENTE\" signifie que MoveUP est actif mais attend un nouveau mouvement ou un signal GPS valide.",
+"help_q6_body": "Oui. Les périodes d’inactivité sont également importantes pour analyser correctement votre journée.",
+"help_q7_body": "C’est normal. Cela dépend de vos déplacements, de la qualité du signal GPS et des éventuelles pauses du suivi.",
+"help_q8_body": "Oui. Vous pouvez mettre en pause ou arrêter le suivi à tout moment depuis l’écran principal.",
+"help_q9_body": "Oui. Vos données de déplacement sont personnelles et utilisées uniquement pour les fonctionnalités de l’application.",
+"help_q10_body": "Le suivi s’arrête immédiatement. Vous pouvez réinstaller MoveUP à tout moment."
 
 
 

@@ -1253,4 +1253,70 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get costi_escluso => 'Péages/stationnement exclus.';
+
+  @override
+  String get help_title => 'Aide';
+
+  @override
+  String get help_subtitle => 'Questions fréquentes sur MoveUP';
+
+  @override
+  String get help_q1_title => 'MoveUP me suit-il en ce moment ?';
+
+  @override
+  String get help_q2_title => 'Fonctionne-t-il même si l’application est fermée ou le téléphone verrouillé ?';
+
+  @override
+  String get help_q3_title => 'Pourquoi dois-je autoriser la localisation \"Toujours\" ?';
+
+  @override
+  String get help_q4_title => 'Consomme-t-il beaucoup de batterie ?';
+
+  @override
+  String get help_q5_title => 'Pourquoi vois-je parfois \"EN ATTENTE\" ?';
+
+  @override
+  String get help_q6_title => 'MoveUP me suit-il même lorsque je suis immobile ?';
+
+  @override
+  String get help_q7_title => 'Pourquoi ai-je moins de données aujourd’hui qu’hier ?';
+
+  @override
+  String get help_q8_title => 'Puis-je mettre en pause ou arrêter le suivi ?';
+
+  @override
+  String get help_q9_title => 'Mes données sont-elles privées ?';
+
+  @override
+  String get help_q10_title => 'Que se passe-t-il si je désinstalle l’application ?';
+
+  @override
+  String get help_q1_body => 'Oui. Si vous voyez l’état LIVE ou En écoute, MoveUP enregistre vos déplacements même lorsque l’écran est éteint.';
+
+  @override
+  String get help_q2_body => 'Oui. MoveUP peut continuer à fonctionner même avec l’écran éteint, si vous avez donné l’autorisation de suivi.';
+
+  @override
+  String get help_q3_body => 'Pour permettre à MoveUP de fonctionner correctement même lorsque vous n’utilisez pas activement l’application, par exemple avec l’écran éteint.';
+
+  @override
+  String get help_q4_body => 'MoveUP utilise le GPS de manière intelligente. La consommation dépend de vos déplacements, mais elle est optimisée pour un usage quotidien.';
+
+  @override
+  String get help_q5_body => '\"EN ATTENTE\" signifie que MoveUP est actif mais attend un nouveau mouvement ou un signal GPS valide.';
+
+  @override
+  String get help_q6_body => 'Oui. Les périodes d’inactivité sont également importantes pour analyser correctement votre journée.';
+
+  @override
+  String get help_q7_body => 'C’est normal. Cela dépend de vos déplacements, de la qualité du signal GPS et des éventuelles pauses du suivi.';
+
+  @override
+  String get help_q8_body => 'Oui. Vous pouvez mettre en pause ou arrêter le suivi à tout moment depuis l’écran principal.';
+
+  @override
+  String get help_q9_body => 'Oui. Vos données de déplacement sont personnelles et utilisées uniquement pour les fonctionnalités de l’application.';
+
+  @override
+  String get help_q10_body => 'Le suivi s’arrête immédiatement. Vous pouvez réinstaller MoveUP à tout moment.';
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../lingua.dart';
 import 'locale_controller.dart'; // <— importa
 import '../services/app_icons.dart';
+import '../services/help_page.dart';
 
 class AppHeaderBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showBack;
@@ -97,6 +98,15 @@ class AppHeaderBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
+        IconButton(
+          tooltip: context.t.help_title, // es: "Aiuto"
+          icon: const Icon(Icons.help_outline),
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const HelpPage()),
+            );
+          },
+        ),
         _LangMenuButton(onChangeLocale: onChangeLocale),
         const SizedBox(width: 8),
       ],
@@ -107,7 +117,6 @@ class AppHeaderBar extends StatelessWidget implements PreferredSizeWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            
             if (banner != null)
               Padding(
                 padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),

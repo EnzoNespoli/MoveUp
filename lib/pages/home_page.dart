@@ -1626,6 +1626,7 @@ class _HomePageState extends State<HomePage> {
                       text: _labelGiorni(giorniRimanenti, livelloUtente),
                       color: _coloreGiorni(giorniRimanenti, livelloUtente),
                     ),
+                    mostraLoginDialog: mostraLoginDialog,
                     dailyAnalysis: _dailyAnalysis, // 👈 qui
                   ),
                   SizedBox(height: 20),
