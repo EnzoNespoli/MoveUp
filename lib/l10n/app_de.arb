@@ -22,15 +22,15 @@
   "sessionExpired": "Sitzung abgelaufen. Bitte erneut einloggen.",
   "durata_abbonamento": "Dauer:",
 
-    "onb1": "Was macht MoveUP?",
-  "onb1_body": "MoveUP zeigt dir, wie viel deiner Zeit du stillstehst, dich langsam oder schnell bewegst.\nDas wird dich überraschen!",
+ "onb1": "Weißt du wirklich, wie dein Tag aussieht?",
+"onb1_body": "",
 
-  "onb2": "So funktioniert’s",
-  "onb2_body": "• Tracking starten\n• Bewege dich 10 Minuten\n• Öffne die Abendübersicht\n• Teile sie mit wem du willst",
+"onb2": "So funktioniert es",
+"onb2_body": "• Aktiviere das Tracking\n• Lebe deinen Tag\n• Öffne die tägliche Übersicht\n• Teile sie mit wem du möchtest",
 
-  "onb3": "Bereit zu starten?",
-  "onb3_body": "Akzeptiere die Bedingungen und aktiviere das Tracking.\nRegistriere dich KOSTENLOS.\nSo behältst du deine Woche im Blick.",
-  
+"onb3": "Beginne mit deiner Zeit!",
+"onb3_body": "Aktiviere das Tracking und lass MoveUP deine Tage beobachten.\nDu musst nichts anders machen.",
+
   "botton_salta": "Überspringen",
   "condizioni_uso": "Ich habe die ",
   "condizioni_uso2": "Nutzungsbedingungen",

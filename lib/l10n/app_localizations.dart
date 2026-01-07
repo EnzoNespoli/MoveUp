@@ -194,13 +194,13 @@ abstract class AppLocalizations {
   /// No description provided for @onb1.
   ///
   /// In en, this message translates to:
-  /// **'What does MoveUP do?'**
+  /// **'Do you really know what your day is like?'**
   String get onb1;
 
   /// No description provided for @onb1_body.
   ///
   /// In en, this message translates to:
-  /// **'MoveUP shows how much of your time you’re still, moving slowly, or moving fast.\nYou’ll be surprised!'**
+  /// **''**
   String get onb1_body;
 
   /// No description provided for @onb2.
@@ -212,19 +212,19 @@ abstract class AppLocalizations {
   /// No description provided for @onb2_body.
   ///
   /// In en, this message translates to:
-  /// **'• Start tracking\n• Move for 10 minutes\n• Open the evening summary\n• Share it with whoever you want'**
+  /// **'• Start tracking\n• Live your day\n• Open the daily summary\n• Share it with whoever you want'**
   String get onb2_body;
 
   /// No description provided for @onb3.
   ///
   /// In en, this message translates to:
-  /// **'Ready to start?'**
+  /// **'Start from your time!'**
   String get onb3;
 
   /// No description provided for @onb3_body.
   ///
   /// In en, this message translates to:
-  /// **'Accept the terms and enable tracking.\nRegister for FREE.\nKeep your week under control.'**
+  /// **'Enable tracking and let MoveUP observe your days.\nYou don’t have to do anything differently.'**
   String get onb3_body;
 
   /// No description provided for @botton_salta.

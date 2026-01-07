@@ -66,22 +66,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String get durata_abbonamento => 'Dauer:';
 
   @override
-  String get onb1 => 'Was macht MoveUP?';
+  String get onb1 => 'Weißt du wirklich, wie dein Tag aussieht?';
 
   @override
-  String get onb1_body => 'MoveUP zeigt dir, wie viel deiner Zeit du stillstehst, dich langsam oder schnell bewegst.\nDas wird dich überraschen!';
+  String get onb1_body => '';
 
   @override
-  String get onb2 => 'So funktioniert’s';
+  String get onb2 => 'So funktioniert es';
 
   @override
-  String get onb2_body => '• Tracking starten\n• Bewege dich 10 Minuten\n• Öffne die Abendübersicht\n• Teile sie mit wem du willst';
+  String get onb2_body => '• Aktiviere das Tracking\n• Lebe deinen Tag\n• Öffne die tägliche Übersicht\n• Teile sie mit wem du möchtest';
 
   @override
-  String get onb3 => 'Bereit zu starten?';
+  String get onb3 => 'Beginne mit deiner Zeit!';
 
   @override
-  String get onb3_body => 'Akzeptiere die Bedingungen und aktiviere das Tracking.\nRegistriere dich KOSTENLOS.\nSo behältst du deine Woche im Blick.';
+  String get onb3_body => 'Aktiviere das Tracking und lass MoveUP deine Tage beobachten.\nDu musst nichts anders machen.';
 
   @override
   String get botton_salta => 'Überspringen';

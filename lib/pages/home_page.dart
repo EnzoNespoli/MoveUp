@@ -2291,13 +2291,26 @@ class _HomePageState extends State<HomePage> {
                         ),
                         const SizedBox(height: 12),
                         Center(
-                          child: TextButton(
-                            onPressed: () {
-                              Navigator.pop(ctx);
-                              mostraRegistrazioneDialog(
-                                  context); // la tua sheet di registrazione
-                            },
-                            child: Text(context.t.user_err07), // "Registrati"
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(ctx);
+                                mostraRegistrazioneDialog(context);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: Text(
+                                context.t.user_err07, // "Registrati"
+                                style: const TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w600),
+                              ),
+                            ),
                           ),
                         ),
                       ],

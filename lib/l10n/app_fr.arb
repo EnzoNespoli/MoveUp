@@ -22,14 +22,14 @@
   "sessionExpired": "Session expirée. Connecte-toi de nouveau.",
   "durata_abbonamento": "Durée :",
 
-  "onb1": "Que fait MoveUP ?",
-  "onb1_body": "MoveUP vous montre quelle part de votre temps vous restez immobile, vous vous déplacez lentement ou rapidement.\nVous allez le découvrir !",
+  "onb1": "Sais-tu vraiment à quoi ressemble ta journée ?",
+"onb1_body": "",
 
-  "onb2": "Comment ça marche",
-  "onb2_body": "• Démarrez le suivi\n• Bougez 10 minutes\n• Ouvrez le récapitulatif du soir\n• Partagez-le avec qui vous voulez",
+"onb2": "Comment ça fonctionne",
+"onb2_body": "• Active le suivi\n• Vis ta journée\n• Ouvre le récapitulatif quotidien\n• Partage-le avec qui tu veux",
 
-  "onb3": "Prêt à commencer ?",
-  "onb3_body": "Acceptez les conditions et activez le suivi.\nInscrivez-vous GRATUITEMENT.\nGardez votre semaine sous contrôle.",
+"onb3": "Commence par ton temps",
+"onb3_body": "Active le suivi et laisse MoveUP observer tes journées.\nTu n’as rien à faire de différent.",
 
   "botton_salta": "Passer",
   "condizioni_uso": "J’ai lu et j’accepte les ",
