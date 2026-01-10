@@ -608,13 +608,13 @@ abstract class AppLocalizations {
   /// No description provided for @chart_mes02.
   ///
   /// In en, this message translates to:
-  /// **'Daily levels timeline'**
+  /// **'Activity by Hours'**
   String get chart_mes02;
 
   /// No description provided for @chart_mes03.
   ///
   /// In en, this message translates to:
-  /// **'One-hour interval'**
+  /// **'Two-hour interval'**
   String get chart_mes03;
 
   /// No description provided for @chart_mes04.
@@ -626,7 +626,7 @@ abstract class AppLocalizations {
   /// No description provided for @chart_mes05.
   ///
   /// In en, this message translates to:
-  /// **'One-hour interval'**
+  /// **'Two-hour interval'**
   String get chart_mes05;
 
   /// No description provided for @chart_mes06.

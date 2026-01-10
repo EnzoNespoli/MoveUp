@@ -15,6 +15,7 @@ class OraStat {
         j['sec_l0'] as int,
         j['sec_l1'] as int,
         j['sec_l2'] as int,
-        (j['sec_lm1'] ?? 0) as int,
+        (j['sec_off'] ?? j['sec_lm1'] ?? 0)
+            as int, // <-- compatibile nuovo+vecchio
       );
 }

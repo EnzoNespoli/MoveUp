@@ -102,10 +102,10 @@
   "mov_veloce": "Spostamento veloce",
   
   "chart_mes01": "Nessun grafico disponibile al momento.",
-  "chart_mes02": "Timeline Livelli Giornaliero",
-  "chart_mes03": "Intervallo un ora",
+  "chart_mes02": "Attività per Ore",
+  "chart_mes03": "Intervallo due ore",
   "chart_mes04": "Distribuzione Livelli Giornaliero",
-  "chart_mes05": "Intervallo un ora",
+  "chart_mes05": "Intervallo due ore",
   "chart_mes06": "Impossibile generare l’immagine. Riprova.",
   "chart_mes07": "Il mio Report MoveUP di oggi",
   "cahrt_mes08": "Errore condivisione:",

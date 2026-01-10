@@ -273,16 +273,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get chart_mes01 => 'No hay gráficos disponibles por el momento.';
 
   @override
-  String get chart_mes02 => 'Cronología de niveles diarios';
+  String get chart_mes02 => 'Actividad por horas';
 
   @override
-  String get chart_mes03 => 'Intervalo una hora';
+  String get chart_mes03 => 'Intervalo dos horas';
 
   @override
   String get chart_mes04 => 'Distribución de niveles diarios';
 
   @override
-  String get chart_mes05 => 'Intervalo una hora';
+  String get chart_mes05 => 'Intervalo dos horas';
 
   @override
   String get chart_mes06 => 'No se pudo generar la imagen. Inténtalo de nuevo.';

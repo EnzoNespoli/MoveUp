@@ -103,10 +103,10 @@
   "mov_veloce": "Desplazamiento rápido",
   
   "chart_mes01": "No hay gráficos disponibles por el momento.",
-  "chart_mes02": "Cronología de niveles diarios",
-  "chart_mes03": "Intervalo una hora",
+  "chart_mes02": "Actividad por horas",
+  "chart_mes03": "Intervalo dos horas",
   "chart_mes04": "Distribución de niveles diarios",
-  "chart_mes05": "Intervalo una hora",
+  "chart_mes05": "Intervalo dos horas",
    "chart_mes06": "No se pudo generar la imagen. Inténtalo de nuevo.",
 "chart_mes07": "Mi informe MoveUP de hoy",
 "cahrt_mes08": "Error al compartir:",

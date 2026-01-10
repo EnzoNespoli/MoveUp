@@ -103,10 +103,10 @@
   "mov_veloce": "Schnelle Fortbewegung",
 
   "chart_mes01": "Momentan kein Diagramm verfügbar.",
-  "chart_mes02": "Tägliche Level-Timeline",
-  "chart_mes03": "Intervall eine Stunde",
+  "chart_mes02": "Aktivität nach Stunden",
+  "chart_mes03": "Zwei-Stunden-Intervall",
   "chart_mes04": "Tägliche Level-Verteilung",
-  "chart_mes05": "Intervall eine Stunde",
+  "chart_mes05": "Zwei-Stunden-Intervall",
   "chart_mes06": "Das Bild konnte nicht erstellt werden. Bitte erneut versuchen.",
   "chart_mes07": "Mein heutiger MoveUP-Bericht",
   "cahrt_mes08": "Fehler beim Teilen:",

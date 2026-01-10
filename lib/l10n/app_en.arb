@@ -102,10 +102,10 @@
   "mov_veloce": "Fast movement",
   
   "chart_mes01": "No charts available at this time.",
-  "chart_mes02": "Daily levels timeline",
-  "chart_mes03": "One-hour interval",
+  "chart_mes02": "Activity by Hours",
+  "chart_mes03": "Two-hour interval",
   "chart_mes04": "Daily level distribution",
-  "chart_mes05": "One-hour interval",
+  "chart_mes05": "Two-hour interval",
 "chart_mes06": "Unable to generate the image. Please try again.",
 "chart_mes07": "My MoveUP Report for today",
 "cahrt_mes08": "Sharing error:",

@@ -123,6 +123,7 @@ class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> _repeatRoutes = [];
 
   (List<OraStat>, List<Periodo>)? datiGiornalieri;
+  (List<OraStat>, List<Periodo>)? datiPrefatti;
 
   String livelloUtente = 'Free'; // oppure Start, Basic, Plus, Pro
   int giorniRimanenti = 0;
@@ -1731,8 +1732,8 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ] else ...[
                     cardDistribuzioneLivelli(datiGiornalieri!.$1),
-                    cardTimelineLivelli(datiGiornalieri!.$2),
-                    cardTimelineSwimlanes(datiGiornalieri!.$2),
+                    cardTimelineLivelliBar(datiPrefatti!.$2),
+                    //cardTimelineSwimlanes(datiGiornalieri!.$2),
                   ],
                   //-------------------------
                   //grafici fine
@@ -3086,7 +3087,8 @@ class _HomePageState extends State<HomePage> {
 
     if (res.statusCode == 401 && !_refreshingToken) {
       await handle401(); // <--- refresh token e gestisci eventuale retry
-      await fetchAttivita24h(utenteId, giorno, apiBaseUrl, headers); // retry
+      return await fetchAttivita24h(
+          utenteId, giorno, apiBaseUrl, headers); // retry
       //return;
     }
 
@@ -3106,10 +3108,50 @@ class _HomePageState extends State<HomePage> {
     return (oraria, periodi);
   }
 
+  //---------------------------------------------------------------------------
+  // Funzione per gestire grafico timeline prefatta
+  //----------------------------------------------------------------------------
+  Future<(List<OraStat>, List<Periodo>)> fetchTimelinePrefatta(
+    int utenteId,
+    DateTime giorno,
+    String apiBaseUrl,
+    Map<String, String> headers,
+  ) async {
+    final d = '${giorno.year.toString().padLeft(4, '0')}-'
+        '${giorno.month.toString().padLeft(2, '0')}-'
+        '${giorno.day.toString().padLeft(2, '0')}';
+
+    final url =
+        "$apiBaseUrl/timeline_prefatta.php?utente_id=$utenteId&data=$d&min_seg_s=60";
+    final res = await http.get(Uri.parse(url), headers: _authHeaders());
+
+    if (res.statusCode == 401 && !_refreshingToken) {
+      await handle401(); // <--- refresh token e gestisci eventuale retry
+      return await fetchTimelinePrefatta(
+          utenteId, giorno, apiBaseUrl, headers); // retry
+      //return;
+    }
+
+    if (res.statusCode != 200) {
+      throw Exception('HTTP ${res.statusCode}');
+    }
+
+    final data = jsonDecode(res.body);
+    if (data['ok'] != true) {
+      throw Exception(data['error'] ?? 'Errore API');
+    }
+
+    final oraria =
+        (data['oraria'] as List).map((e) => OraStat.fromJson(e)).toList();
+    final periodi =
+        (data['periodi_norm'] as List).map((e) => Periodo.fromJson(e)).toList();
+    return (oraria, periodi);
+  }
+
 //----------------------------------------------------------------------
-// Timeline livelli basata sui PERIODI dell'API (non per ora)
+// Timeline livelli con BARRE - versione semplificata e più affidabile
 //----------------------------------------------------------------------
-  Widget cardTimelineLivelli(List<Periodo> periodi) {
+  Widget cardTimelineLivelliBar(List<Periodo> periodi_norm) {
     if (utenteTemporaneo) {
       return Card(
         color: Colors.blueGrey[50],
@@ -3140,68 +3182,105 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
-    double _hOf(DateTime dt) => dt.hour + dt.minute / 60 + dt.second / 3600;
+    // Calcola quanto tempo è passato in ogni livello per ogni ora
+    final Map<int, Map<int, int>> durataPerOraLivello = {};
 
-    final List<FlSpot> spotsL0 = [];
-    final List<FlSpot> spotsL1 = [];
-    final List<FlSpot> spotsL2 = [];
-    final List<FlSpot> spotsOff = [];
-
-    const int OFF = -1;
-    int? lastLvl;
-    final seg = [...periodi]..sort((a, b) => a.inizio.compareTo(b.inizio));
-    final startX = 0.0;
-    final endX = 24.0;
-    double cursorX = startX;
-
-    for (final p in seg) {
-      final sx = _hOf(p.inizio).clamp(startX, endX);
-      final ex = _hOf(p.fine).clamp(startX, endX);
-      if (ex <= startX || sx >= endX || ex <= sx) continue;
-
-      // gap tra cursorX e sx -> OFF
-      if (sx > cursorX) {
-        if (lastLvl != OFF) {
-          spotsOff.add(FlSpot(sx, (lastLvl ?? OFF).toDouble()));
-          spotsOff.add(FlSpot(sx, OFF.toDouble()));
-        }
-        spotsOff.add(FlSpot(sx, OFF.toDouble()));
-      }
-
-      // segmento del livello corrente
-      if (p.livello == 0) {
-        if (lastLvl != p.livello) {
-          spotsL0.add(FlSpot(sx, (lastLvl ?? OFF).toDouble()));
-          spotsL0.add(FlSpot(sx, p.livello.toDouble()));
-        }
-        spotsL0.add(FlSpot(ex, p.livello.toDouble()));
-      } else if (p.livello == 1) {
-        if (lastLvl != p.livello) {
-          spotsL1.add(FlSpot(sx, (lastLvl ?? OFF).toDouble()));
-          spotsL1.add(FlSpot(sx, p.livello.toDouble()));
-        }
-        spotsL1.add(FlSpot(ex, p.livello.toDouble()));
-      } else if (p.livello == 2) {
-        if (lastLvl != p.livello) {
-          spotsL2.add(FlSpot(sx, (lastLvl ?? OFF).toDouble()));
-          spotsL2.add(FlSpot(sx, p.livello.toDouble()));
-        }
-        spotsL2.add(FlSpot(ex, p.livello.toDouble()));
-      } else {
-        spotsOff.add(FlSpot(ex, OFF.toDouble()));
-      }
-
-      cursorX = ex;
-      lastLvl = p.livello;
+    // Inizializza tutte le 24 ore con 0 secondi per ogni livello
+    for (int h = 0; h < 24; h++) {
+      durataPerOraLivello[h] = {-1: 0, 0: 0, 1: 0, 2: 0}; // OFF, L0, L1, L2
     }
 
-    // coda finale fino a 24:00 come OFF
-    if (cursorX < endX) {
-      if (lastLvl != OFF) {
-        spotsOff.add(FlSpot(cursorX, lastLvl?.toDouble() ?? OFF.toDouble()));
-        spotsOff.add(FlSpot(cursorX, OFF.toDouble()));
+    // Ordina i periodi per inizio
+    final seg = [...periodi_norm]..sort((a, b) => a.inizio.compareTo(b.inizio));
+
+    // Per ogni periodo, calcola i secondi in ogni ora
+    for (final p in seg) {
+      DateTime corrente = p.inizio;
+      final fine = p.fine;
+
+      while (corrente.isBefore(fine)) {
+        final ora = corrente.hour;
+        final fineOra =
+            DateTime(corrente.year, corrente.month, corrente.day, ora, 59, 59);
+        final finePeriodo = fine.isBefore(fineOra) ? fine : fineOra;
+
+        final secondi = finePeriodo.difference(corrente).inSeconds;
+        durataPerOraLivello[ora]![p.livello] =
+            (durataPerOraLivello[ora]![p.livello] ?? 0) + secondi;
+
+        corrente = finePeriodo.add(const Duration(seconds: 1));
       }
-      spotsOff.add(FlSpot(endX, OFF.toDouble()));
+    }
+
+    // Riempi i buchi con OFF (secondi rimanenti nell'ora)
+    for (int h = 0; h < 24; h++) {
+      final totaleSecondi =
+          durataPerOraLivello[h]!.values.fold(0, (a, b) => a + b);
+      final secondiMancanti = 3600 - totaleSecondi; // 3600 secondi in un'ora
+      if (secondiMancanti > 0) {
+        durataPerOraLivello[h]![-1] = secondiMancanti;
+      }
+    }
+
+    // Crea i gruppi di barre affiancate per ogni ora
+    final List<BarChartGroupData> barGroups = [];
+    for (int h = 0; h < 24; h++) {
+      final durate = durataPerOraLivello[h]!;
+
+      // Converti secondi in minuti per visualizzazione più leggibile
+      final minutiL2 = (durate[2]! / 60.0);
+      final minutiL1 = (durate[1]! / 60.0);
+      final minutiL0 = (durate[0]! / 60.0);
+      final minutiOff = (durate[-1]! / 60.0);
+
+      barGroups.add(
+        BarChartGroupData(
+          x: h,
+          barsSpace: 2,
+          barRods: [
+            // Barra L2 (indigo)
+            BarChartRodData(
+              toY: minutiL2,
+              color: Colors.indigo,
+              width: 4,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(2),
+                topRight: Radius.circular(2),
+              ),
+            ),
+            // Barra L1 (orange)
+            BarChartRodData(
+              toY: minutiL1,
+              color: Colors.orange,
+              width: 4,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(2),
+                topRight: Radius.circular(2),
+              ),
+            ),
+            // Barra L0 (blueGrey)
+            BarChartRodData(
+              toY: minutiL0,
+              color: Colors.blueGrey,
+              width: 4,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(2),
+                topRight: Radius.circular(2),
+              ),
+            ),
+            // Barra OFF (grey)
+            BarChartRodData(
+              toY: minutiOff,
+              color: Colors.grey.withOpacity(0.3),
+              width: 4,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(2),
+                topRight: Radius.circular(2),
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
     final GlobalKey captureKey = GlobalKey();
@@ -3231,7 +3310,7 @@ class _HomePageState extends State<HomePage> {
         final bytes = bd.buffer.asUint8List();
         final dir = await getTemporaryDirectory();
         final file = File(
-          '${dir.path}/move_chart_timeline_${DateTime.now().millisecondsSinceEpoch}.png',
+          '${dir.path}/move_chart_bar_${DateTime.now().millisecondsSinceEpoch}.png',
         );
         await file.writeAsBytes(bytes, flush: true);
         await Share.shareXFiles([XFile(file.path)],
@@ -3259,45 +3338,78 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(children: [
-                Expanded(
-                  child: Text(
-                    context.t.chart_mes02,
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black54,
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      context.t.chart_mes02,
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black54,
+                      ),
                     ),
                   ),
-                ),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.share),
-                  label: Text(context.t.condividi_button),
-                  onPressed: condividi,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[700],
-                    foregroundColor: Colors.white,
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.share),
+                    label: Text(context.t.condividi_button),
+                    onPressed: condividi,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[700],
+                      foregroundColor: Colors.white,
+                    ),
                   ),
-                ),
-              ]),
+                ],
+              ),
               const SizedBox(height: 12),
               SizedBox(
                 height: 200,
-                child: LineChart(
-                  LineChartData(
-                    minY: -1,
-                    maxY: 2,
+                child: BarChart(
+                  BarChartData(
+                    alignment: BarChartAlignment.spaceAround,
+                    maxY: 60,
+                    minY: 0,
+                    barTouchData: BarTouchData(
+                      touchTooltipData: BarTouchTooltipData(
+                        getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                          final ora = group.x;
+                          final minuti = rod.toY.toInt();
+
+                          String livello;
+                          if (rodIndex == 0)
+                            livello = 'L2';
+                          else if (rodIndex == 1)
+                            livello = 'L1';
+                          else if (rodIndex == 2)
+                            livello = 'L0';
+                          else
+                            livello = 'OFF';
+
+                          if (minuti == 0) return null;
+
+                          return BarTooltipItem(
+                            'Ora $ora:00\n$livello: ${minuti}min',
+                            const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                     gridData: FlGridData(
                       show: true,
-                      horizontalInterval: 1,
+                      horizontalInterval: 15,
                       getDrawingHorizontalLine: (v) => FlLine(
                         color: Colors.blueGrey[100],
                         strokeWidth: 1,
                       ),
                       drawVerticalLine: true,
+                      verticalInterval: 1,
                       getDrawingVerticalLine: (v) => FlLine(
                         color: Colors.blueGrey[50],
-                        strokeWidth: 1,
+                        strokeWidth: 0.5,
                       ),
                     ),
                     titlesData: FlTitlesData(
@@ -3305,24 +3417,11 @@ class _HomePageState extends State<HomePage> {
                         sideTitles: SideTitles(
                           showTitles: true,
                           reservedSize: 40,
-                          interval: 1,
+                          interval: 15,
                           getTitlesWidget: (v, _) {
-                            switch (v.toInt()) {
-                              case -1:
-                                return Text('OFF',
-                                    style: TextStyle(color: Colors.grey[700]));
-                              case 0:
-                                return Text('L0',
-                                    style: TextStyle(color: Colors.blueGrey));
-                              case 1:
-                                return Text('L1',
-                                    style: TextStyle(color: Colors.orange));
-                              case 2:
-                                return Text('L2',
-                                    style: TextStyle(color: Colors.indigo));
-                              default:
-                                return const SizedBox.shrink();
-                            }
+                            return Text('${v.toInt()}m',
+                                style: TextStyle(
+                                    color: Colors.grey[700], fontSize: 10));
                           },
                         ),
                       ),
@@ -3331,7 +3430,14 @@ class _HomePageState extends State<HomePage> {
                           showTitles: true,
                           reservedSize: 26,
                           interval: 2,
-                          getTitlesWidget: (v, _) => Text('${v.toInt()}'),
+                          getTitlesWidget: (v, _) {
+                            final ora = v.toInt();
+                            if (ora >= 0 && ora < 24 && ora % 2 == 0) {
+                              return Text('$ora',
+                                  style: TextStyle(fontSize: 10));
+                            }
+                            return const SizedBox.shrink();
+                          },
                         ),
                       ),
                       topTitles: const AxisTitles(
@@ -3343,97 +3449,7 @@ class _HomePageState extends State<HomePage> {
                       show: true,
                       border: Border.all(color: Colors.blueGrey, width: 1),
                     ),
-                    lineBarsData: [
-                      LineChartBarData(
-                        spots: spotsOff,
-                        isCurved: false,
-                        color: Colors.grey,
-                        barWidth: 2,
-                        dotData: FlDotData(show: false),
-                      ),
-                      LineChartBarData(
-                        spots: spotsL0,
-                        isCurved: false,
-                        color: Colors.blueGrey,
-                        barWidth: 3,
-                        dotData: FlDotData(
-                          show: true,
-                          getDotPainter: (spot, percent, bar, index) =>
-                              FlDotCirclePainter(
-                            radius: 4,
-                            color: Colors.orange,
-                            strokeWidth: 0,
-                            strokeColor: Colors.blueGrey,
-                          ),
-                        ),
-                      ),
-                      LineChartBarData(
-                        spots: spotsL1,
-                        isCurved: false,
-                        color: Colors.orange,
-                        barWidth: 3,
-                        dotData: FlDotData(
-                          show: true,
-                          getDotPainter: (spot, percent, bar, index) =>
-                              FlDotCirclePainter(
-                            radius: 4,
-                            color: Colors.orange,
-                            strokeWidth: 0,
-                            strokeColor: Colors.transparent,
-                          ),
-                        ),
-                      ),
-                      LineChartBarData(
-                        spots: spotsL2,
-                        isCurved: false,
-                        color: Colors.indigo,
-                        barWidth: 3,
-                        dotData: FlDotData(
-                          show: true,
-                          getDotPainter: (spot, percent, bar, index) =>
-                              FlDotCirclePainter(
-                            radius: 4,
-                            color: Colors.orange,
-                            strokeWidth: 0,
-                            strokeColor: Colors.indigo,
-                          ),
-                        ),
-                      ),
-                    ],
-                    lineTouchData: LineTouchData(
-                      touchTooltipData: LineTouchTooltipData(
-                        getTooltipItems: (touchedSpots) {
-                          return touchedSpots.map((spot) {
-                            String livello;
-                            switch (spot.y.toInt()) {
-                              case -1:
-                                livello = 'OFF';
-                                break;
-                              case 0:
-                                livello = 'L0';
-                                break;
-                              case 1:
-                                livello = 'L1';
-                                break;
-                              case 2:
-                                livello = 'L2';
-                                break;
-                              default:
-                                livello = '';
-                            }
-                            return LineTooltipItem(
-                              'Ora: ${spot.x.toStringAsFixed(1)}\nLivello: $livello',
-                              const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black, // <-- colore testo
-                                backgroundColor:
-                                    Colors.white, // <-- colore sfondo
-                              ),
-                            );
-                          }).toList();
-                        },
-                      ),
-                    ),
+                    barGroups: barGroups,
                   ),
                 ),
               ),
@@ -4087,11 +4103,13 @@ class _HomePageState extends State<HomePage> {
   // Carica i dati giornalieri
   //--------------------------------------------------------------------
   Future<void> _caricaDatiGiornalieri() async {
-    //AppBanner.show('Carico riepilogo di oggi…', icon: Icons.today_outlined);
+    // final giorno2 = DateTime(2026, 1, 9);   // per debug
+    final giorno = DateTime.now();
+
     try {
       final result = await fetchAttivita24h(
         int.tryParse(utenteId) ?? 0,
-        DateTime.now(),
+        giorno,
         apiBaseUrl,
         _authHeaders(),
       );
@@ -4101,6 +4119,22 @@ class _HomePageState extends State<HomePage> {
     } catch (e) {
       setState(() {
         datiGiornalieri = null;
+      });
+    }
+
+    try {
+      final result = await fetchTimelinePrefatta(
+        int.tryParse(utenteId) ?? 0,
+        giorno,
+        apiBaseUrl,
+        _authHeaders(),
+      );
+      setState(() {
+        datiPrefatti = result;
+      });
+    } catch (e) {
+      setState(() {
+        datiPrefatti = null;
       });
     }
   }
