@@ -22,7 +22,7 @@ import '../services/gps_log_entry.dart';
 import '../services/app_header_bar.dart';
 import '../services/app_footer.dart';
 import '../services/app_banner.dart'; // <-- importa AppBanner
-import '../services/gps_queue.dart';
+import '../services/gps_queue_hive.dart';
 import '../services/notification_service.dart';
 
 import '../db.dart'; // Importa la costante globale
@@ -102,8 +102,13 @@ class _HomePageState extends State<HomePage> {
   DateTime? _lastTs;
   DateTime? lastGpsTsUtc;
 
-  // 1) State
+  bool _syncPaused = false;
+  DateTime? _syncPausedUntil;
 
+  bool get _isSyncPaused =>
+      _syncPausedUntil != null && DateTime.now().isBefore(_syncPausedUntil!);
+
+  // 1) State
   gmap.GoogleMapController? _gctrl;
 
   double _zoom = 13; // es.
@@ -358,8 +363,6 @@ class _HomePageState extends State<HomePage> {
 
     try {
       await _caricaUtente(); // carica o crea utente
-      //await _caricaLivelloUtente();
-      //await _syncNotifiche();
 
       // 1) PRIMA ricalcola (una sola volta)
       await _ricalcolaEaggiornaAttivita('loadAll');
@@ -371,7 +374,6 @@ class _HomePageState extends State<HomePage> {
         _ottieniPosizione(),
         _caricaTuttiLivelli(),
         _loadPercorsiRipetuti(),
-        //_maybeRecalc(force: true),
         _aggiornaDataUltimoAccesso(),
         _callAppOpen(),
         _syncNotifiche(),
@@ -384,6 +386,9 @@ class _HomePageState extends State<HomePage> {
 
       _lastLat = _lastLon = null;
       _initQueue();
+      // se avevi bloccato per 401, sblocca e prova a svuotare
+      gpsQueue?.onLoginOk();
+      await gpsQueue?.maybeFlush(force: true);
     } finally {
       if (showLoader) _hideBlockingLoader();
       if (mounted) setState(() => _initialLoading = false);
@@ -802,6 +807,7 @@ class _HomePageState extends State<HomePage> {
       trackingAttivo = attiva;
 
       if (attiva) {
+        _syncPausedUntil = null; // riprova sync
         startCountdown();
         avviaTrackingBackground();
       } else {
@@ -927,6 +933,7 @@ class _HomePageState extends State<HomePage> {
     if (_gpsInFlight) return; // evita overlap
 
     _gpsInFlight = true;
+
     try {
       // Permessi
       var permission = await Geolocator.checkPermission();
@@ -1048,20 +1055,6 @@ class _HomePageState extends State<HomePage> {
               .toUtc();
       final String tsIso = tsDt.toIso8601String();
 
-      // metti in coda
-      final ok_gps = q.enqueue(
-        lat: pos.latitude,
-        lon: pos.longitude,
-        tsIso: tsIso,
-        accM: precisione,
-        altM: altitudine,
-        direzioneDeg: pos.heading,
-        velocitaKmh: double.parse(speedKmh.toStringAsFixed(2)),
-        zona: 'auto',
-        modalita: 'preciso',
-        // lvl: opzionale se già calcoli L0/L1/L2 lato client
-      );
-
       // dopo i filtri, PRIMA dell'enqueue
       GpsLog.instance.logQueued(
         lat: pos.latitude,
@@ -1072,7 +1065,7 @@ class _HomePageState extends State<HomePage> {
 
       // Log/feedback
       try {
-        q.enqueue(
+        await q.enqueue(
           lat: pos.latitude,
           lon: pos.longitude,
           tsIso: tsIso,
@@ -1087,15 +1080,42 @@ class _HomePageState extends State<HomePage> {
         _lastPos = pos;
         _lastTs = nowUtc;
 
+        if (_isSyncPaused) return;
+
         await q.maybeFlush();
       } catch (e) {
-        //
+        // 1) LOG dettagliato
+        GpsLog.instance.logError('maybeFlush FAILED: $e');
+        // se hai un log con stack:
+        // GpsLog.instance.logError('maybeFlush FAILED: $e\n$st');
+
+        // 2) PAUSA sync per evitare loop (backoff)
+        // (tracking continua, perché enqueue è già avvenuta)
+        _syncPausedUntil = DateTime.now().add(const Duration(minutes: 2));
+
+        // 3) Se riconosci 401/unauthorized, pausa più lunga (serve login/refresh)
+        final msg = e.toString().toLowerCase();
+        if (msg.contains('401') || msg.contains('unauthorized')) {
+          _syncPausedUntil = DateTime.now().add(const Duration(minutes: 10));
+          // opzionale: flag per UI -> mostra "sessione scaduta"
+          // if (mounted) setState(() => gpsErrore = 'Sessione scaduta: sync in pausa');
+        }
+
+        // 4) (Opzionale ma utile) salva qualcosa a video senza crashare
+        if (mounted) {
+          setState(() {
+            // non un errore GPS: è errore di invio
+            // lascialo discreto
+            gpsErrore =
+                'Sync in pausa (${_syncPausedUntil!.toLocal().toString().substring(11, 16)})';
+          });
+        }
       }
 
       // Aggiorna stato locale
       _lastLat = pos.latitude;
       _lastLon = pos.longitude;
-      _lastTs = DateTime.now();
+      //_lastTs = DateTime.now();
 
       setState(() {
         gpsErrore = '';
@@ -1105,7 +1125,7 @@ class _HomePageState extends State<HomePage> {
         final altStr =
             pos.altitude.isFinite ? pos.altitude.toStringAsFixed(1) : '—';
 
-// accuracy can be very large initially (network fix). Format smartly:
+        // accuracy can be very large initially (network fix). Format smartly:
         String fmtAcc(double a) => (!a.isFinite)
             ? '—'
             : (a >= 1000)
@@ -1123,6 +1143,7 @@ class _HomePageState extends State<HomePage> {
       setState(() => gpsErrore = '❌ ${context.t.gps_err07} $e');
     } finally {
       _gpsInFlight = false;
+      _syncPausedUntil = null;
     }
   }
 
@@ -1195,12 +1216,12 @@ class _HomePageState extends State<HomePage> {
     final tsIso = (pos.timestamp ?? DateTime.now()).toUtc().toIso8601String();
 
     // 🔹 ENQUEUE UNA SOLA VOLTA (nel tuo codice era doppio)
-    final ok_Q = q.enqueue(
+    final ok_Q = await q.enqueue(
       lat: pos.latitude,
       lon: pos.longitude,
       tsIso: tsIso,
       accM: precisione,
-      altM: altitudine.isNaN ? 0.0 : altitudine,
+      altM: altitudine.isNaN ? 0.0 : altitudine, 
       direzioneDeg: pos.heading,
       velocitaKmh: double.parse(speedKmh.toStringAsFixed(2)),
       zona: 'auto',
@@ -4310,6 +4331,13 @@ class _HomePageState extends State<HomePage> {
           _authHeaders, // tua funzione che include Authorization: Bearer ...
       uploadEvery: Duration(seconds: uploadSec),
       batchSize: 20,
+      onAuthExpired: () async {
+        await _getToken(); // rigenera e salva jwt_token
+        _jwtToken = await _storage.read(key: 'jwt_token');
+        return _jwtToken != null &&
+            _jwtToken!.isNotEmpty &&
+            !JwtDecoder.isExpired(_jwtToken!);
+      },
     );
   }
 

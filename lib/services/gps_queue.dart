@@ -9,6 +9,7 @@ class GpsQueue {
     required this.apiBaseUrl,
     required this.utenteId,
     required this.authHeaders, // () => Map<String, String> con Authorization
+    this.onAuthExpired,
     this.batchSize = 20,
     this.uploadEvery = const Duration(seconds: 180),
   });
@@ -26,7 +27,24 @@ class GpsQueue {
   DateTime _nextRetryAt = DateTime.fromMillisecondsSinceEpoch(0);
   int _retryStep = 0;
 
+  final Future<bool> Function()? onAuthExpired;
+
   int get length => _queue.length;
+
+  bool _authRequired = false;
+  DateTime? _authPausedUntil;
+
+  bool get authRequired => _authRequired;
+
+  bool _isAuthPaused() =>
+      _authPausedUntil != null && DateTime.now().isBefore(_authPausedUntil!);
+
+  void clearAuthPause() {
+    _authRequired = false;
+    _authPausedUntil = null;
+    _retryStep = 0;
+    _nextRetryAt = DateTime.fromMillisecondsSinceEpoch(0);
+  }
 
   /// Stesso schema di posizioni_batch.php
   void enqueue({
@@ -76,6 +94,7 @@ class GpsQueue {
   }
 
   Future<void> maybeFlush({bool force = false}) async {
+    if (_authRequired || _isAuthPaused()) return;
     if (_inFlight) return;
     final now = DateTime.now();
     final ageOk = now.difference(_lastFlushAt) >= uploadEvery;
@@ -83,6 +102,13 @@ class GpsQueue {
     final backoffOk = now.isAfter(_nextRetryAt);
     if (!(force || sizeOk || ageOk) || !backoffOk || _queue.isEmpty) return;
     await _flushOnce();
+  }
+
+  void onLoginOk() {
+    _authRequired = false;
+    _authPausedUntil = null;
+    _retryStep = 0;
+    _nextRetryAt = DateTime.fromMillisecondsSinceEpoch(0);
   }
 
   Future<void> flushNow() => _flushOnce();
@@ -141,6 +167,25 @@ class GpsQueue {
           GpsLog.instance
               .logError('Server success=false: ${data['message'] ?? 'errore'}');
         }
+      } else if (res.statusCode == 401 || res.statusCode == 403) {
+        // AUTH KO: non martellare
+        GpsLog.instance.logError('AUTH REQUIRED: HTTP ${res.statusCode}');
+        // Prova UNA volta a rigenerare token e ritentare
+        if (onAuthExpired != null) {
+          final ok = await onAuthExpired!();
+          if (ok) {
+            GpsLog.instance.logError('AUTH renewed, retrying flush...');
+            _authRequired = false;
+            _authPausedUntil = null;
+            await Future.delayed(const Duration(milliseconds: 150));
+            return await _flushOnce(); // retry singolo
+          }
+        }
+
+        // Se non riesce: pausa lunga e stop
+        _authRequired = true;
+        _authPausedUntil = DateTime.now().add(const Duration(minutes: 10));
+        return; // IMPORTANTISSIMO: esci senza fare backoff corto
       } else {
         GpsLog.instance.logError('HTTP ${res.statusCode} ${res.reasonPhrase}');
       }

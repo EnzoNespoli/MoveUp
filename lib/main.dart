@@ -4,6 +4,7 @@ import 'l10n/app_localizations.dart';
 import 'services/locale_controller.dart';
 import 'package:provider/provider.dart';
 import 'services/purchase_service.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import 'theme.dart'; // buildThemeStandardWhite / buildThemePastelGreen / buildThemeDarkPink
 
@@ -14,7 +15,7 @@ final GlobalKey<ScaffoldMessengerState> rootMessengerKey =
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await LocaleController.instance.load(); // lingua + tema custom
-
+  await Hive.initFlutter();
   runApp(
     MultiProvider(
       providers: [

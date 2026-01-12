@@ -132,8 +132,6 @@ class CardTrackingGps extends StatelessWidget {
             final lastSeen =
                 _lastSeenText(nowUtc); // secondi trascorsi dall'ultimo fix
             final lastSeenNo = ' ';
-            debugPrint(
-                'Last seen: $lastSeen - Ultimo invio: $lastGpsTsUtc - Live: $live'); // spazio vuoto di default
             Widget statusText() => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
