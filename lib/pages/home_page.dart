@@ -1221,7 +1221,7 @@ class _HomePageState extends State<HomePage> {
       lon: pos.longitude,
       tsIso: tsIso,
       accM: precisione,
-      altM: altitudine.isNaN ? 0.0 : altitudine, 
+      altM: altitudine.isNaN ? 0.0 : altitudine,
       direzioneDeg: pos.heading,
       velocitaKmh: double.parse(speedKmh.toStringAsFixed(2)),
       zona: 'auto',
@@ -2525,7 +2525,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                               validator: (v) => (v != null &&
-                                      RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$')
+                                      RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$')
                                           .hasMatch(v))
                                   ? null
                                   : ctx.t.form_reg_err03,
