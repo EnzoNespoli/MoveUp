@@ -420,10 +420,10 @@ class AppLocalizationsIt extends AppLocalizations {
   String get condividi_button => '';
 
   @override
-  String get form_consensi_01 => 'Consensi';
+  String get form_consensi_01 => 'Privacy';
 
   @override
-  String get form_consensi_02 => 'Acconsento al trattamento dei dati (privacy)';
+  String get form_consensi_02 => 'Accetto la Privacy Policy';
 
   @override
   String get form_consensi_03 => 'Acconsento a ricevere comunicazioni marketing';
@@ -435,10 +435,13 @@ class AppLocalizationsIt extends AppLocalizations {
   String get form_consensi_05 => 'Acconsento al tracciamento GPS';
 
   @override
-  String get form_consensi_06 => 'Conferma';
+  String get form_consensi_06 => 'Continua';
 
   @override
-  String get form_consensi_er => 'Errore salvataggio consensi .. :';
+  String get form_consensi_er => 'Errore durante il salvataggio dei consensi:';
+
+  @override
+  String get form_consensi_07 => 'Per usare MoveUP devi accettare la Privacy Policy.';
 
   @override
   String get session_expired => 'Sessione scaduta. Effettua di nuovo il login.';

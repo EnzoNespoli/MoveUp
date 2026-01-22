@@ -902,44 +902,50 @@ abstract class AppLocalizations {
   /// No description provided for @form_consensi_01.
   ///
   /// In en, this message translates to:
-  /// **'Consents'**
+  /// **'Privacy'**
   String get form_consensi_01;
 
   /// No description provided for @form_consensi_02.
   ///
   /// In en, this message translates to:
-  /// **'I consent to the processing of personal data (privacy)'**
+  /// **'I accept the Privacy Policy'**
   String get form_consensi_02;
 
   /// No description provided for @form_consensi_03.
   ///
   /// In en, this message translates to:
-  /// **'I consent to receive marketing communications'**
+  /// **'I agree to receive marketing communications'**
   String get form_consensi_03;
 
   /// No description provided for @form_consensi_04.
   ///
   /// In en, this message translates to:
-  /// **'I consent to participate in contests and rewards'**
+  /// **'I agree to participate in contests and rewards'**
   String get form_consensi_04;
 
   /// No description provided for @form_consensi_05.
   ///
   /// In en, this message translates to:
-  /// **'I consent to GPS tracking'**
+  /// **'I agree to GPS tracking'**
   String get form_consensi_05;
 
   /// No description provided for @form_consensi_06.
   ///
   /// In en, this message translates to:
-  /// **'Confirm'**
+  /// **'Continue'**
   String get form_consensi_06;
 
   /// No description provided for @form_consensi_er.
   ///
   /// In en, this message translates to:
-  /// **'Error saving consents..:'**
+  /// **'Error while saving consents:'**
   String get form_consensi_er;
+
+  /// No description provided for @form_consensi_07.
+  ///
+  /// In en, this message translates to:
+  /// **'To use MoveUP, you must accept the Privacy Policy.'**
+  String get form_consensi_07;
 
   /// No description provided for @session_expired.
   ///

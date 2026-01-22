@@ -420,25 +420,28 @@ class AppLocalizationsDe extends AppLocalizations {
   String get condividi_button => 'Teilen';
 
   @override
-  String get form_consensi_01 => 'Einwilligungen';
+  String get form_consensi_01 => 'Datenschutz';
 
   @override
-  String get form_consensi_02 => 'Ich stimme der Datenverarbeitung (Datenschutz) zu';
+  String get form_consensi_02 => 'Ich akzeptiere die Datenschutzerklärung';
 
   @override
-  String get form_consensi_03 => 'Ich stimme dem Erhalt von Marketing-Mitteilungen zu';
+  String get form_consensi_03 => 'Ich stimme dem Erhalt von Marketingmitteilungen zu';
 
   @override
-  String get form_consensi_04 => 'Ich stimme der Teilnahme an Preisen und Wettbewerben zu';
+  String get form_consensi_04 => 'Ich stimme der Teilnahme an Gewinnspielen und Prämien zu';
 
   @override
-  String get form_consensi_05 => 'Ich stimme dem GPS-Tracking zu';
+  String get form_consensi_05 => 'Ich stimme der GPS-Ortung zu';
 
   @override
-  String get form_consensi_06 => 'Bestätigen';
+  String get form_consensi_06 => 'Weiter';
 
   @override
-  String get form_consensi_er => 'Fehler beim Speichern der Einwilligungen .. :';
+  String get form_consensi_er => 'Fehler beim Speichern der Einwilligungen:';
+
+  @override
+  String get form_consensi_07 => 'Um MoveUP zu nutzen, musst du die Datenschutzerklärung akzeptieren.';
 
   @override
   String get session_expired => 'Sitzung abgelaufen. Bitte erneut einloggen.';

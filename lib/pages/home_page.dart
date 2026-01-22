@@ -50,6 +50,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'dart:math' as math;
 import 'package:uuid/uuid.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../class/home_page_class.dart'; // tutte le classi
 import '../class/daily_analysis.dart'; // modello
@@ -2105,7 +2106,9 @@ class _HomePageState extends State<HomePage> {
         _lastLat = _lastLon = null;
 
         if (!consensiOk) {
-          await mostraDialogConsensi(context, utenteId);
+          //await mostraDialogConsensi(context, utenteId);
+          await mostraDialogConsensiObbligatoria(
+              context, utenteId, _openUrl); // <-- QUI
         } else {
           await leggiConsensi();
         }
@@ -2525,7 +2528,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                               validator: (v) => (v != null &&
-                                      RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$')
+                                      RegExp(r'^(?=.*[A-Z])(?=.*\d).{8,}$')
                                           .hasMatch(v))
                                   ? null
                                   : ctx.t.form_reg_err03,
@@ -2727,6 +2730,102 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+//-------------------------------------------------------------------------
+// Dialog Privacy obbligatoria (Apple compliant) + link esterni
+//-------------------------------------------------------------------------
+  Future<void> mostraDialogConsensiObbligatoria(
+    BuildContext context,
+    String utenteId,
+    void Function(String url) openUrl, // passa _openUrl
+  ) async {
+    bool consensoPrivacy = false;
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text(context.t.form_consensi_01), // es. "Privacy"
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  // testo chiaro: obbligatorio
+                  context.t.form_consensi_07,
+                  // es: "Per usare MoveUP devi accettare la Privacy Policy."
+                ),
+                const SizedBox(height: 12),
+
+                // Link esterni, stile "list"
+                const Divider(height: 0),
+                ListTile(
+                  leading: const Icon(Icons.privacy_tip_outlined),
+                  title: const Text('Privacy Policy'),
+                  onTap: () => openUrl('https://mytrak.app/privacy.html'),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                const Divider(height: 0),
+                ListTile(
+                  leading: const Icon(Icons.description_outlined),
+                  title: const Text('Terms of Service'),
+                  onTap: () => openUrl('https://mytrak.app/terms.html'),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                const Divider(height: 0),
+
+                const SizedBox(height: 10),
+
+                // Checkbox SOLO privacy (obbligatoria)
+                CheckboxListTile(
+                  value: consensoPrivacy,
+                  onChanged: (v) =>
+                      setState(() => consensoPrivacy = v ?? false),
+                  title: Text(
+                      context.t.form_consensi_02), // "Accetto Privacy Policy"
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: consensoPrivacy
+                  ? () async {
+                      // Salva solo privacy. Tutto il resto lo gestisci nelle Impostazioni.
+                      await salvaConsensi(
+                        utenteId,
+                        true, // privacy
+                        false, // marketing
+                        false, // premi
+                        false, // ai
+                        false, // trackingGps (NON qui)
+                      );
+                      Navigator.pop(context);
+                    }
+                  : null, // disabilitato finché non accetta
+              child:
+                  Text(context.t.form_consensi_06), // "Conferma" / "Continua"
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+//---------------------------------------------------------------------
+// Apri URL esterno
+//---------------------------------------------------------------------
+  Future<void> _openUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      // fallback silenzioso, oppure mostra uno SnackBar
+    }
   }
 
   //-------------------------------------------------------------------------

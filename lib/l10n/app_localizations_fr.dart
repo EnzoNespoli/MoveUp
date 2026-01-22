@@ -420,25 +420,28 @@ class AppLocalizationsFr extends AppLocalizations {
   String get condividi_button => 'Partager';
 
   @override
-  String get form_consensi_01 => 'Consentements';
+  String get form_consensi_01 => 'Confidentialité';
 
   @override
-  String get form_consensi_02 => 'J’accepte le traitement des données (confidentialité)';
+  String get form_consensi_02 => 'J’accepte la Politique de confidentialité';
 
   @override
   String get form_consensi_03 => 'J’accepte de recevoir des communications marketing';
 
   @override
-  String get form_consensi_04 => 'J’accepte de participer aux prix et concours';
+  String get form_consensi_04 => 'J’accepte de participer à des concours et récompenses';
 
   @override
   String get form_consensi_05 => 'J’accepte le suivi GPS';
 
   @override
-  String get form_consensi_06 => 'Confirmer';
+  String get form_consensi_06 => 'Continuer';
 
   @override
-  String get form_consensi_er => 'Erreur d’enregistrement des consentements .. :';
+  String get form_consensi_er => 'Erreur lors de l’enregistrement des consentements :';
+
+  @override
+  String get form_consensi_07 => 'Pour utiliser MoveUP, vous devez accepter la Politique de confidentialité.';
 
   @override
   String get session_expired => 'Session expirée. Connecte-toi de nouveau.';
