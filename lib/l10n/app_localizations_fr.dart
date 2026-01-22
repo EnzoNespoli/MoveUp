@@ -75,13 +75,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onb2 => 'Comment ça fonctionne';
 
   @override
-  String get onb2_body => '• Active le suivi\n• Vis ta journée\n• Ouvre le récapitulatif quotidien\n• Partage-le avec qui tu veux';
+  String get onb2_body => '• Commencez à enregistrer votre position\n• Vivez votre journée\n• Ouvrez votre résumé de soirée\n• Partagez-le avec qui vous voulez';
 
   @override
   String get onb3 => 'Commence par ton temps';
 
   @override
-  String get onb3_body => 'Active le suivi et laisse MoveUP observer tes journées.\nTu n’as rien à faire de différent.';
+  String get onb3_body => 'Active l’enregistrement de la position et laisse MoveUP observer tes journées.\nTu n’as rien à faire de différent.';
 
   @override
   String get botton_salta => 'Passer';
@@ -144,82 +144,82 @@ class AppLocalizationsFr extends AppLocalizations {
   String get user_login_success => 'Connexion réussie !';
 
   @override
-  String get gps_err01 => 'Suivi GPS désactivé : active-le dans les paramètres.';
+  String get gps_err01 => 'L’enregistrement de la position est désactivé : activez-le dans les réglages.';
 
   @override
-  String get gps_err02 => 'Erreur d’enregistrement de la localisation :';
+  String get gps_err02 => 'Erreur lors de l’enregistrement de la position :';
 
   @override
-  String get gps_err03 => 'Suivi GPS désactivé : la localisation n’est pas enregistrée.';
+  String get gps_err03 => 'L’enregistrement de la position est désactivé : la position n’est pas enregistrée.';
 
   @override
-  String get gps_err04 => 'Permission de localisation refusée';
+  String get gps_err04 => 'Autorisation de localisation refusée';
 
   @override
-  String get gps_err05 => 'Permission de localisation refusée définitivement';
+  String get gps_err05 => 'Autorisation de localisation refusée définitivement';
 
   @override
-  String get gps_err06 => 'Signal GPS faible, attends une meilleure position';
+  String get gps_err06 => 'Signal GPS faible, attendez une meilleure position';
 
   @override
-  String get gps_err07 => 'Erreur lors de l’obtention de la localisation :';
+  String get gps_err07 => 'Erreur lors de l’obtention de la position :';
 
   @override
-  String get gps_err08 => 'Localisation enregistrée !';
+  String get gps_err08 => 'Position enregistrée !';
 
   @override
-  String get gps_err09 => 'Erreur d’enregistrement de la localisation :';
+  String get gps_err09 => 'Erreur lors de l’enregistrement de la position :';
 
   @override
-  String get gps_err10 => 'DEBUG API lecture consentements :';
+  String get gps_err10 => 'DEBUG API lecture des consentements :';
 
   @override
-  String get gps_err11 => 'DEBUG API valeur consentement GPS :';
+  String get gps_err11 => 'DEBUG API valeur du consentement GPS :';
 
   @override
-  String get gps_err12 => 'Suivi GPS ';
+  String get gps_err12 => 'Enregistrement de la position ';
 
   @override
-  String get gps_err13 => 'Tu dois activer le consentement au suivi GPS dans les paramètres';
+  String get gps_err13 => 'Vous devez activer l’enregistrement de la position dans les réglages.';
 
   @override
-  String get gps_err14 => 'Suivi en écoute';
+  String get gps_err14 => 'Enregistrement en attente';
 
   @override
-  String get gps_err15 => 'Suivi éteint';
+  String get gps_err15 => 'Enregistrement désactivé';
 
   @override
-  String get gps_err16 => 'Prochaine détection dans';
+  String get gps_err16 => 'Prochaine mise à jour dans';
 
   @override
-  String get gps_err17 => 'GPS Actif';
+  String get gps_err17 => 'GPS Activé';
 
   @override
-  String get gps_err18 => 'GPS Inactif';
+  String get gps_err18 => 'GPS Désactivé';
 
   @override
-  String get gps_err19 => 'Journal de bord GPS';
+  String get gps_err19 => 'Journal GPS';
 
   @override
-  String get gps_err20 => 'Aucun événement enregistré.';
+  String get gps_err20 => 'Aucun événement enregistré pour le moment.';
 
   @override
   String get gps_err21 => 'En pause';
 
   @override
-  String get gps_err22 => 'En écoute';
+  String get gps_err22 => 'À l’écoute';
 
   @override
-  String get gps_err23 => 'Démarrer le suivi';
+  String get gps_err23 => 'Démarrer l’enregistrement';
 
   @override
-  String get gps_err24 => 'Reprendre le suivi';
+  String get gps_err24 => 'Reprendre l’enregistrement';
 
   @override
-  String get gps_err25 => 'Mettre en pause le suivi';
+  String get gps_err25 => 'Mettre en pause';
 
   @override
-  String get gps_err26 => 'Reprendre le suivi';
+  String get gps_err26 => 'Reprendre';
 
   @override
   String get att_err01 => 'Erreur de recalcul d’activité :';
@@ -357,7 +357,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get form_reg_consensi => 'Paramètres et consentements';
 
   @override
-  String get form_reg_gps => 'Suivi GPS';
+  String get form_reg_gps => 'Enregistrement de la position';
 
   @override
   String get form_reg_err06 => 'Les mots de passe ne correspondent pas';
@@ -432,7 +432,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get form_consensi_04 => 'J’accepte de participer à des concours et récompenses';
 
   @override
-  String get form_consensi_05 => 'J’accepte le suivi GPS';
+  String get form_consensi_05 => 'J’accepte l’enregistrement de la position';
 
   @override
   String get form_consensi_06 => 'Continuer';
@@ -715,7 +715,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get imposta_page_datac => 'Date consentement';
 
   @override
-  String get imposta_page_frequenza => 'Fréquence de suivi (sec)';
+  String get imposta_page_frequenza => 'Taux de détection (sec)';
 
   @override
   String get imposta_page_piani => 'Plans d’abonnement';
@@ -811,7 +811,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get card_percorso_5 => 'Aucun déplacement à cette date';
 
   @override
-  String get feat_tracking_live => 'Suivi en direct';
+  String get feat_tracking_live => 'Enregistrement de la position en direct';
 
   @override
   String get feat_report_basic => 'Rapport quotidien (de base)';
@@ -862,7 +862,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get days => 'jours';
 
   @override
-  String get feat_gps => 'Paramètres GPS du forfait';
+  String get feat_gps => 'Paramètres d\'enregistrement du forfait';
 
   @override
   String get feat_gps_sample_sec => 'Échantillonnage (secondes)';
@@ -874,7 +874,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get feat_gps_upload_sec => 'Envoi en lot (secondes)';
 
   @override
-  String get feat_gps_background => 'Suivi en arrière-plan';
+  String get feat_gps_background => 'Détection en arrière-plan';
 
   @override
   String get gps_accuracy_mode => 'Mode de précision';
@@ -1264,7 +1264,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get help_subtitle => 'Questions fréquentes sur MoveUP';
 
   @override
-  String get help_q1_title => 'MoveUP me suit-il en ce moment ?';
+  String get help_q1_title => 'Est-ce que MoveUP m\'enregistre encore ?';
 
   @override
   String get help_q2_title => 'Fonctionne-t-il même si l’application est fermée ou le téléphone verrouillé ?';
@@ -1279,13 +1279,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get help_q5_title => 'Pourquoi vois-je parfois \"EN ATTENTE\" ?';
 
   @override
-  String get help_q6_title => 'MoveUP me suit-il même lorsque je suis immobile ?';
+  String get help_q6_title => 'Est-ce que MoveUP m\'enregistre même lorsque je suis immobile ?';
 
   @override
   String get help_q7_title => 'Pourquoi ai-je moins de données aujourd’hui qu’hier ?';
 
   @override
-  String get help_q8_title => 'Puis-je mettre en pause ou arrêter le suivi ?';
+  String get help_q8_title => 'Puis-je arrêter ou mettre en pause l\'enregistrement de la position ?';
 
   @override
   String get help_q9_title => 'Mes données sont-elles privées ?';
@@ -1297,7 +1297,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get help_q1_body => 'Oui. Si vous voyez l’état LIVE ou En écoute, MoveUP enregistre vos déplacements même lorsque l’écran est éteint.';
 
   @override
-  String get help_q2_body => 'Oui. MoveUP peut continuer à fonctionner même avec l’écran éteint, si vous avez donné l’autorisation de suivi.';
+  String get help_q2_body => 'Oui. MoveUP peut continuer à fonctionner même avec l’écran éteint, si vous avez donné votre consentement pour l’enregistrement de votre position.';
 
   @override
   String get help_q3_body => 'Pour permettre à MoveUP de fonctionner correctement même lorsque vous n’utilisez pas activement l’application, par exemple avec l’écran éteint.';
@@ -1312,14 +1312,14 @@ class AppLocalizationsFr extends AppLocalizations {
   String get help_q6_body => 'Oui. Les périodes d’inactivité sont également importantes pour analyser correctement votre journée.';
 
   @override
-  String get help_q7_body => 'C’est normal. Cela dépend de vos déplacements, de la qualité du signal GPS et des éventuelles pauses du suivi.';
+  String get help_q7_body => 'C’est normal. Cela dépend de vos déplacements, de la qualité du signal GPS et des éventuelles pauses dans l’enregistrement.';
 
   @override
-  String get help_q8_body => 'Oui. Vous pouvez mettre en pause ou arrêter le suivi à tout moment depuis l’écran principal.';
+  String get help_q8_body => 'Oui. Vous pouvez mettre en pause ou arrêter l\'enregistrement à tout moment depuis l’écran principal.';
 
   @override
   String get help_q9_body => 'Oui. Vos données de déplacement sont personnelles et utilisées uniquement pour les fonctionnalités de l’application.';
 
   @override
-  String get help_q10_body => 'Le suivi s’arrête immédiatement. Vous pouvez réinstaller MoveUP à tout moment.';
+  String get help_q10_body => 'L\'enregistrement s’arrête immédiatement. Vous pouvez réinstaller MoveUP à tout moment.';
 }

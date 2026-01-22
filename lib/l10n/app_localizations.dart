@@ -212,7 +212,7 @@ abstract class AppLocalizations {
   /// No description provided for @onb2_body.
   ///
   /// In en, this message translates to:
-  /// **'• Start tracking\n• Live your day\n• Open the daily summary\n• Share it with whoever you want'**
+  /// **'• Start recording your location\n• Live your day\n• Open your evening summary\n• Share it with whoever you want'**
   String get onb2_body;
 
   /// No description provided for @onb3.
@@ -224,7 +224,7 @@ abstract class AppLocalizations {
   /// No description provided for @onb3_body.
   ///
   /// In en, this message translates to:
-  /// **'Enable tracking and let MoveUP observe your days.\nYou don’t have to do anything differently.'**
+  /// **'Enable recording your location and let MoveUP observe your days.\nYou don’t have to do anything differently.'**
   String get onb3_body;
 
   /// No description provided for @botton_salta.
@@ -350,7 +350,7 @@ abstract class AppLocalizations {
   /// No description provided for @gps_err01.
   ///
   /// In en, this message translates to:
-  /// **'GPS tracking disabled: enable it in settings.'**
+  /// **'Location recording is disabled: enable it in settings.'**
   String get gps_err01;
 
   /// No description provided for @gps_err02.
@@ -362,7 +362,7 @@ abstract class AppLocalizations {
   /// No description provided for @gps_err03.
   ///
   /// In en, this message translates to:
-  /// **'GPS tracking off: location is not recorded.'**
+  /// **'Location recording is disabled: the location is not being recorded.'**
   String get gps_err03;
 
   /// No description provided for @gps_err04.
@@ -374,13 +374,13 @@ abstract class AppLocalizations {
   /// No description provided for @gps_err05.
   ///
   /// In en, this message translates to:
-  /// **'Location permission permanently denied'**
+  /// **'Location permission denied permanently'**
   String get gps_err05;
 
   /// No description provided for @gps_err06.
   ///
   /// In en, this message translates to:
-  /// **'Weak GPS signal, waiting for a better location...'**
+  /// **'Weak GPS signal, wait for a better location fix'**
   String get gps_err06;
 
   /// No description provided for @gps_err07.
@@ -392,7 +392,7 @@ abstract class AppLocalizations {
   /// No description provided for @gps_err08.
   ///
   /// In en, this message translates to:
-  /// **'Position saved!'**
+  /// **'Location saved!'**
   String get gps_err08;
 
   /// No description provided for @gps_err09.
@@ -416,31 +416,31 @@ abstract class AppLocalizations {
   /// No description provided for @gps_err12.
   ///
   /// In en, this message translates to:
-  /// **'GPS Tracking '**
+  /// **'Location recording '**
   String get gps_err12;
 
   /// No description provided for @gps_err13.
   ///
   /// In en, this message translates to:
-  /// **'You must enable GPS tracking consent in settings.'**
+  /// **'You must enable location recording in settings.'**
   String get gps_err13;
 
   /// No description provided for @gps_err14.
   ///
   /// In en, this message translates to:
-  /// **'Tracking active'**
+  /// **'Recording on standby'**
   String get gps_err14;
 
   /// No description provided for @gps_err15.
   ///
   /// In en, this message translates to:
-  /// **'Tracking off'**
+  /// **'Recording off'**
   String get gps_err15;
 
   /// No description provided for @gps_err16.
   ///
   /// In en, this message translates to:
-  /// **'Next detection in'**
+  /// **'Next update in'**
   String get gps_err16;
 
   /// No description provided for @gps_err17.
@@ -458,7 +458,7 @@ abstract class AppLocalizations {
   /// No description provided for @gps_err19.
   ///
   /// In en, this message translates to:
-  /// **'GPS Log'**
+  /// **'GPS logbook'**
   String get gps_err19;
 
   /// No description provided for @gps_err20.
@@ -482,25 +482,25 @@ abstract class AppLocalizations {
   /// No description provided for @gps_err23.
   ///
   /// In en, this message translates to:
-  /// **'Start tracking'**
+  /// **'Start recording'**
   String get gps_err23;
 
   /// No description provided for @gps_err24.
   ///
   /// In en, this message translates to:
-  /// **'Resume tracking'**
+  /// **'Resume recording'**
   String get gps_err24;
 
   /// No description provided for @gps_err25.
   ///
   /// In en, this message translates to:
-  /// **'Pause tracking'**
+  /// **'Pause recording'**
   String get gps_err25;
 
   /// No description provided for @gps_err26.
   ///
   /// In en, this message translates to:
-  /// **'Resume tracking'**
+  /// **'Resume recording'**
   String get gps_err26;
 
   /// No description provided for @att_err01.
@@ -776,7 +776,7 @@ abstract class AppLocalizations {
   /// No description provided for @form_reg_gps.
   ///
   /// In en, this message translates to:
-  /// **'GPS Tracking'**
+  /// **'Location registration'**
   String get form_reg_gps;
 
   /// No description provided for @form_reg_err06.
@@ -926,7 +926,7 @@ abstract class AppLocalizations {
   /// No description provided for @form_consensi_05.
   ///
   /// In en, this message translates to:
-  /// **'I agree to GPS tracking'**
+  /// **'I agree to the position registration'**
   String get form_consensi_05;
 
   /// No description provided for @form_consensi_06.
@@ -1484,7 +1484,7 @@ abstract class AppLocalizations {
   /// No description provided for @imposta_page_frequenza.
   ///
   /// In en, this message translates to:
-  /// **'Tracking frequency (sec)'**
+  /// **'Detection rate (sec)'**
   String get imposta_page_frequenza;
 
   /// No description provided for @imposta_page_piani.
@@ -1676,7 +1676,7 @@ abstract class AppLocalizations {
   /// No description provided for @feat_tracking_live.
   ///
   /// In en, this message translates to:
-  /// **'Live tracking'**
+  /// **'Live location recording'**
   String get feat_tracking_live;
 
   /// No description provided for @feat_report_basic.
@@ -1778,7 +1778,7 @@ abstract class AppLocalizations {
   /// No description provided for @feat_gps.
   ///
   /// In en, this message translates to:
-  /// **'Plan GPS parameters'**
+  /// **'Plane Recording Parameters'**
   String get feat_gps;
 
   /// No description provided for @feat_gps_sample_sec.
@@ -1802,7 +1802,7 @@ abstract class AppLocalizations {
   /// No description provided for @feat_gps_background.
   ///
   /// In en, this message translates to:
-  /// **'Background tracking'**
+  /// **'Background detection'**
   String get feat_gps_background;
 
   /// No description provided for @gps_accuracy_mode.
@@ -2570,7 +2570,7 @@ abstract class AppLocalizations {
   /// No description provided for @help_q1_title.
   ///
   /// In en, this message translates to:
-  /// **'Is MoveUP tracking me right now?'**
+  /// **'Is MoveUP still recording me?'**
   String get help_q1_title;
 
   /// No description provided for @help_q2_title.
@@ -2600,7 +2600,7 @@ abstract class AppLocalizations {
   /// No description provided for @help_q6_title.
   ///
   /// In en, this message translates to:
-  /// **'Does MoveUP track me even when I am not moving?'**
+  /// **'Does MoveUP record me even when I am not moving?'**
   String get help_q6_title;
 
   /// No description provided for @help_q7_title.
@@ -2612,7 +2612,7 @@ abstract class AppLocalizations {
   /// No description provided for @help_q8_title.
   ///
   /// In en, this message translates to:
-  /// **'Can I pause or stop tracking?'**
+  /// **'Can I stop or pause location recording?'**
   String get help_q8_title;
 
   /// No description provided for @help_q9_title.
@@ -2636,7 +2636,7 @@ abstract class AppLocalizations {
   /// No description provided for @help_q2_body.
   ///
   /// In en, this message translates to:
-  /// **'Yes. MoveUP can continue working even when the screen is off, if you have granted tracking permission.'**
+  /// **'Yes. MoveUP can continue working even when the screen is off, if you have given consent to recording your location.'**
   String get help_q2_body;
 
   /// No description provided for @help_q3_body.
@@ -2666,13 +2666,13 @@ abstract class AppLocalizations {
   /// No description provided for @help_q7_body.
   ///
   /// In en, this message translates to:
-  /// **'This is normal. It depends on how much you moved, GPS signal quality, and any pauses in tracking.'**
+  /// **'This is normal. It depends on how much you moved, GPS signal quality, and any pauses in recording.'**
   String get help_q7_body;
 
   /// No description provided for @help_q8_body.
   ///
   /// In en, this message translates to:
-  /// **'Yes. You can pause or stop tracking at any time from the main screen.'**
+  /// **'Yes. You can pause or stop recording at any time from the main screen.'**
   String get help_q8_body;
 
   /// No description provided for @help_q9_body.
@@ -2684,7 +2684,7 @@ abstract class AppLocalizations {
   /// No description provided for @help_q10_body.
   ///
   /// In en, this message translates to:
-  /// **'Tracking stops immediately. You can reinstall MoveUP at any time.'**
+  /// **'Recording stops immediately. You can reinstall MoveUP at any time.'**
   String get help_q10_body;
 }
 

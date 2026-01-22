@@ -75,13 +75,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onb2 => 'How it works';
 
   @override
-  String get onb2_body => '• Start tracking\n• Live your day\n• Open the daily summary\n• Share it with whoever you want';
+  String get onb2_body => '• Start recording your location\n• Live your day\n• Open your evening summary\n• Share it with whoever you want';
 
   @override
   String get onb3 => 'Start from your time!';
 
   @override
-  String get onb3_body => 'Enable tracking and let MoveUP observe your days.\nYou don’t have to do anything differently.';
+  String get onb3_body => 'Enable recording your location and let MoveUP observe your days.\nYou don’t have to do anything differently.';
 
   @override
   String get botton_salta => 'Skip';
@@ -144,28 +144,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get user_login_success => 'Login successful!';
 
   @override
-  String get gps_err01 => 'GPS tracking disabled: enable it in settings.';
+  String get gps_err01 => 'Location recording is disabled: enable it in settings.';
 
   @override
   String get gps_err02 => 'Error saving location:';
 
   @override
-  String get gps_err03 => 'GPS tracking off: location is not recorded.';
+  String get gps_err03 => 'Location recording is disabled: the location is not being recorded.';
 
   @override
   String get gps_err04 => 'Location permission denied';
 
   @override
-  String get gps_err05 => 'Location permission permanently denied';
+  String get gps_err05 => 'Location permission denied permanently';
 
   @override
-  String get gps_err06 => 'Weak GPS signal, waiting for a better location...';
+  String get gps_err06 => 'Weak GPS signal, wait for a better location fix';
 
   @override
   String get gps_err07 => 'Error getting location:';
 
   @override
-  String get gps_err08 => 'Position saved!';
+  String get gps_err08 => 'Location saved!';
 
   @override
   String get gps_err09 => 'Error saving location:';
@@ -177,19 +177,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gps_err11 => 'DEBUG API GPS consent value:';
 
   @override
-  String get gps_err12 => 'GPS Tracking ';
+  String get gps_err12 => 'Location recording ';
 
   @override
-  String get gps_err13 => 'You must enable GPS tracking consent in settings.';
+  String get gps_err13 => 'You must enable location recording in settings.';
 
   @override
-  String get gps_err14 => 'Tracking active';
+  String get gps_err14 => 'Recording on standby';
 
   @override
-  String get gps_err15 => 'Tracking off';
+  String get gps_err15 => 'Recording off';
 
   @override
-  String get gps_err16 => 'Next detection in';
+  String get gps_err16 => 'Next update in';
 
   @override
   String get gps_err17 => 'GPS On';
@@ -198,7 +198,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gps_err18 => 'GPS Off';
 
   @override
-  String get gps_err19 => 'GPS Log';
+  String get gps_err19 => 'GPS logbook';
 
   @override
   String get gps_err20 => 'No events recorded yet.';
@@ -210,16 +210,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gps_err22 => 'Listening';
 
   @override
-  String get gps_err23 => 'Start tracking';
+  String get gps_err23 => 'Start recording';
 
   @override
-  String get gps_err24 => 'Resume tracking';
+  String get gps_err24 => 'Resume recording';
 
   @override
-  String get gps_err25 => 'Pause tracking';
+  String get gps_err25 => 'Pause recording';
 
   @override
-  String get gps_err26 => 'Resume tracking';
+  String get gps_err26 => 'Resume recording';
 
   @override
   String get att_err01 => 'Activity recalculation error:';
@@ -357,7 +357,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get form_reg_consensi => 'Settings and consents';
 
   @override
-  String get form_reg_gps => 'GPS Tracking';
+  String get form_reg_gps => 'Location registration';
 
   @override
   String get form_reg_err06 => 'Passwords do not match';
@@ -432,7 +432,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get form_consensi_04 => 'I agree to participate in contests and rewards';
 
   @override
-  String get form_consensi_05 => 'I agree to GPS tracking';
+  String get form_consensi_05 => 'I agree to the position registration';
 
   @override
   String get form_consensi_06 => 'Continue';
@@ -715,7 +715,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get imposta_page_datac => 'Consent date';
 
   @override
-  String get imposta_page_frequenza => 'Tracking frequency (sec)';
+  String get imposta_page_frequenza => 'Detection rate (sec)';
 
   @override
   String get imposta_page_piani => 'Subscription plans';
@@ -811,7 +811,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get card_percorso_5 => 'No movement on this date';
 
   @override
-  String get feat_tracking_live => 'Live tracking';
+  String get feat_tracking_live => 'Live location recording';
 
   @override
   String get feat_report_basic => 'Daily report (basic)';
@@ -862,7 +862,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get days => 'days';
 
   @override
-  String get feat_gps => 'Plan GPS parameters';
+  String get feat_gps => 'Plane Recording Parameters';
 
   @override
   String get feat_gps_sample_sec => 'Sampling (seconds)';
@@ -874,7 +874,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get feat_gps_upload_sec => 'Batch upload (seconds)';
 
   @override
-  String get feat_gps_background => 'Background tracking';
+  String get feat_gps_background => 'Background detection';
 
   @override
   String get gps_accuracy_mode => 'Accuracy mode';
@@ -1264,7 +1264,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get help_subtitle => 'Frequently Asked Questions about MoveUP';
 
   @override
-  String get help_q1_title => 'Is MoveUP tracking me right now?';
+  String get help_q1_title => 'Is MoveUP still recording me?';
 
   @override
   String get help_q2_title => 'Does it work even if the app is closed or the phone is locked?';
@@ -1279,13 +1279,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get help_q5_title => 'Why do I sometimes see \"WAITING\"?';
 
   @override
-  String get help_q6_title => 'Does MoveUP track me even when I am not moving?';
+  String get help_q6_title => 'Does MoveUP record me even when I am not moving?';
 
   @override
   String get help_q7_title => 'Why do I see fewer data today compared to yesterday?';
 
   @override
-  String get help_q8_title => 'Can I pause or stop tracking?';
+  String get help_q8_title => 'Can I stop or pause location recording?';
 
   @override
   String get help_q9_title => 'Are my data private?';
@@ -1297,7 +1297,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get help_q1_body => 'Yes. If you see the status LIVE or Listening, MoveUP is tracking your movements even with the screen turned off.';
 
   @override
-  String get help_q2_body => 'Yes. MoveUP can continue working even when the screen is off, if you have granted tracking permission.';
+  String get help_q2_body => 'Yes. MoveUP can continue working even when the screen is off, if you have given consent to recording your location.';
 
   @override
   String get help_q3_body => 'To allow MoveUP to work correctly even when you are not actively using the app, for example with the screen turned off.';
@@ -1312,14 +1312,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get help_q6_body => 'Yes. Periods of inactivity are also important to correctly analyze your day.';
 
   @override
-  String get help_q7_body => 'This is normal. It depends on how much you moved, GPS signal quality, and any pauses in tracking.';
+  String get help_q7_body => 'This is normal. It depends on how much you moved, GPS signal quality, and any pauses in recording.';
 
   @override
-  String get help_q8_body => 'Yes. You can pause or stop tracking at any time from the main screen.';
+  String get help_q8_body => 'Yes. You can pause or stop recording at any time from the main screen.';
 
   @override
   String get help_q9_body => 'Yes. Your movement data are personal and are used only for the app’s features.';
 
   @override
-  String get help_q10_body => 'Tracking stops immediately. You can reinstall MoveUP at any time.';
+  String get help_q10_body => 'Recording stops immediately. You can reinstall MoveUP at any time.';
 }
