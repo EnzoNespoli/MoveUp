@@ -391,7 +391,7 @@ Retention specifics are described in the Privacy Policy.
 The App may request location and motion sensor permissions. 
 You can enable/disable them in device settings. 
 Some features will not work without them. 
-Background location may be used to deliver continuous tracking; this may increase battery usage.
+Background location may be used to deliver continuous location recording; this may increase battery usage.
 
 6) ACCEPTABLE USE
 You agree not to use the Service unlawfully, dangerously, or to track third parties without a lawful basis and valid consent. 
@@ -444,6 +444,8 @@ If you are a consumer, the court of your place of residence has jurisdiction; ot
 16) MISCELLANEOUS
 If any provision is held invalid, the remaining provisions remain in effect. 
 These Terms constitute the entire agreement between you and us regarding the Service.
+MoveUp does not collect data for advertising purposes and does not perform 
+cross-app tracking as defined by Apple’s App Tracking Transparency.
 
 17) CONTACTS
 For questions, billing issues, or legal notices: $dt_email or $dt_email_support.
@@ -482,14 +484,14 @@ comply with legal obligations (e.g., accounting/tax).
 
 4) LEGAL BASES
 Contract (Art. 6(1)(b) GDPR): to provide the Service you request.
-Consent (Art. 6(1)(a)): for GPS tracking (especially precise/background), push notifications, 
+Consent (Art. 6(1)(a)): for GPS location recording (especially precise/background), push notifications, 
 and marketing—optional and revocable at any time via device/app settings.
 Legal obligation (Art. 6(1)(c)): e.g., retention of accounting/tax records.
 Legitimate interest (Art. 6(1)(f)): IT security, fraud prevention, Service analytics in a privacy-preserving way. 
 Balancing tests available on request.
 
 5) BACKGROUND LOCATION & SENSORS
-If you enable it, the app may collect background location/motion to provide continuous tracking and statistics—even when the app is not in the foreground. 
+If you enable it, the app may collect background location/motion to provide continuous location recording and statistics—even when the app is not in the foreground. 
 You can enable/disable permissions in system settings at any time; some features may be limited without them.
 
 6) RETENTION PERIOD

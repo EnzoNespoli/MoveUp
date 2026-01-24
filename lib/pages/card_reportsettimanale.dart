@@ -668,11 +668,12 @@ class _CardReportSettimanaleState extends State<CardReportSettimanale> {
   //--------------------------------------------------------------
   Future<void> _condividi(BuildContext context) async {
     try {
-      // assicura che il frame corrente sia completato
+      // aspetta fine frame
       await WidgetsBinding.instance.endOfFrame;
 
       final renderObj = _captureKey.currentContext?.findRenderObject();
       final boundary = renderObj is RenderRepaintBoundary ? renderObj : null;
+
       if (boundary == null) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -682,7 +683,7 @@ class _CardReportSettimanaleState extends State<CardReportSettimanale> {
         return;
       }
 
-      // piccolo retry se non è ancora pitturato
+      // Attendi che abbia pitturato
       var tries = 0;
       while (boundary.debugNeedsPaint && tries < 5) {
         await Future.delayed(const Duration(milliseconds: 40));
@@ -690,26 +691,36 @@ class _CardReportSettimanaleState extends State<CardReportSettimanale> {
       }
 
       final dpr = MediaQuery.of(context).devicePixelRatio;
-      final img = await boundary.toImage(pixelRatio: (dpr * 2).clamp(2.0, 4.0));
+      final pixelRatio = (dpr * 2).clamp(2.0, 4.0);
+
+      final img = await boundary.toImage(pixelRatio: pixelRatio);
       final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
-      if (byteData == null) {
-        throw Exception('toByteData null');
-      }
+      if (byteData == null) throw Exception('toByteData null');
 
       final bytes = byteData.buffer.asUint8List();
-
       final dir = await getTemporaryDirectory();
       final filePath =
           '${dir.path}/move_report_${DateTime.now().millisecondsSinceEpoch}.png';
       final file = await File(filePath).writeAsBytes(bytes, flush: true);
 
-      // Condividi senza affidarti a un "result" interno
+      // ✅ ORIGIN per iOS (rect valido)
+      Rect origin = const Rect.fromLTWH(0, 0, 1, 1);
+      final box = context.findRenderObject() as RenderBox?;
+      if (box != null) {
+        origin = box.localToGlobal(Offset.zero) & box.size;
+      }
+
       try {
-        await Share.shareXFiles([XFile(file.path)],
-            text: '${context.t.chart_mes07} 💪');
-      } catch (e) {
-        // Fallback: se shareXFiles dovesse dare problemi su alcuni device/ROM
-        await Share.share('${context.t.chart_mes09} 💪');
+        await Share.shareXFiles(
+          [XFile(file.path)],
+          text: '${context.t.chart_mes07} 💪',
+          sharePositionOrigin: origin,
+        );
+      } catch (_) {
+        await Share.share(
+          '${context.t.chart_mes09} 💪',
+          sharePositionOrigin: origin,
+        );
       }
     } catch (e) {
       if (context.mounted) {

@@ -7,7 +7,6 @@ import '../db.dart';
 import '../services/locale_controller.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-
 import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
 
@@ -562,17 +561,16 @@ class _CardReportGiornalieroState extends State<CardReportGiornaliero> {
   //--------------------------------------------------------------
   Future<void> _condividi(BuildContext context) async {
     try {
-      // Assicura che il frame corrente sia finito
+      // aspetta fine frame
       await WidgetsBinding.instance.endOfFrame;
 
       final renderObj = _captureKey.currentContext?.findRenderObject();
       final boundary = renderObj is RenderRepaintBoundary ? renderObj : null;
+
       if (boundary == null) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(
-                    context.t.chart_mes06)), // "Niente da condividere" ecc.
+            SnackBar(content: Text(context.t.chart_mes06)),
           );
         }
         return;
@@ -586,33 +584,41 @@ class _CardReportGiornalieroState extends State<CardReportGiornaliero> {
       }
 
       final dpr = MediaQuery.of(context).devicePixelRatio;
-      final pixelRatio = (dpr * 2).clamp(2.0, 4.0) as double; // ← cast a double
+      final pixelRatio = (dpr * 2).clamp(2.0, 4.0);
+
       final img = await boundary.toImage(pixelRatio: pixelRatio);
       final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
-      if (byteData == null) {
-        throw Exception('toByteData null');
-      }
+      if (byteData == null) throw Exception('toByteData null');
 
       final bytes = byteData.buffer.asUint8List();
-
       final dir = await getTemporaryDirectory();
       final filePath =
           '${dir.path}/move_report_${DateTime.now().millisecondsSinceEpoch}.png';
       final file = await File(filePath).writeAsBytes(bytes, flush: true);
 
-      // Condivisione (niente variabile "result")
+      // ✅ ORIGIN per iOS (rect valido)
+      Rect origin = const Rect.fromLTWH(0, 0, 1, 1);
+      final box = context.findRenderObject() as RenderBox?;
+      if (box != null) {
+        origin = box.localToGlobal(Offset.zero) & box.size;
+      }
+
       try {
-        await Share.shareXFiles([XFile(file.path)],
-            text: '${context.t.chart_mes07} 💪');
+        await Share.shareXFiles(
+          [XFile(file.path)],
+          text: '${context.t.chart_mes07} 💪',
+          sharePositionOrigin: origin,
+        );
       } catch (_) {
-        // Fallback testo semplice
-        await Share.share('${context.t.chart_mes09} 💪');
+        await Share.share(
+          '${context.t.chart_mes09} 💪',
+          sharePositionOrigin: origin,
+        );
       }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('${context.t.cahrt_mes08} $e')), // ← typo corretto
+          SnackBar(content: Text('${context.t.cahrt_mes08} $e')),
         );
       }
     }

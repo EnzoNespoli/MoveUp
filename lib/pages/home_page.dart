@@ -3407,36 +3407,53 @@ class _HomePageState extends State<HomePage> {
     Future<void> condividi() async {
       try {
         await WidgetsBinding.instance.endOfFrame;
+
         final renderObj = captureKey.currentContext?.findRenderObject();
         final boundary = renderObj is RenderRepaintBoundary ? renderObj : null;
         if (boundary == null) {
-          if (mounted) {
+          if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(context.t.chart_mes06)),
             );
           }
           return;
         }
+
         var tries = 0;
         while (boundary.debugNeedsPaint && tries < 5) {
           await Future.delayed(const Duration(milliseconds: 40));
           tries++;
         }
+
         final dpr = MediaQuery.of(context).devicePixelRatio;
-        final img =
-            await boundary.toImage(pixelRatio: (dpr * 2).clamp(2.0, 4.0));
+        final pixelRatio = (dpr * 2).clamp(2.0, 4.0);
+
+        final img = await boundary.toImage(pixelRatio: pixelRatio);
         final bd = await img.toByteData(format: ui.ImageByteFormat.png);
         if (bd == null) throw Exception('toByteData returned null');
+
         final bytes = bd.buffer.asUint8List();
         final dir = await getTemporaryDirectory();
+
         final file = File(
           '${dir.path}/move_chart_bar_${DateTime.now().millisecondsSinceEpoch}.png',
         );
         await file.writeAsBytes(bytes, flush: true);
-        await Share.shareXFiles([XFile(file.path)],
-            text: context.t.chart_mes07);
+
+        // ✅ ORIGIN valido per iOS
+        Rect origin = const Rect.fromLTWH(0, 0, 1, 1);
+        final box = context.findRenderObject() as RenderBox?;
+        if (box != null) {
+          origin = box.localToGlobal(Offset.zero) & box.size;
+        }
+
+        await Share.shareXFiles(
+          [XFile(file.path)],
+          text: context.t.chart_mes07,
+          sharePositionOrigin: origin,
+        );
       } catch (e) {
-        if (mounted) {
+        if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('${context.t.cahrt_mes08} $e')),
           );
@@ -3873,13 +3890,13 @@ class _HomePageState extends State<HomePage> {
 
     Future<void> condividi() async {
       try {
-        // assicura il frame
         await WidgetsBinding.instance.endOfFrame;
 
         final renderObj = captureKey.currentContext?.findRenderObject();
         final boundary = renderObj is RenderRepaintBoundary ? renderObj : null;
+
         if (boundary == null) {
-          if (mounted) {
+          if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(context.t.chart_mes06)),
             );
@@ -3895,29 +3912,36 @@ class _HomePageState extends State<HomePage> {
         }
 
         final dpr = MediaQuery.of(context).devicePixelRatio;
-        final img =
-            await boundary.toImage(pixelRatio: (dpr * 2).clamp(2.0, 4.0));
+        final pixelRatio = (dpr * 2).clamp(2.0, 4.0);
+
+        final img = await boundary.toImage(pixelRatio: pixelRatio);
         final bd = await img.toByteData(format: ui.ImageByteFormat.png);
-        if (bd == null) {
-          throw Exception('toByteData returned null');
-        }
+        if (bd == null) throw Exception('toByteData returned null');
 
         final bytes = bd.buffer.asUint8List();
 
-        final dir = await getTemporaryDirectory(); // path_provider
+        final dir = await getTemporaryDirectory();
         final file = File(
           '${dir.path}/move_chart_distribuzione_${DateTime.now().millisecondsSinceEpoch}.png',
         );
         await file.writeAsBytes(bytes, flush: true);
 
-        // share_plus
-        await Share.shareXFiles([XFile(file.path)],
-            text: context.t.chart_mes07);
+        // ✅ ORIGIN valido per iOS (evita PlatformException "rect")
+        Rect origin = const Rect.fromLTWH(0, 0, 1, 1);
+        final box = context.findRenderObject() as RenderBox?;
+        if (box != null) {
+          origin = box.localToGlobal(Offset.zero) & box.size;
+        }
+
+        await Share.shareXFiles(
+          [XFile(file.path)],
+          text: context.t.chart_mes07,
+          sharePositionOrigin: origin,
+        );
       } catch (e) {
-        if (mounted) {
+        if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text('${context.t.cahrt_mes08} $e')), // <-- FIX key
+            SnackBar(content: Text('${context.t.cahrt_mes08} $e')),
           );
         }
       }

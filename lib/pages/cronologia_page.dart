@@ -1345,31 +1345,44 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
   //----------------------------------------------------------------------
   // helper: scarica il file via HTTP e lo condivide/apre
   //----------------------------------------------------------------------
-  Future<void> _downloadInsideApp(String url, String filename) async {
+  Future<void> _downloadInsideApp(
+      BuildContext shareContext, String url, String filename) async {
     try {
       final uri = Uri.parse(url);
 
-      // 1. CHIAMO l’API con gli header (qui c’è il token!)
       final res = await http.get(uri, headers: _authHeaders());
 
       if (res.statusCode == 200) {
-        // 2. salvo su tmp
         final tmp = await getTemporaryDirectory();
         final file = File('${tmp.path}/$filename');
         await file.writeAsBytes(res.bodyBytes);
 
-        // 3. condivido/apro
-        await Share.shareFiles([file.path],
-            text: '${context.t.esportazione_file} $filename');
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${context.t.errore_http} ${res.statusCode}')),
+        // ✅ origin valido per iOS
+        Rect origin = const Rect.fromLTWH(0, 0, 1, 1);
+        final box = shareContext.findRenderObject() as RenderBox?;
+        if (box != null) {
+          origin = box.localToGlobal(Offset.zero) & box.size;
+        }
+
+        await Share.shareFiles(
+          [file.path],
+          text: '${context.t.esportazione_file} $filename',
+          sharePositionOrigin: origin,
         );
+      } else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text('${context.t.errore_http} ${res.statusCode}')),
+          );
+        }
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${context.t.errore_generico}: $e')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${context.t.errore_generico}: $e')),
+        );
+      }
     }
   }
 
@@ -1651,7 +1664,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
       '${d.day.toString().padLeft(2, '0')}';
 
 //------------------------------------------------------------
-  /// level1/level2 = liste “dettagli” dei 7 giorni per livello
+// level1/level2 = liste “dettagli” dei 7 giorni per livello
 //------------------------------------------------------------
   int activeMinutesYesterdayFromDetails({
     required List<Map<String, dynamic>> level1,
