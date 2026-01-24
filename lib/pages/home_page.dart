@@ -995,29 +995,47 @@ class _HomePageState extends State<HomePage> {
       }
 
       // Filtro precisione
-      if (precisione.isNaN || precisione > accMax) {
-        GpsLog.instance.logError(
-          'Accuracy filter failed: $precisione > $accMax',
-        );
+      bool badAcc = (precisione.isNaN || precisione > accMax);
+      if (badAcc) {
+        // non bloccare il salvataggio
+        speedKmh = 0.0;
+        // gpsErrore discreto, non “rosso”
+        // setState(() => gpsErrore = 'GPS debole, registro comunque');
+      }
 
-        // su errore:
-        GpsLogE.instance.add(GpsLogEntryE(
-          ts: DateTime.now(),
-          status: GpsLogStatusE.error,
+      if (badAcc) {
+        GpsLog.instance.logQueued(
           lat: pos.latitude,
           lon: pos.longitude,
           accM: precisione,
-          altM: altitudine,
-          msg: 'Accuracy filter failed: $precisione > $accMax',
-          errorCode: 'HTTP_500',
-        ));
-
-        setState(() => gpsErrore = context.t.gps_err06);
-        return;
+          altM: altitudine.isNaN ? 0.0 : altitudine,
+        );
       }
+
+//      if (precisione.isNaN || precisione > accMax) {
+//        GpsLog.instance.logError(
+//          'Accuracy filter failed: $precisione > $accMax',
+//        );
+
+      // su errore:
+//        GpsLogE.instance.add(GpsLogEntryE(
+//          ts: DateTime.now(),
+//          status: GpsLogStatusE.error,
+//          lat: pos.latitude,
+//          lon: pos.longitude,
+//          accM: precisione,
+//          altM: altitudine,
+//          msg: 'Accuracy filter failed: $precisione > $accMax',
+//          errorCode: 'HTTP_500',
+//        ));
+
+//        setState(() => gpsErrore = context.t.gps_err06);
+//        return;
+//      }
 
       // Filtro movimento minimo
       double deltaM = 0.0;
+
       if (_lastLat != null && _lastLon != null) {
         deltaM = Geolocator.distanceBetween(
           _lastLat!,
@@ -1025,18 +1043,32 @@ class _HomePageState extends State<HomePage> {
           pos.latitude,
           pos.longitude,
         );
-        if (deltaM < minMoveM) {
-          // Sei fermo: velocità forzata a zero
+
+        if (badAcc) {
+          // Accuracy scarsa: il delta è rumore → consideriamo fermo
           speedKmh = 0.0;
 
-          // Log informativo (non error)
+          // Log informativo
           GpsLog.instance.logQueued(
             lat: pos.latitude,
             lon: pos.longitude,
             accM: precisione,
             altM: altitudine.isNaN ? 0.0 : altitudine,
           );
-          // ⚠️ NESSUN return
+          // nessun return
+        } else {
+          // Accuracy buona: applica soglia movimento
+          if (deltaM < minMoveM) {
+            speedKmh = 0.0;
+
+            GpsLog.instance.logQueued(
+              lat: pos.latitude,
+              lon: pos.longitude,
+              accM: precisione,
+              altM: altitudine.isNaN ? 0.0 : altitudine,
+            );
+            // nessun return
+          }
         }
       }
 
@@ -1064,6 +1096,9 @@ class _HomePageState extends State<HomePage> {
         altM: altitudine.isNaN ? 0.0 : altitudine,
       );
 
+      final zona = badAcc ? 'indoor' : 'auto';
+      final modalita = badAcc ? 'gps_debole' : 'preciso';
+
       // Log/feedback
       try {
         await q.enqueue(
@@ -1074,8 +1109,8 @@ class _HomePageState extends State<HomePage> {
           altM: altitudine,
           direzioneDeg: pos.heading,
           velocitaKmh: double.parse(speedKmh.toStringAsFixed(2)),
-          zona: 'auto',
-          modalita: 'preciso',
+          zona: zona,
+          modalita: modalita,
         );
 
         _lastPos = pos;
@@ -1144,7 +1179,7 @@ class _HomePageState extends State<HomePage> {
       setState(() => gpsErrore = '❌ ${context.t.gps_err07} $e');
     } finally {
       _gpsInFlight = false;
-      _syncPausedUntil = null;
+      //_syncPausedUntil = null;
     }
   }
 
