@@ -315,13 +315,16 @@ class _CardReportSettimanaleState extends State<CardReportSettimanale> {
                   ),
 
                   // ---- Nuovo pulsante CONDIVIDI ----
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.share),
-                    label: Text(context.t.condividi_button),
-                    onPressed: shareEnabled ? () => _condividi(context) : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[700],
-                      foregroundColor: Colors.white,
+                  Builder(
+                    builder: (btnContext) => ElevatedButton.icon(
+                      icon: const Icon(Icons.share),
+                      label: Text(context.t.condividi_button),
+                      onPressed:
+                          shareEnabled ? () => _condividi(btnContext) : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue[700],
+                        foregroundColor: Colors.white,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -705,7 +708,10 @@ class _CardReportSettimanaleState extends State<CardReportSettimanale> {
 
       // ✅ ORIGIN per iOS (rect valido)
       Rect origin = const Rect.fromLTWH(0, 0, 1, 1);
-      final box = context.findRenderObject() as RenderBox?;
+
+      final ro = context.findRenderObject();
+      final box = ro is RenderBox ? ro : null;
+
       if (box != null) {
         origin = box.localToGlobal(Offset.zero) & box.size;
       }
