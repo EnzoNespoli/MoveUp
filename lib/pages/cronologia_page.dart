@@ -481,28 +481,32 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
               onChanged: onGiornoChanged,
             ),
             const SizedBox(width: 6),
-            IconButton(
-              tooltip: context.t.export_day ?? 'Export Day',
-              icon: const Icon(Icons.download_outlined, size: 20),
-              onPressed: () {
-                final dt = _tryParseDate(dataSelezionata);
-                if (dt == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+            Builder(
+              builder: (btnContext) => IconButton(
+                tooltip: context.t.export_day ?? 'Export Day',
+                icon: const Icon(Icons.download_outlined, size: 20),
+                onPressed: () {
+                  final dt = _tryParseDate(dataSelezionata);
+                  if (dt == null) {
+                    ScaffoldMessenger.of(btnContext).showSnackBar(
+                      SnackBar(
                         content: Text(context.t.date_parse_error ??
-                            'Format data not recognized')),
+                            'Format data not recognized'),
+                      ),
+                    );
+                    return;
+                  }
+
+                  _downloadCsv(btnContext, dt);
+
+                  ScaffoldMessenger.of(btnContext).showSnackBar(
+                    SnackBar(
+                        content:
+                            Text(context.t.export_started ?? 'Export started')),
                   );
-                  return;
-                }
-                // chiama la tua funzione di export (implementata in classe)
-                _downloadCsv(dt);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content:
-                          Text(context.t.export_started ?? 'Export started')),
-                );
-              },
-            ),
+                },
+              ),
+            )
           ],
         ],
       ),
@@ -1335,10 +1339,10 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
   //----------------------------------------------------------------------
   // Funzione per il download del file CSV
   //----------------------------------------------------------------------
-  Future<void> _downloadCsv(DateTime d) async {
+  Future<void> _downloadCsv(BuildContext shareContext, DateTime d) async {
     final s = DateFormat('yyyy-MM-dd').format(d);
     final url = '$apiBaseUrl/export_csv_giorno.php?utente_id=$utenteId&date=$s';
-    await _downloadInsideApp(url, 'export_$s.csv');
+    await _downloadInsideApp(shareContext, url, 'export_$s.csv');
     //await _openOrDownload(url, 'export_$s.csv');
   }
 
