@@ -104,8 +104,11 @@ class BottomNavBar extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) =>
-                    ImpostazioniPage(utenteId: utenteId, nomeId: nomeId)),
+                builder: (context) => ImpostazioniPage(
+                      utenteId: utenteId,
+                      nomeId: nomeId,
+                      onLogout: eseguiLogout,
+                    )),
           ).then((_) async => await leggiConsensi());
         } else if (index == 1) {
           Navigator.push(

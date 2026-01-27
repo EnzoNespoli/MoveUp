@@ -17,11 +17,13 @@ import 'package:url_launcher/url_launcher.dart';
 class ImpostazioniPage extends StatefulWidget {
   final String utenteId;
   final String nomeId;
+  final VoidCallback? onLogout;
 
   const ImpostazioniPage({
     super.key,
     required this.utenteId,
     required this.nomeId,
+    this.onLogout,
   });
 
   @override
@@ -799,9 +801,7 @@ class _ImpostazioniPageState extends State<ImpostazioniPage> with SafeState {
                       title: const Text('Request account cancellation'),
                       subtitle: const Text(
                           'Removes profile, activities, locations, and linked subscriptions'),
-                      onTap: () =>
-                          _openUrl('https://mytrak.app/delete-account.html'),
-                      // in alternativa: onLongPress: _emailSupport, per shortcut email
+                      onTap: _confermaEliminazioneAccount,
                     ),
                     const Divider(height: 0),
                     ListTile(
@@ -1019,6 +1019,121 @@ class _ImpostazioniPageState extends State<ImpostazioniPage> with SafeState {
       return j['ok'] == true || j['success'] == true;
     }
     return false;
+  }
+
+  //--------------------------------------------------------------------
+  // Conferma eliminazione account con dialog
+  //--------------------------------------------------------------------
+  Future<void> _confermaEliminazioneAccount() async {
+    final conferma = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.red, size: 28),
+              SizedBox(width: 12),
+              Text('Confirm account deletion', style: TextStyle(fontSize: 20)),
+            ],
+          ),
+          content: const Text(
+            'This operation permanently deletes your account and all data.\n This action cannot be undone. Continue?',
+            style: TextStyle(fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('NO', style: TextStyle(fontSize: 16)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('YES', style: TextStyle(fontSize: 16)),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (conferma == true) {
+      await _eliminaAccount();
+    }
+  }
+
+  //--------------------------------------------------------------------
+  // Elimina account tramite API
+  //--------------------------------------------------------------------
+  Future<void> _eliminaAccount() async {
+    if (busy) return;
+    setState(() => busy = true);
+
+    try {
+      final url = Uri.parse('$apiBaseUrl/account_delete.php');
+      final res = await http.post(
+        url,
+        headers: _authHeaders(_jwtToken!),
+        body: json.encode({
+          'confirm': 'DELETE',
+          'user_id': widget.utenteId,
+        }),
+      );
+
+      if (res.statusCode == 200) {
+        final data = json.decode(res.body);
+        if (_isOk(data)) {
+          // Eliminazione riuscita
+          await _storage.delete(key: 'jwt_token');
+          if (!mounted) return;
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Account removed successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          // Esegui il logout completo
+          if (widget.onLogout != null) {
+            widget.onLogout!();
+          } else {
+            // Fallback: torna alla home
+            Navigator.of(context).popUntil((route) => route.isFirst);
+          }
+        } else {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(data['error'] ?? 'Error during deletion'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Server connection error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => busy = false);
+      }
+    }
   }
 }
 

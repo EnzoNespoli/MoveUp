@@ -789,11 +789,11 @@ class _HomePageState extends State<HomePage> {
         trackingAttivo = attiva;
 
         if (attiva) {
+          countdownLevel = gpsConf.sampleSec; // <-- QUI
           startCountdown();
           salvaPosizioneReale(); // usa già accuracy, min distance ecc.
         } else {
           stopCountdown();
-
           //ultimaPosizione = '';
         }
       });
@@ -1362,6 +1362,8 @@ class _HomePageState extends State<HomePage> {
 
   //-------------------------------------------------------------------------
   // Ricalcola e aggiorna le attività
+  // da prevedere: per data
+  // Uri.parse("$apiBaseUrl/ricalcola_attivita.php?utente_id=$utenteId&data=$yyyyMmDd")
   //-------------------------------------------------------------------------
   Future<void> _ricalcolaEaggiornaAttivita(String txt) async {
     try {
