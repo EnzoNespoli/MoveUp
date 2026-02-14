@@ -206,25 +206,25 @@ abstract class AppLocalizations {
   /// No description provided for @onb2.
   ///
   /// In en, this message translates to:
-  /// **'How it works'**
+  /// **'MoveUP listens. You live.'**
   String get onb2;
 
   /// No description provided for @onb2_body.
   ///
   /// In en, this message translates to:
-  /// **'• Start recording your location\n• Live your day\n• Open your evening summary\n• Share it with whoever you want'**
+  /// **'Let your time tell its story.'**
   String get onb2_body;
 
   /// No description provided for @onb3.
   ///
   /// In en, this message translates to:
-  /// **'Start from your time!'**
+  /// **'It\'s your time.'**
   String get onb3;
 
   /// No description provided for @onb3_body.
   ///
   /// In en, this message translates to:
-  /// **'Enable recording your location and let MoveUP observe your days.\nYou don’t have to do anything differently.'**
+  /// **'Tonight you\'ll know how it went.'**
   String get onb3_body;
 
   /// No description provided for @botton_salta.
@@ -896,7 +896,7 @@ abstract class AppLocalizations {
   /// No description provided for @condividi_button.
   ///
   /// In en, this message translates to:
-  /// **'Share'**
+  /// **''**
   String get condividi_button;
 
   /// No description provided for @form_consensi_01.
@@ -1604,19 +1604,19 @@ abstract class AppLocalizations {
   /// No description provided for @msg_abilitato_01.
   ///
   /// In en, this message translates to:
-  /// **'Sign up to see today\'s distribution'**
+  /// **'Register your profile to see your data for today.'**
   String get msg_abilitato_01;
 
   /// No description provided for @msg_abilitato_02.
   ///
   /// In en, this message translates to:
-  /// **'Timeline available with BASIC. Please sign up first.'**
+  /// **'Register your profile to see your data for today.'**
   String get msg_abilitato_02;
 
   /// No description provided for @crono_msg_01.
   ///
   /// In en, this message translates to:
-  /// **'Sign up to view today\'s route.'**
+  /// **'Register your profile to see your data for today.'**
   String get crono_msg_01;
 
   /// No description provided for @crono_msg_02.

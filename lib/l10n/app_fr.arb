@@ -22,14 +22,14 @@
   "sessionExpired": "Session expirée. Connecte-toi de nouveau.",
   "durata_abbonamento": "Durée :",
 
-  "onb1": "Sais-tu vraiment à quoi ressemble ta journée ?",
+  "onb1": "Sais-tu vraiment comment est ta journée ?",
 "onb1_body": "",
 
-"onb2": "Comment ça fonctionne",
-"onb2_body": "• Commencez à enregistrer votre position\n• Vivez votre journée\n• Ouvrez votre résumé de soirée\n• Partagez-le avec qui vous voulez",
+"onb2": "MoveUP écoute. Tu vis.",
+"onb2_body": "Laisse ton temps se raconter.",
 
-"onb3": "Commence par ton temps",
-"onb3_body": "Active l’enregistrement de la position et laisse MoveUP observer tes journées.\nTu n’as rien à faire de différent.",
+"onb3": "C'est ton temps.",
+"onb3_body": "Ce soir, tu sauras comment ça s'est passé.",
 
   "botton_salta": "Passer",
   "condizioni_uso": "J’ai lu et j’accepte les ",
@@ -153,7 +153,7 @@
     "inserisci_tua_mail": "Saisissez votre e-mail",
     "link_mail_password": "Si l’e-mail est enregistré, nous vous avons envoyé un lien pour réinitialiser votre mot de passe.",
     "invia_richiesta_label": "Envoyer la demande",
-    "condividi_button": "Partager",
+    "condividi_button": "",
 
   "form_consensi_01": "Confidentialité",
 "form_consensi_02": "J’accepte la Politique de confidentialité",
@@ -285,10 +285,10 @@
 
   "rep_day_export_locked": "Le partage nécessite START/BASIC/PLUS/PRO",
   "rep_day_function_ai": "Fonctions disponibles avec START/BASIC/PLUS/PRO",
-  "msg_abilitato_01": "Inscrivez-vous pour voir la répartition d’aujourd’hui",
-  "msg_abilitato_02": "Chronologie disponible avec BASIC. Inscrivez-vous d’abord.",
+  "msg_abilitato_01": "Inscris ton profil pour voir tes données d'aujourd'hui.",
+  "msg_abilitato_02": "Inscris ton profil pour voir tes données d'aujourd'hui.",
 
-  "crono_msg_01": "Inscrivez-vous pour voir le parcours du jour.",
+  "crono_msg_01": "Inscris ton profil pour voir tes données d'aujourd'hui.",
   "crono_msg_02": "Votre offre permet jusqu’à",
   "crono_msg_03": "jours d’historique.",
   "crono_msg_04": "Parcours indisponible. Réessayez.",

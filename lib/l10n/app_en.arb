@@ -25,11 +25,11 @@
   "onb1": "Do you really know what your day is like?",
 "onb1_body": "",
 
-"onb2": "How it works",
-"onb2_body": "• Start recording your location\n• Live your day\n• Open your evening summary\n• Share it with whoever you want",
+"onb2": "MoveUP listens. You live.",
+"onb2_body": "Let your time tell its story.",
 
-"onb3": "Start from your time!",
-"onb3_body": "Enable recording your location and let MoveUP observe your days.\nYou don’t have to do anything differently.",
+"onb3": "It's your time.",
+"onb3_body": "Tonight you'll know how it went.",
 
   "botton_salta": "Skip",
   "condizioni_uso": "I have read and accepted the ",
@@ -153,7 +153,7 @@
     "inserisci_tua_mail": "Enter your email",
     "link_mail_password": "If the email is registered, we've sent you a link to reset your password.",
     "invia_richiesta_label": "Send request",
-    "condividi_button": "Share",
+    "condividi_button": "",
 
   "form_consensi_01": "Privacy",
 "form_consensi_02": "I accept the Privacy Policy",
@@ -285,10 +285,10 @@
 
   "rep_day_export_locked": "Sharing requires START/BASIC/PLUS/PRO",
   "rep_day_function_ai": "Functions available with START/BASIC/PLUS/PRO",
-  "msg_abilitato_01": "Sign up to see today's distribution",
-  "msg_abilitato_02": "Timeline available with BASIC. Please sign up first.",
+  "msg_abilitato_01": "Register your profile to see your data for today.",
+  "msg_abilitato_02": "Register your profile to see your data for today.",
 
-  "crono_msg_01": "Sign up to view today's route.",
+  "crono_msg_01": "Register your profile to see your data for today.",
   "crono_msg_02": "Your plan allows up to",
   "crono_msg_03": "days of history.",
   "crono_msg_04": "Route not available. Try again.",

@@ -352,7 +352,7 @@ class _CardReportGiornalieroState extends State<CardReportGiornaliero> {
               const Divider(),
 
               // Messaggio export come prima (resta per CSV/GPX)
-              if (!shareEnabled)
+              if (!shareEnabled && !widget.isAnonymous)
                 Align(
                   alignment: Alignment.centerRight,
                   child: Padding(
@@ -365,146 +365,149 @@ class _CardReportGiornalieroState extends State<CardReportGiornaliero> {
                 ),
 
               // ========== SEZIONE AI ==========
-              const Divider(height: 24),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  const Icon(Icons.psychology,
-                      color: Colors.deepPurple, size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    context.t.rep_day_chiedi_AI,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.deepPurple[700],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // Messaggio se AI non abilitata
-              if (!aiEnabled)
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Text(
-                      context.t.rep_day_function_ai,
-                      style: TextStyle(color: Colors.red[700], fontSize: 13),
-                    ),
-                  ),
-                ),
-
-              // Tre pulsanti con richieste fisse (solo se AI abilitata)
-              if (aiEnabled)
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+              if (!widget.isAnonymous) ...[
+                const Divider(height: 24),
+                const SizedBox(height: 8),
+                Row(
                   children: [
-                    ElevatedButton(
-                      onPressed: _aiLoading
-                          ? null
-                          : () => _callAiApi('spiega_giornata'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepPurple[100],
-                        foregroundColor: Colors.deepPurple[900],
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                      ),
-                      child: Text(
-                        context.t.rep_day_button_01,
-                        style: TextStyle(fontSize: 12),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: _aiLoading
-                          ? null
-                          : () => _callAiApi('consiglio_semplice'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepPurple[100],
-                        foregroundColor: Colors.deepPurple[900],
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                      ),
-                      child: Text(
-                        context.t.rep_day_button_02,
-                        style: TextStyle(fontSize: 12),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed:
-                          _aiLoading ? null : () => _callAiApi('perche_fermo'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepPurple[100],
-                        foregroundColor: Colors.deepPurple[900],
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                      ),
-                      child: Text(
-                        context.t.rep_day_button_03,
-                        style: TextStyle(fontSize: 12),
+                    const Icon(Icons.psychology,
+                        color: Colors.deepPurple, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      context.t.rep_day_chiedi_AI,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.deepPurple[700],
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 12),
 
-              // Area risposta AI (solo se AI abilitata)
-              if (aiEnabled) const SizedBox(height: 12),
-              if (aiEnabled)
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.deepPurple[50],
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.deepPurple.shade200),
+                // Messaggio se AI non abilitata
+                if (!aiEnabled)
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Text(
+                        context.t.rep_day_function_ai,
+                        style: TextStyle(color: Colors.red[700], fontSize: 13),
+                      ),
+                    ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+
+                // Tre pulsanti con richieste fisse (solo se AI abilitata)
+                if (aiEnabled)
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
                     children: [
-                      Text(
-                        context.t.rep_day_ai_response,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                          color: Colors.deepPurple[900],
+                      ElevatedButton(
+                        onPressed: _aiLoading
+                            ? null
+                            : () => _callAiApi('spiega_giornata'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.deepPurple[100],
+                          foregroundColor: Colors.deepPurple[900],
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
+                        ),
+                        child: Text(
+                          context.t.rep_day_button_01,
+                          style: TextStyle(fontSize: 12),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      if (_aiLoading)
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.deepPurple,
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            Text(context.t.rep_day_ai_loading),
-                          ],
-                        )
-                      else if (_aiResponse.isNotEmpty)
-                        Text(
-                          _aiResponse,
-                          style: const TextStyle(fontSize: 14),
-                        )
-                      else
-                        Text(
-                          context.t.rep_day_ai_info,
-                          style:
-                              TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      ElevatedButton(
+                        onPressed: _aiLoading
+                            ? null
+                            : () => _callAiApi('consiglio_semplice'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.deepPurple[100],
+                          foregroundColor: Colors.deepPurple[900],
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
                         ),
+                        child: Text(
+                          context.t.rep_day_button_02,
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: _aiLoading
+                            ? null
+                            : () => _callAiApi('perche_fermo'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.deepPurple[100],
+                          foregroundColor: Colors.deepPurple[900],
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
+                        ),
+                        child: Text(
+                          context.t.rep_day_button_03,
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ),
                     ],
                   ),
-                ),
+
+                // Area risposta AI (solo se AI abilitata)
+                if (aiEnabled) const SizedBox(height: 12),
+                if (aiEnabled)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.deepPurple[50],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.deepPurple.shade200),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.t.rep_day_ai_response,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            color: Colors.deepPurple[900],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        if (_aiLoading)
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.deepPurple,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Text(context.t.rep_day_ai_loading),
+                            ],
+                          )
+                        else if (_aiResponse.isNotEmpty)
+                          Text(
+                            _aiResponse,
+                            style: const TextStyle(fontSize: 14),
+                          )
+                        else
+                          Text(
+                            context.t.rep_day_ai_info,
+                            style: TextStyle(
+                                fontSize: 14, color: Colors.grey[600]),
+                          ),
+                      ],
+                    ),
+                  ),
+              ],
 
               // --- Versione "poster" OFFSTAGE per la condivisione immagine ---
               Offstage(

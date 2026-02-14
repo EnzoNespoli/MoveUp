@@ -72,16 +72,16 @@ class AppLocalizationsIt extends AppLocalizations {
   String get onb1_body => '';
 
   @override
-  String get onb2 => 'Come funziona';
+  String get onb2 => 'MoveUP ascolta. Tu vivi.';
 
   @override
-  String get onb2_body => '• Avvia la registrazione della posizione\n• Vivi la tua giornata\n• Apri il riepilogo serale\n• Condividilo con chi vuoi';
+  String get onb2_body => 'Lascia che il tuo tempo si racconti.';
 
   @override
-  String get onb3 => 'Inizia dal tuo tempo!';
+  String get onb3 => 'È il tuo tempo.';
 
   @override
-  String get onb3_body => 'Attiva la registrazione della posizione e lascia che MoveUP osservi le tue giornate.\nNon devi fare nulla di diverso.';
+  String get onb3_body => 'Stasera saprai com\'è andata.';
 
   @override
   String get botton_salta => 'Salta';
@@ -255,10 +255,10 @@ class AppLocalizationsIt extends AppLocalizations {
   String get info_mes06 => 'Passi stimati:';
 
   @override
-  String get info_mes07 => 'Capisci come ti muovi';
+  String get info_mes07 => 'Sai com’è fatta la tua giornata?';
 
   @override
-  String get info_mes08 => 'Scopri come impieghi il tuo tempo';
+  String get info_mes08 => 'Registra. Stasera lo scoprirai.';
 
   @override
   String get mov_inattivo => 'Fermo / Pausa';
@@ -673,7 +673,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get dashboard_piano => 'Piano:';
 
   @override
-  String get dashboard_msg => 'Vai su Profilo e registrati.\nAvrai la tua settimana tipo';
+  String get dashboard_msg => 'Il tuo tempo merita memoria.';
 
   @override
   String get imposta_page_studente => 'Studente';
@@ -775,13 +775,13 @@ class AppLocalizationsIt extends AppLocalizations {
   String get rep_day_function_ai => 'Funzioni disponibili con START/BASIC/PLUS/PRO';
 
   @override
-  String get msg_abilitato_01 => 'Registrati per vedere la distribuzione di oggi';
+  String get msg_abilitato_01 => 'Registra il tuo profilo per vedere i tuoi dati di oggi.';
 
   @override
-  String get msg_abilitato_02 => 'Timeline disponibile con BASIC. Prima registrati.';
+  String get msg_abilitato_02 => 'Registra il tuo profilo per vedere i tuoi dati di oggi.';
 
   @override
-  String get crono_msg_01 => 'Registrati per vedere il percorso del giorno.';
+  String get crono_msg_01 => 'Registra il tuo profilo per vedere i tuoi dati di oggi.';
 
   @override
   String get crono_msg_02 => 'Il tuo piano consente fino a';

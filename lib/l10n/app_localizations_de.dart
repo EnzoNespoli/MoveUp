@@ -41,8 +41,8 @@ class AppLocalizationsDe extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
-      other: '# days',
-      one: '# day',
+      other: '# Tage',
+      one: '# Tag',
     );
     return '$_temp0';
   }
@@ -72,16 +72,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get onb1_body => '';
 
   @override
-  String get onb2 => 'So funktioniert es';
+  String get onb2 => 'MoveUP hört zu. Du lebst.';
 
   @override
-  String get onb2_body => '• Starte die Standortaufzeichnung\n• Erlebe deinen Tag\n• Öffne deine Abendzusammenfassung\n• Teile sie mit wem du willst';
+  String get onb2_body => 'Lass deine Zeit sich erzählen.';
 
   @override
-  String get onb3 => 'Beginne mit deiner Zeit!';
+  String get onb3 => 'Es ist deine Zeit.';
 
   @override
-  String get onb3_body => 'Aktiviere die Standortaufzeichnung und lass MoveUP deine Tage beobachten.\nDu musst nichts anders machen.';
+  String get onb3_body => 'Heute Abend wirst du wissen, wie es gelaufen ist.';
 
   @override
   String get botton_salta => 'Überspringen';
@@ -417,7 +417,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get invia_richiesta_label => 'Anfrage senden';
 
   @override
-  String get condividi_button => 'Teilen';
+  String get condividi_button => '';
 
   @override
   String get form_consensi_01 => 'Datenschutz';
@@ -775,13 +775,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get rep_day_function_ai => 'Funktionen verfügbar mit START/BASIC/PLUS/PRO';
 
   @override
-  String get msg_abilitato_01 => 'Registriere dich, um die heutige Verteilung zu sehen';
+  String get msg_abilitato_01 => 'Registriere dein Profil, um deine Daten von heute zu sehen.';
 
   @override
-  String get msg_abilitato_02 => 'Zeitleiste mit BASIC verfügbar. Registriere dich zuerst.';
+  String get msg_abilitato_02 => 'Registriere dein Profil, um deine Daten von heute zu sehen.';
 
   @override
-  String get crono_msg_01 => 'Registriere dich, um die Route des Tages zu sehen.';
+  String get crono_msg_01 => 'Registriere dein Profil, um deine Daten von heute zu sehen.';
 
   @override
   String get crono_msg_02 => 'Dein Tarif erlaubt bis zu';

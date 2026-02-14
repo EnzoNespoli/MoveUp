@@ -22,14 +22,14 @@
   "sessionExpired": "Sesión expirada. Inicia sesión de nuevo.",
   "durata_abbonamento": "Duración:",
 
- "onb1": "¿De verdad sabes cómo es tu día?",
+ "onb1": "¿Sabes realmente cómo es tu día?",
 "onb1_body": "",
 
-"onb2": "Cómo funciona",
-"onb2_body": "• Empieza a registrar tu ubicación\n• Vive tu día\n• Abre tu resumen de la noche\n• Compártelo con quien quieras",
+"onb2": "MoveUP escucha. Tú vives.",
+"onb2_body": "Deja que tu tiempo se cuente.",
 
-"onb3": "Empieza por tu tiempo",
-"onb3_body": "Activa la registración de la ubicación y deja que MoveUP observe tus días.\nNo tienes que hacer nada diferente.",
+"onb3": "Es tu tiempo.",
+"onb3_body": "Esta noche sabrás cómo fue.",
 
   "botton_salta": "Saltar",
   "condizioni_uso": "He leído y acepto las ",
@@ -154,7 +154,7 @@
     "inserisci_tua_mail": "Introduce tu correo electrónico",
     "link_mail_password": "Si el correo está registrado, te hemos enviado un enlace para restablecer la contraseña.",
     "invia_richiesta_label": "Enviar solicitud",
-    "condividi_button": "Compartir",
+    "condividi_button": "",
 
   "form_consensi_01": "Privacidad",
 "form_consensi_02": "Acepto la Política de Privacidad",
@@ -283,12 +283,12 @@
   "footer_page_versione": "Versión app:",
   "header_page_banner": "Your Personal Move",
 
-"rep_day_export_locked": "Compartir requiere STARTBASIC/PLUS/PRO",
+"rep_day_export_locked": "Compartir requiere START/BASIC/PLUS/PRO",
 "rep_day_function_ai": "Funciones disponibles con START/BASIC/PLUS/PRO",
-  "msg_abilitato_01": "Regístrate para ver la distribución de hoy",
-  "msg_abilitato_02": "Cronología disponible con BASIC. Regístrate primero.",
+  "msg_abilitato_01": "Registra tu perfil para ver tus datos de hoy.",
+  "msg_abilitato_02": "Registra tu perfil para ver tus datos de hoy.",
 
-  "crono_msg_01": "Regístrate para ver el recorrido de hoy.",
+  "crono_msg_01": "Registra tu perfil para ver tus datos de hoy.",
   "crono_msg_02": "Tu plan permite hasta",
   "crono_msg_03": "días de historial.",
   "crono_msg_04": "Recorrido no disponible. Inténtalo de nuevo.",

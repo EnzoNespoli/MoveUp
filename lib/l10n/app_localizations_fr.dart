@@ -66,22 +66,22 @@ class AppLocalizationsFr extends AppLocalizations {
   String get durata_abbonamento => 'Durée :';
 
   @override
-  String get onb1 => 'Sais-tu vraiment à quoi ressemble ta journée ?';
+  String get onb1 => 'Sais-tu vraiment comment est ta journée ?';
 
   @override
   String get onb1_body => '';
 
   @override
-  String get onb2 => 'Comment ça fonctionne';
+  String get onb2 => 'MoveUP écoute. Tu vis.';
 
   @override
-  String get onb2_body => '• Commencez à enregistrer votre position\n• Vivez votre journée\n• Ouvrez votre résumé de soirée\n• Partagez-le avec qui vous voulez';
+  String get onb2_body => 'Laisse ton temps se raconter.';
 
   @override
-  String get onb3 => 'Commence par ton temps';
+  String get onb3 => 'C\'est ton temps.';
 
   @override
-  String get onb3_body => 'Active l’enregistrement de la position et laisse MoveUP observer tes journées.\nTu n’as rien à faire de différent.';
+  String get onb3_body => 'Ce soir, tu sauras comment ça s\'est passé.';
 
   @override
   String get botton_salta => 'Passer';
@@ -417,7 +417,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get invia_richiesta_label => 'Envoyer la demande';
 
   @override
-  String get condividi_button => 'Partager';
+  String get condividi_button => '';
 
   @override
   String get form_consensi_01 => 'Confidentialité';
@@ -775,13 +775,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get rep_day_function_ai => 'Fonctions disponibles avec START/BASIC/PLUS/PRO';
 
   @override
-  String get msg_abilitato_01 => 'Inscrivez-vous pour voir la répartition d’aujourd’hui';
+  String get msg_abilitato_01 => 'Inscris ton profil pour voir tes données d\'aujourd\'hui.';
 
   @override
-  String get msg_abilitato_02 => 'Chronologie disponible avec BASIC. Inscrivez-vous d’abord.';
+  String get msg_abilitato_02 => 'Inscris ton profil pour voir tes données d\'aujourd\'hui.';
 
   @override
-  String get crono_msg_01 => 'Inscrivez-vous pour voir le parcours du jour.';
+  String get crono_msg_01 => 'Inscris ton profil pour voir tes données d\'aujourd\'hui.';
 
   @override
   String get crono_msg_02 => 'Votre offre permet jusqu’à';

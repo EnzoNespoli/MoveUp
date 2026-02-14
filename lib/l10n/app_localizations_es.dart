@@ -66,22 +66,22 @@ class AppLocalizationsEs extends AppLocalizations {
   String get durata_abbonamento => 'Duración:';
 
   @override
-  String get onb1 => '¿De verdad sabes cómo es tu día?';
+  String get onb1 => '¿Sabes realmente cómo es tu día?';
 
   @override
   String get onb1_body => '';
 
   @override
-  String get onb2 => 'Cómo funciona';
+  String get onb2 => 'MoveUP escucha. Tú vives.';
 
   @override
-  String get onb2_body => '• Empieza a registrar tu ubicación\n• Vive tu día\n• Abre tu resumen de la noche\n• Compártelo con quien quieras';
+  String get onb2_body => 'Deja que tu tiempo se cuente.';
 
   @override
-  String get onb3 => 'Empieza por tu tiempo';
+  String get onb3 => 'Es tu tiempo.';
 
   @override
-  String get onb3_body => 'Activa la registración de la ubicación y deja que MoveUP observe tus días.\nNo tienes que hacer nada diferente.';
+  String get onb3_body => 'Esta noche sabrás cómo fue.';
 
   @override
   String get botton_salta => 'Saltar';
@@ -417,7 +417,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get invia_richiesta_label => 'Enviar solicitud';
 
   @override
-  String get condividi_button => 'Compartir';
+  String get condividi_button => '';
 
   @override
   String get form_consensi_01 => 'Privacidad';
@@ -769,19 +769,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get header_page_banner => 'Your Personal Move';
 
   @override
-  String get rep_day_export_locked => 'Compartir requiere STARTBASIC/PLUS/PRO';
+  String get rep_day_export_locked => 'Compartir requiere START/BASIC/PLUS/PRO';
 
   @override
   String get rep_day_function_ai => 'Funciones disponibles con START/BASIC/PLUS/PRO';
 
   @override
-  String get msg_abilitato_01 => 'Regístrate para ver la distribución de hoy';
+  String get msg_abilitato_01 => 'Registra tu perfil para ver tus datos de hoy.';
 
   @override
-  String get msg_abilitato_02 => 'Cronología disponible con BASIC. Regístrate primero.';
+  String get msg_abilitato_02 => 'Registra tu perfil para ver tus datos de hoy.';
 
   @override
-  String get crono_msg_01 => 'Regístrate para ver el recorrido de hoy.';
+  String get crono_msg_01 => 'Registra tu perfil para ver tus datos de hoy.';
 
   @override
   String get crono_msg_02 => 'Tu plan permite hasta';

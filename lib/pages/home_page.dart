@@ -244,15 +244,16 @@ class _HomePageState extends State<HomePage> {
         posizioneUtente = ll.LatLng(pos.latitude, pos.longitude);
         final latStr = pos.latitude.toStringAsFixed(5); // 5 dec ~ 1.1 m
         final lonStr = pos.longitude.toStringAsFixed(5);
-        final altStr =
-            pos.altitude.isFinite ? pos.altitude.toStringAsFixed(1) : '—';
+        final altStr = pos.altitude.isFinite
+            ? pos.altitude.toStringAsFixed(1)
+            : '—';
 
-// accuracy can be very large initially (network fix). Format smartly:
+        // accuracy can be very large initially (network fix). Format smartly:
         String fmtAcc(double a) => (!a.isFinite)
             ? '—'
             : (a >= 1000)
-                ? '${(a / 1000).toStringAsFixed(1)} km'
-                : '${a.toStringAsFixed(1)} m';
+            ? '${(a / 1000).toStringAsFixed(1)} km'
+            : '${a.toStringAsFixed(1)} m';
 
         ultimaPosizione =
             '$latStr, $lonStr (±${fmtAcc(pos.accuracy ?? double.nan)}, alt. $altStr)';
@@ -691,11 +692,9 @@ class _HomePageState extends State<HomePage> {
         await _storage.delete(key: 'jwt_token');
         await _loginAnon(); // ricreo il token
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(context.t.session_expired),
-            ),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(context.t.session_expired)));
           await _eseguiLogout();
         }
       }
@@ -747,11 +746,9 @@ class _HomePageState extends State<HomePage> {
         await _storage.delete(key: 'jwt_token');
         await _loginAnon(); // ricreo il token
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(context.t.session_expired),
-            ),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(context.t.session_expired)));
           await _eseguiLogout();
         }
       }
@@ -986,8 +983,12 @@ class _HomePageState extends State<HomePage> {
           _lastTs != null) {
         final dt = nowUtc.difference(_lastTs!).inMilliseconds / 1000.0;
         if (dt > 0) {
-          final dist = _distM(_lastPos!.latitude, _lastPos!.longitude,
-              pos.latitude, pos.longitude);
+          final dist = _distM(
+            _lastPos!.latitude,
+            _lastPos!.longitude,
+            pos.latitude,
+            pos.longitude,
+          );
           // ignora micro-salti dentro l’accuracy
           final acc = (pos.accuracy ?? 0);
           speedKmh = (dist > acc) ? (dist / dt) * 3.6 : 0.0;
@@ -1012,26 +1013,26 @@ class _HomePageState extends State<HomePage> {
         );
       }
 
-//      if (precisione.isNaN || precisione > accMax) {
-//        GpsLog.instance.logError(
-//          'Accuracy filter failed: $precisione > $accMax',
-//        );
+      //      if (precisione.isNaN || precisione > accMax) {
+      //        GpsLog.instance.logError(
+      //          'Accuracy filter failed: $precisione > $accMax',
+      //        );
 
       // su errore:
-//        GpsLogE.instance.add(GpsLogEntryE(
-//          ts: DateTime.now(),
-//          status: GpsLogStatusE.error,
-//          lat: pos.latitude,
-//          lon: pos.longitude,
-//          accM: precisione,
-//          altM: altitudine,
-//          msg: 'Accuracy filter failed: $precisione > $accMax',
-//          errorCode: 'HTTP_500',
-//        ));
+      //        GpsLogE.instance.add(GpsLogEntryE(
+      //          ts: DateTime.now(),
+      //          status: GpsLogStatusE.error,
+      //          lat: pos.latitude,
+      //          lon: pos.longitude,
+      //          accM: precisione,
+      //          altM: altitudine,
+      //          msg: 'Accuracy filter failed: $precisione > $accMax',
+      //          errorCode: 'HTTP_500',
+      //        ));
 
-//        setState(() => gpsErrore = context.t.gps_err06);
-//        return;
-//      }
+      //        setState(() => gpsErrore = context.t.gps_err06);
+      //        return;
+      //      }
 
       // Filtro movimento minimo
       double deltaM = 0.0;
@@ -1158,15 +1159,16 @@ class _HomePageState extends State<HomePage> {
 
         final latStr = pos.latitude.toStringAsFixed(5); // 5 dec ~ 1.1 m
         final lonStr = pos.longitude.toStringAsFixed(5);
-        final altStr =
-            pos.altitude.isFinite ? pos.altitude.toStringAsFixed(1) : '—';
+        final altStr = pos.altitude.isFinite
+            ? pos.altitude.toStringAsFixed(1)
+            : '—';
 
         // accuracy can be very large initially (network fix). Format smartly:
         String fmtAcc(double a) => (!a.isFinite)
             ? '—'
             : (a >= 1000)
-                ? '${(a / 1000).toStringAsFixed(1)} km'
-                : '${a.toStringAsFixed(1)} m';
+            ? '${(a / 1000).toStringAsFixed(1)} km'
+            : '${a.toStringAsFixed(1)} m';
 
         ultimaPosizione =
             '$latStr, $lonStr (±${fmtAcc(pos.accuracy ?? double.nan)}, alt. $altStr)';
@@ -1190,7 +1192,8 @@ class _HomePageState extends State<HomePage> {
     const R = 6371000.0;
     final dLat = (lat2 - lat1) * (math.pi / 180);
     final dLon = (lon2 - lon1) * (math.pi / 180);
-    final a = math.pow(math.sin(dLat / 2), 2) +
+    final a =
+        math.pow(math.sin(dLat / 2), 2) +
         math.cos(lat1 * (math.pi / 180)) *
             math.cos(lat2 * (math.pi / 180)) *
             math.pow(math.sin(dLon / 2), 2);
@@ -1201,8 +1204,10 @@ class _HomePageState extends State<HomePage> {
   //-------------------------------------------------------------------------
   // Mette in coda i dati gps anche a telefono spento
   //-------------------------------------------------------------------------
-  Future<bool> _enqueueFromPosition(Position pos,
-      {bool updateUI = false}) async {
+  Future<bool> _enqueueFromPosition(
+    Position pos, {
+    bool updateUI = false,
+  }) async {
     // --- parametri e filtri come già fai ---
     final f = (features ?? {}) as Map<String, dynamic>;
     final accMode = (f['gps_accuracy_mode'] as String?) ?? 'balanced';
@@ -1221,7 +1226,11 @@ class _HomePageState extends State<HomePage> {
 
     if (_lastLat != null && _lastLon != null) {
       final deltaM = Geolocator.distanceBetween(
-          _lastLat!, _lastLon!, pos.latitude, pos.longitude);
+        _lastLat!,
+        _lastLon!,
+        pos.latitude,
+        pos.longitude,
+      );
       if (deltaM < minMoveM) {
         // log/queue error come già fai...
         return false;
@@ -1237,8 +1246,12 @@ class _HomePageState extends State<HomePage> {
         _lastTs != null) {
       final dt = nowUtc.difference(_lastTs!).inMilliseconds / 1000.0;
       if (dt > 0) {
-        final dist = _distM(_lastPos!.latitude, _lastPos!.longitude,
-            pos.latitude, pos.longitude);
+        final dist = _distM(
+          _lastPos!.latitude,
+          _lastPos!.longitude,
+          pos.latitude,
+          pos.longitude,
+        );
         // ignora micro-salti dentro l’accuracy
         final acc = (pos.accuracy ?? 0);
         speedKmh = (dist > acc) ? (dist / dt) * 3.6 : 0.0;
@@ -1285,15 +1298,16 @@ class _HomePageState extends State<HomePage> {
         gpsErrore = '';
         final latStr = pos.latitude.toStringAsFixed(5); // 5 dec ~ 1.1 m
         final lonStr = pos.longitude.toStringAsFixed(5);
-        final altStr =
-            pos.altitude.isFinite ? pos.altitude.toStringAsFixed(1) : '—';
+        final altStr = pos.altitude.isFinite
+            ? pos.altitude.toStringAsFixed(1)
+            : '—';
 
         // accuracy can be very large initially (network fix). Format smartly:
         String fmtAcc(double a) => (!a.isFinite)
             ? '—'
             : (a >= 1000)
-                ? '${(a / 1000).toStringAsFixed(1)} km'
-                : '${a.toStringAsFixed(1)} m';
+            ? '${(a / 1000).toStringAsFixed(1)} km'
+            : '${a.toStringAsFixed(1)} m';
 
         ultimaPosizione =
             '$latStr, $lonStr (±${fmtAcc(pos.accuracy ?? double.nan)}, alt. $altStr)';
@@ -1314,38 +1328,43 @@ class _HomePageState extends State<HomePage> {
     final locationSettings = kIsWeb
         ? LocationSettings(accuracy: LocationAccuracy.best, distanceFilter: 20)
         : (Platform.isAndroid
-            ? AndroidSettings(
-                accuracy: LocationAccuracy.best,
-                intervalDuration: Duration(
+              ? AndroidSettings(
+                  accuracy: LocationAccuracy.best,
+                  intervalDuration: Duration(
                     seconds:
-                        (features?['gps_sample_sec'] as num?)?.toInt() ?? 10),
-                distanceFilter:
-                    (features?['gps_min_distance_m'] as num?)?.toInt() ?? 20,
-                foregroundNotificationConfig:
-                    const ForegroundNotificationConfig(
-                  notificationTitle: 'MoveUP is running',
-                  notificationText: 'GPS tracking in progress',
-                  enableWakeLock: true,
-                ),
-              )
-            : AppleSettings(
-                accuracy: LocationAccuracy.best,
-                distanceFilter:
-                    (features?['gps_min_distance_m'] as num?)?.toInt() ?? 20,
-                allowBackgroundLocationUpdates: true,
-                pauseLocationUpdatesAutomatically: false,
-                showBackgroundLocationIndicator: true, // SOLO in test
-              ));
+                        (features?['gps_sample_sec'] as num?)?.toInt() ?? 10,
+                  ),
+                  distanceFilter:
+                      (features?['gps_min_distance_m'] as num?)?.toInt() ?? 20,
+                  foregroundNotificationConfig:
+                      const ForegroundNotificationConfig(
+                        notificationTitle: 'MoveUP is running',
+                        notificationText: 'GPS tracking in progress',
+                        enableWakeLock: true,
+                      ),
+                )
+              : AppleSettings(
+                  accuracy: LocationAccuracy.best,
+                  distanceFilter:
+                      (features?['gps_min_distance_m'] as num?)?.toInt() ?? 20,
+                  allowBackgroundLocationUpdates: true,
+                  pauseLocationUpdatesAutomatically: false,
+                  showBackgroundLocationIndicator: true, // SOLO in test
+                ));
 
     // 🔄 Avvia lo stream
     await _bgSub?.cancel();
-    _bgSub = Geolocator.getPositionStream(
-      locationSettings: locationSettings, // 👈 niente copyWith
-    ).listen((pos) {
-      _enqueueFromPosition(pos); // tua funzione di enqueue
-    }, onError: (e) {
-      // log/feedback
-    });
+    _bgSub =
+        Geolocator.getPositionStream(
+          locationSettings: locationSettings, // 👈 niente copyWith
+        ).listen(
+          (pos) {
+            _enqueueFromPosition(pos); // tua funzione di enqueue
+          },
+          onError: (e) {
+            // log/feedback
+          },
+        );
   }
 
   //-------------------------------------------------------------------------
@@ -1518,14 +1537,17 @@ class _HomePageState extends State<HomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                        '🕒 ${context.t.info_mes01} ${sessione['data_ora_inizio']}'),
+                      '🕒 ${context.t.info_mes01} ${sessione['data_ora_inizio']}',
+                    ),
                     Text(
-                        '⏱️ ${context.t.info_mes02} ${sessione['data_ora_fine']}'),
+                      '⏱️ ${context.t.info_mes02} ${sessione['data_ora_fine']}',
+                    ),
                     Text(
                       '⏳ ${context.t.info_mes03} ${(sessione['durata_sec'] / 60).round()} min',
                     ),
                     Text(
-                        '📏 ${context.t.info_mes04} ${sessione['distanza_metri']} m'),
+                      '📏 ${context.t.info_mes04} ${sessione['distanza_metri']} m',
+                    ),
                     Text('🛰️ ${context.t.info_mes05} ${sessione['fonte']}'),
                     //if (livello == 1)
                     //  Text(
@@ -1827,7 +1849,6 @@ class _HomePageState extends State<HomePage> {
                   //Text('Ultima posizione: $ultimaPosizione'),  // uso stringa
                   Text(gpsErrore),
                   SizedBox(height: 12), // Spazio prima del footer
-
                   //---------------------------------------------------------
                   // --- SEZIONE dettagli GPS giornaliero
                   //-----------------------------------------------------------
@@ -1889,13 +1910,18 @@ class _HomePageState extends State<HomePage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // usa la tua immagine di attesa in assets
-                    Image.asset('assets/img/logo_app.png',
-                        width: 160, height: 160),
+                    Image.asset(
+                      'assets/img/logo_app.png',
+                      width: 160,
+                      height: 160,
+                    ),
                     const SizedBox(height: 18),
                     const CircularProgressIndicator(),
                     const SizedBox(height: 8),
-                    Text('Loading...',
-                        style: TextStyle(color: Colors.grey[700])),
+                    Text(
+                      'Loading...',
+                      style: TextStyle(color: Colors.grey[700]),
+                    ),
                   ],
                 ),
               ),
@@ -1921,13 +1947,13 @@ class _HomePageState extends State<HomePage> {
     icona ??= livello == 0
         ? Icons.hotel
         : livello == 1
-            ? Icons.directions_walk
-            : Icons.directions_run;
+        ? Icons.directions_walk
+        : Icons.directions_run;
     iconaColor ??= livello == 0
         ? Colors.blueGrey
         : livello == 1
-            ? Colors.green[700]!
-            : Colors.red[700]!;
+        ? Colors.green[700]!
+        : Colors.red[700]!;
 
     return Card(
       color: Colors.blueGrey[50],
@@ -2044,8 +2070,8 @@ class _HomePageState extends State<HomePage> {
                           color: livello == 0
                               ? Colors.blueGrey
                               : livello == 1
-                                  ? Colors.redAccent
-                                  : Colors.amber,
+                              ? Colors.redAccent
+                              : Colors.amber,
                           width: 14,
                           borderRadius: BorderRadius.zero,
                         ),
@@ -2067,8 +2093,9 @@ class _HomePageState extends State<HomePage> {
                   final minuti = datiSettimanali[i];
                   final ore = minuti ~/ 60;
                   final min = minuti % 60;
-                  final minutiLabel =
-                      ore > 0 ? '${ore}h ${min}min' : '${min}min';
+                  final minutiLabel = ore > 0
+                      ? '${ore}h ${min}min'
+                      : '${min}min';
                   return Column(
                     children: [
                       Text(dateLabel, style: TextStyle(fontSize: 11)),
@@ -2099,7 +2126,7 @@ class _HomePageState extends State<HomePage> {
           'client': 'app',
           // opzionale ma utile:
           'device_id': await getDeviceId(),
-          'app_version': appVersion
+          'app_version': appVersion,
         }),
       );
 
@@ -2145,7 +2172,10 @@ class _HomePageState extends State<HomePage> {
         if (!consensiOk) {
           //await mostraDialogConsensi(context, utenteId);
           await mostraDialogConsensiObbligatoria(
-              context, utenteId, _openUrl); // <-- QUI
+            context,
+            utenteId,
+            _openUrl,
+          ); // <-- QUI
         } else {
           await leggiConsensi();
         }
@@ -2249,9 +2279,7 @@ class _HomePageState extends State<HomePage> {
             child: SingleChildScrollView(
               // per evitare overflow su schermi piccoli
               child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: size.height * 0.9,
-                ),
+                constraints: BoxConstraints(maxHeight: size.height * 0.9),
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
                   child: Form(
@@ -2269,8 +2297,10 @@ class _HomePageState extends State<HomePage> {
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
-                        Text('Login',
-                            style: Theme.of(ctx).textTheme.titleLarge),
+                        Text(
+                          'Login',
+                          style: Theme.of(ctx).textTheme.titleLarge,
+                        ),
                         const SizedBox(height: 12),
                         TextFormField(
                           controller: emailC,
@@ -2278,10 +2308,13 @@ class _HomePageState extends State<HomePage> {
                           keyboardType: TextInputType.emailAddress,
                           textInputAction: TextInputAction.next,
                           decoration: InputDecoration(
-                              labelText: context.t.form_reg_mail),
-                          validator: (v) => v != null &&
-                                  RegExp(r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$')
-                                      .hasMatch(v)
+                            labelText: context.t.form_reg_mail,
+                          ),
+                          validator: (v) =>
+                              v != null &&
+                                  RegExp(
+                                    r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$',
+                                  ).hasMatch(v)
                               ? null
                               : 'Email non valida',
                           onFieldSubmitted: (_) =>
@@ -2294,7 +2327,8 @@ class _HomePageState extends State<HomePage> {
                           obscureText: true,
                           textInputAction: TextInputAction.done,
                           decoration: InputDecoration(
-                              labelText: context.t.form_reg_password),
+                            labelText: context.t.form_reg_password,
+                          ),
                           validator: (v) => (v ?? '').length >= 8
                               ? null
                               : context.t.form_reg_err03,
@@ -2336,12 +2370,15 @@ class _HomePageState extends State<HomePage> {
                                   if (!mounted) return;
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(ok
-                                          ? context.t.user_login_success ??
-                                              'Login successful!'
-                                          : context.t.user_err05),
-                                      backgroundColor:
-                                          ok ? Colors.black54 : Colors.red,
+                                      content: Text(
+                                        ok
+                                            ? context.t.user_login_success ??
+                                                  'Login successful!'
+                                            : context.t.user_err05,
+                                      ),
+                                      backgroundColor: ok
+                                          ? Colors.black54
+                                          : Colors.red,
                                       behavior: SnackBarBehavior.floating,
                                     ),
                                   );
@@ -2361,8 +2398,9 @@ class _HomePageState extends State<HomePage> {
                                 mostraRegistrazioneDialog(context);
                               },
                               style: ElevatedButton.styleFrom(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 14),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -2370,7 +2408,9 @@ class _HomePageState extends State<HomePage> {
                               child: Text(
                                 context.t.user_err07, // "Registrati"
                                 style: const TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w600),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),
@@ -2387,9 +2427,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-//---------------------------------------------------------------
-// Mostra il dialog di reimpostazione password
-//---------------------------------------------------------------
+  //---------------------------------------------------------------
+  // Mostra il dialog di reimpostazione password
+  //---------------------------------------------------------------
   Future<void> mostraPasswordResetDialog(BuildContext context) async {
     final emailController = TextEditingController();
     bool loading = false;
@@ -2411,8 +2451,10 @@ class _HomePageState extends State<HomePage> {
               if (errore != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
-                  child:
-                      Text(errore!, style: const TextStyle(color: Colors.red)),
+                  child: Text(
+                    errore!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
                 ),
             ],
           ),
@@ -2430,18 +2472,14 @@ class _HomePageState extends State<HomePage> {
                       await http.post(
                         Uri.parse('$apiBaseUrl/password_reset_request.php'),
                         headers: {
-                          'Content-Type': 'application/json; charset=utf-8'
+                          'Content-Type': 'application/json; charset=utf-8',
                         },
                         body: jsonEncode({'email': email}),
                       );
                       setState(() => loading = false);
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            context.t.link_mail_password,
-                          ),
-                        ),
+                        SnackBar(content: Text(context.t.link_mail_password)),
                       );
                     },
               child: Text(context.t.invia_richiesta_label),
@@ -2488,11 +2526,13 @@ class _HomePageState extends State<HomePage> {
             child: StatefulBuilder(
               builder: (ctx, setState) {
                 InputDecoration deco(String label) => InputDecoration(
-                      labelText: label,
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 12),
-                      border: const OutlineInputBorder(),
-                    );
+                  labelText: label,
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 12,
+                  ),
+                  border: const OutlineInputBorder(),
+                );
 
                 return SingleChildScrollView(
                   child: ConstrainedBox(
@@ -2515,8 +2555,10 @@ class _HomePageState extends State<HomePage> {
                                 borderRadius: BorderRadius.circular(2),
                               ),
                             ),
-                            Text(ctx.t.form_reg_testa,
-                                style: Theme.of(ctx).textTheme.titleLarge),
+                            Text(
+                              ctx.t.form_reg_testa,
+                              style: Theme.of(ctx).textTheme.titleLarge,
+                            ),
                             const SizedBox(height: 12),
 
                             TextFormField(
@@ -2526,8 +2568,8 @@ class _HomePageState extends State<HomePage> {
                               decoration: deco(ctx.t.form_reg_nome),
                               validator: (v) =>
                                   (v != null && v.trim().isNotEmpty)
-                                      ? null
-                                      : ctx.t.form_reg_err01,
+                                  ? null
+                                  : ctx.t.form_reg_err01,
                               onFieldSubmitted: (_) =>
                                   FocusScope.of(ctx).requestFocus(emailF),
                             ),
@@ -2539,9 +2581,11 @@ class _HomePageState extends State<HomePage> {
                               keyboardType: TextInputType.emailAddress,
                               textInputAction: TextInputAction.next,
                               decoration: deco(ctx.t.form_reg_mail),
-                              validator: (v) => (v != null &&
-                                      RegExp(r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$')
-                                          .hasMatch(v))
+                              validator: (v) =>
+                                  (v != null &&
+                                      RegExp(
+                                        r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$',
+                                      ).hasMatch(v))
                                   ? null
                                   : ctx.t.form_reg_err02,
                               onFieldSubmitted: (_) =>
@@ -2554,19 +2598,23 @@ class _HomePageState extends State<HomePage> {
                               focusNode: passF,
                               obscureText: obscure1,
                               textInputAction: TextInputAction.next,
-                              decoration:
-                                  deco(ctx.t.form_reg_password).copyWith(
-                                suffixIcon: IconButton(
-                                  icon: Icon(obscure1
-                                      ? Icons.visibility
-                                      : Icons.visibility_off),
-                                  onPressed: () =>
-                                      setState(() => obscure1 = !obscure1),
-                                ),
-                              ),
-                              validator: (v) => (v != null &&
-                                      RegExp(r'^(?=.*[A-Z])(?=.*\d).{8,}$')
-                                          .hasMatch(v))
+                              decoration: deco(ctx.t.form_reg_password)
+                                  .copyWith(
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        obscure1
+                                            ? Icons.visibility
+                                            : Icons.visibility_off,
+                                      ),
+                                      onPressed: () =>
+                                          setState(() => obscure1 = !obscure1),
+                                    ),
+                                  ),
+                              validator: (v) =>
+                                  (v != null &&
+                                      RegExp(
+                                        r'^(?=.*[A-Z])(?=.*\d).{8,}$',
+                                      ).hasMatch(v))
                                   ? null
                                   : ctx.t.form_reg_err03,
                               onFieldSubmitted: (_) =>
@@ -2580,16 +2628,19 @@ class _HomePageState extends State<HomePage> {
                               obscureText: obscure2,
                               textInputAction: TextInputAction.done,
                               decoration:
-                                  deco(context.t.conferma_password_label)
-                                      .copyWith(
-                                suffixIcon: IconButton(
-                                  icon: Icon(obscure2
-                                      ? Icons.visibility
-                                      : Icons.visibility_off),
-                                  onPressed: () =>
-                                      setState(() => obscure2 = !obscure2),
-                                ),
-                              ),
+                                  deco(
+                                    context.t.conferma_password_label,
+                                  ).copyWith(
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        obscure2
+                                            ? Icons.visibility
+                                            : Icons.visibility_off,
+                                      ),
+                                      onPressed: () =>
+                                          setState(() => obscure2 = !obscure2),
+                                    ),
+                                  ),
                               validator: (v) => (v != null && v == passC.text)
                                   ? null
                                   : ctx.t.form_reg_err06,
@@ -2623,29 +2674,36 @@ class _HomePageState extends State<HomePage> {
 
                                       if (ok) {
                                         await mostraVerificaEmailDialog(
-                                            context, emailC.text.trim());
+                                          context,
+                                          emailC.text.trim(),
+                                        );
                                       }
 
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
                                         SnackBar(
                                           behavior: SnackBarBehavior.floating,
                                           margin: EdgeInsets.only(
                                             left: 16,
                                             right: 16,
-                                            bottom: MediaQuery.of(context)
-                                                    .viewInsets
-                                                    .bottom +
+                                            bottom:
+                                                MediaQuery.of(
+                                                  context,
+                                                ).viewInsets.bottom +
                                                 16,
                                           ),
-                                          content: Text(ok
-                                              ? ctx.t.form_reg_err04
-                                              : ctx.t.form_reg_err05),
+                                          content: Text(
+                                            ok
+                                                ? ctx.t.form_reg_err04
+                                                : ctx.t.form_reg_err05,
+                                          ),
                                         ),
                                       );
                                     },
-                                    child:
-                                        Text(ctx.t.user_err07), // "Registrati"
+                                    child: Text(
+                                      ctx.t.user_err07,
+                                    ), // "Registrati"
                                   ),
                                 ),
                               ],
@@ -2769,9 +2827,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-//-------------------------------------------------------------------------
-// Dialog Privacy obbligatoria (Apple compliant) + link esterni
-//-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
+  // Dialog Privacy obbligatoria (Apple compliant) + link esterni
+  //-------------------------------------------------------------------------
   Future<void> mostraDialogConsensiObbligatoria(
     BuildContext context,
     String utenteId,
@@ -2823,7 +2881,8 @@ class _HomePageState extends State<HomePage> {
                   onChanged: (v) =>
                       setState(() => consensoPrivacy = v ?? false),
                   title: Text(
-                      context.t.form_consensi_02), // "Accetto Privacy Policy"
+                    context.t.form_consensi_02,
+                  ), // "Accetto Privacy Policy"
                   controlAffinity: ListTileControlAffinity.leading,
                   contentPadding: EdgeInsets.zero,
                 ),
@@ -2846,8 +2905,9 @@ class _HomePageState extends State<HomePage> {
                       Navigator.pop(context);
                     }
                   : null, // disabilitato finché non accetta
-              child:
-                  Text(context.t.form_consensi_06), // "Conferma" / "Continua"
+              child: Text(
+                context.t.form_consensi_06,
+              ), // "Conferma" / "Continua"
             ),
           ],
         ),
@@ -2855,9 +2915,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-//---------------------------------------------------------------------
-// Apri URL esterno
-//---------------------------------------------------------------------
+  //---------------------------------------------------------------------
+  // Apri URL esterno
+  //---------------------------------------------------------------------
   Future<void> _openUrl(String url) async {
     final uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
@@ -3023,8 +3083,8 @@ class _HomePageState extends State<HomePage> {
                       color: livello == 0
                           ? Colors.blueGrey
                           : livello == 1
-                              ? Colors.redAccent
-                              : Colors.amber,
+                          ? Colors.redAccent
+                          : Colors.amber,
                       width: 14,
                       borderRadius: BorderRadius.zero,
                     ),
@@ -3071,7 +3131,8 @@ class _HomePageState extends State<HomePage> {
 
     try {
       final oggi = DateTime.now();
-      final dataStr = "${oggi.year.toString().padLeft(4, '0')}-"
+      final dataStr =
+          "${oggi.year.toString().padLeft(4, '0')}-"
           "${oggi.month.toString().padLeft(2, '0')}-"
           "${oggi.day.toString().padLeft(2, '0')}";
       final url =
@@ -3134,7 +3195,8 @@ class _HomePageState extends State<HomePage> {
   //--------------------------------------------------------------
   Future<void> _caricaSettimana(int livello) async {
     final oggi = DateTime.now();
-    final dataStr = "${oggi.year.toString().padLeft(4, '0')}-"
+    final dataStr =
+        "${oggi.year.toString().padLeft(4, '0')}-"
         "${oggi.month.toString().padLeft(2, '0')}-"
         "${oggi.day.toString().padLeft(2, '0')}";
     final url =
@@ -3152,8 +3214,9 @@ class _HomePageState extends State<HomePage> {
 
       final body = json.decode(res.body);
       final List totali = (body['totali'] as List? ?? []);
-      totali.sort((a, b) =>
-          a['data'].toString().compareTo(b['data'].toString())); // lun→dom
+      totali.sort(
+        (a, b) => a['data'].toString().compareTo(b['data'].toString()),
+      ); // lun→dom
 
       setState(() {
         datiLivelli[livello] = dettagli is List ? dettagli : [];
@@ -3169,11 +3232,9 @@ class _HomePageState extends State<HomePage> {
       await _storage.delete(key: 'jwt_token');
       await _loginAnon(); // ricreo il token
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.t.session_expired),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.t.session_expired)));
         Navigator.of(context).pushReplacementNamed('/login');
       }
     } else {
@@ -3235,7 +3296,8 @@ class _HomePageState extends State<HomePage> {
     String apiBaseUrl,
     Map<String, String> headers,
   ) async {
-    final d = '${giorno.year.toString().padLeft(4, '0')}-'
+    final d =
+        '${giorno.year.toString().padLeft(4, '0')}-'
         '${giorno.month.toString().padLeft(2, '0')}-'
         '${giorno.day.toString().padLeft(2, '0')}';
 
@@ -3245,7 +3307,11 @@ class _HomePageState extends State<HomePage> {
     if (res.statusCode == 401 && !_refreshingToken) {
       await handle401(); // <--- refresh token e gestisci eventuale retry
       return await fetchAttivita24h(
-          utenteId, giorno, apiBaseUrl, headers); // retry
+        utenteId,
+        giorno,
+        apiBaseUrl,
+        headers,
+      ); // retry
       //return;
     }
 
@@ -3258,10 +3324,12 @@ class _HomePageState extends State<HomePage> {
       throw Exception(data['error'] ?? 'Errore API');
     }
 
-    final oraria =
-        (data['oraria'] as List).map((e) => OraStat.fromJson(e)).toList();
-    final periodi =
-        (data['periodi'] as List).map((e) => Periodo.fromJson(e)).toList();
+    final oraria = (data['oraria'] as List)
+        .map((e) => OraStat.fromJson(e))
+        .toList();
+    final periodi = (data['periodi'] as List)
+        .map((e) => Periodo.fromJson(e))
+        .toList();
     return (oraria, periodi);
   }
 
@@ -3274,7 +3342,8 @@ class _HomePageState extends State<HomePage> {
     String apiBaseUrl,
     Map<String, String> headers,
   ) async {
-    final d = '${giorno.year.toString().padLeft(4, '0')}-'
+    final d =
+        '${giorno.year.toString().padLeft(4, '0')}-'
         '${giorno.month.toString().padLeft(2, '0')}-'
         '${giorno.day.toString().padLeft(2, '0')}';
 
@@ -3285,7 +3354,11 @@ class _HomePageState extends State<HomePage> {
     if (res.statusCode == 401 && !_refreshingToken) {
       await handle401(); // <--- refresh token e gestisci eventuale retry
       return await fetchTimelinePrefatta(
-          utenteId, giorno, apiBaseUrl, headers); // retry
+        utenteId,
+        giorno,
+        apiBaseUrl,
+        headers,
+      ); // retry
       //return;
     }
 
@@ -3298,16 +3371,18 @@ class _HomePageState extends State<HomePage> {
       throw Exception(data['error'] ?? 'Errore API');
     }
 
-    final oraria =
-        (data['oraria'] as List).map((e) => OraStat.fromJson(e)).toList();
-    final periodi =
-        (data['periodi_norm'] as List).map((e) => Periodo.fromJson(e)).toList();
+    final oraria = (data['oraria'] as List)
+        .map((e) => OraStat.fromJson(e))
+        .toList();
+    final periodi = (data['periodi_norm'] as List)
+        .map((e) => Periodo.fromJson(e))
+        .toList();
     return (oraria, periodi);
   }
 
-//----------------------------------------------------------------------
-// Timeline livelli con BARRE - versione semplificata e più affidabile
-//----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // Timeline livelli con BARRE - versione semplificata e più affidabile
+  //----------------------------------------------------------------------
   Widget cardTimelineLivelliBar(List<Periodo> periodi_norm) {
     if (utenteTemporaneo) {
       return Card(
@@ -3330,7 +3405,7 @@ class _HomePageState extends State<HomePage> {
               Center(
                 child: Text(
                   context.t.msg_abilitato_01,
-                  style: TextStyle(color: Colors.red[700], fontSize: 15),
+                  style: TextStyle(color: Colors.grey[400], fontSize: 15),
                 ),
               ),
             ],
@@ -3357,8 +3432,14 @@ class _HomePageState extends State<HomePage> {
 
       while (corrente.isBefore(fine)) {
         final ora = corrente.hour;
-        final fineOra =
-            DateTime(corrente.year, corrente.month, corrente.day, ora, 59, 59);
+        final fineOra = DateTime(
+          corrente.year,
+          corrente.month,
+          corrente.day,
+          ora,
+          59,
+          59,
+        );
         final finePeriodo = fine.isBefore(fineOra) ? fine : fineOra;
 
         final secondi = finePeriodo.difference(corrente).inSeconds;
@@ -3371,8 +3452,10 @@ class _HomePageState extends State<HomePage> {
 
     // Riempi i buchi con OFF (secondi rimanenti nell'ora)
     for (int h = 0; h < 24; h++) {
-      final totaleSecondi =
-          durataPerOraLivello[h]!.values.fold(0, (a, b) => a + b);
+      final totaleSecondi = durataPerOraLivello[h]!.values.fold(
+        0,
+        (a, b) => a + b,
+      );
       final secondiMancanti = 3600 - totaleSecondi; // 3600 secondi in un'ora
       if (secondiMancanti > 0) {
         durataPerOraLivello[h]![-1] = secondiMancanti;
@@ -3449,9 +3532,9 @@ class _HomePageState extends State<HomePage> {
         final boundary = renderObj is RenderRepaintBoundary ? renderObj : null;
         if (boundary == null) {
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(context.t.chart_mes06)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(context.t.chart_mes06)));
           }
           return;
         }
@@ -3575,16 +3658,12 @@ class _HomePageState extends State<HomePage> {
                     gridData: FlGridData(
                       show: true,
                       horizontalInterval: 15,
-                      getDrawingHorizontalLine: (v) => FlLine(
-                        color: Colors.blueGrey[100],
-                        strokeWidth: 1,
-                      ),
+                      getDrawingHorizontalLine: (v) =>
+                          FlLine(color: Colors.blueGrey[100], strokeWidth: 1),
                       drawVerticalLine: true,
                       verticalInterval: 1,
-                      getDrawingVerticalLine: (v) => FlLine(
-                        color: Colors.blueGrey[50],
-                        strokeWidth: 0.5,
-                      ),
+                      getDrawingVerticalLine: (v) =>
+                          FlLine(color: Colors.blueGrey[50], strokeWidth: 0.5),
                     ),
                     titlesData: FlTitlesData(
                       leftTitles: AxisTitles(
@@ -3593,9 +3672,13 @@ class _HomePageState extends State<HomePage> {
                           reservedSize: 40,
                           interval: 15,
                           getTitlesWidget: (v, _) {
-                            return Text('${v.toInt()}m',
-                                style: TextStyle(
-                                    color: Colors.grey[700], fontSize: 10));
+                            return Text(
+                              '${v.toInt()}m',
+                              style: TextStyle(
+                                color: Colors.grey[700],
+                                fontSize: 10,
+                              ),
+                            );
                           },
                         ),
                       ),
@@ -3607,17 +3690,21 @@ class _HomePageState extends State<HomePage> {
                           getTitlesWidget: (v, _) {
                             final ora = v.toInt();
                             if (ora >= 0 && ora < 24 && ora % 2 == 0) {
-                              return Text('$ora',
-                                  style: TextStyle(fontSize: 10));
+                              return Text(
+                                '$ora',
+                                style: TextStyle(fontSize: 10),
+                              );
                             }
                             return const SizedBox.shrink();
                           },
                         ),
                       ),
                       topTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false)),
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
                       rightTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false)),
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
                     ),
                     borderData: FlBorderData(
                       show: true,
@@ -3650,9 +3737,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-//----------------------------------------------------------------------
-// Timeline livelli basata sui PERIODI dell'API (non per ora) - swimlan
-//----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // Timeline livelli basata sui PERIODI dell'API (non per ora) - swimlan
+  //----------------------------------------------------------------------
   Widget cardTimelineSwimlanes(List<Periodo> periodi) {
     if (utenteTemporaneo) {
       return Card(
@@ -3675,7 +3762,7 @@ class _HomePageState extends State<HomePage> {
               Center(
                 child: Text(
                   context.t.msg_abilitato_01,
-                  style: TextStyle(color: Colors.red[700], fontSize: 15),
+                  style: TextStyle(color: Colors.grey[400], fontSize: 15),
                 ),
               ),
             ],
@@ -3749,9 +3836,9 @@ class _HomePageState extends State<HomePage> {
         final boundary = renderObj is RenderRepaintBoundary ? renderObj : null;
         if (boundary == null) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(context.t.chart_mes06)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(context.t.chart_mes06)));
           }
           return;
         }
@@ -3761,8 +3848,9 @@ class _HomePageState extends State<HomePage> {
           tries++;
         }
         final dpr = MediaQuery.of(context).devicePixelRatio;
-        final img =
-            await boundary.toImage(pixelRatio: (dpr * 2).clamp(2.0, 4.0));
+        final img = await boundary.toImage(
+          pixelRatio: (dpr * 2).clamp(2.0, 4.0),
+        );
         final bd = await img.toByteData(format: ui.ImageByteFormat.png);
         if (bd == null) throw Exception('toByteData returned null');
         final bytes = bd.buffer.asUint8List();
@@ -3771,8 +3859,9 @@ class _HomePageState extends State<HomePage> {
           '${dir.path}/move_chart_timeline_swim_${DateTime.now().millisecondsSinceEpoch}.png',
         );
         await file.writeAsBytes(bytes, flush: true);
-        await Share.shareXFiles([XFile(file.path)],
-            text: context.t.chart_mes07);
+        await Share.shareXFiles([
+          XFile(file.path),
+        ], text: context.t.chart_mes07);
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -3797,14 +3886,18 @@ class _HomePageState extends State<HomePage> {
           borderRadius: BorderRadius.circular(999),
           border: Border.all(color: color.withOpacity(.35)),
         ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Container(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
               width: 8,
               height: 8,
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
-          const SizedBox(width: 6),
-          Text('$label ${m}m', style: TextStyle(color: darken(color))),
-        ]),
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: 6),
+            Text('$label ${m}m', style: TextStyle(color: darken(color))),
+          ],
+        ),
       );
     }
 
@@ -3819,64 +3912,72 @@ class _HomePageState extends State<HomePage> {
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(children: [
-              Expanded(
-                child: Text(
-                  context.t.chart_mes10,
-                  style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black54),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      context.t.chart_mes10,
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.share),
+                    label: Text(context.t.condividi_button),
+                    onPressed: condividi,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[700],
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // disegno
+              SizedBox(
+                height: 200,
+                width: double.infinity,
+                child: CustomPaint(
+                  painter: SwimlanePainter(
+                    periods: seg,
+                    viewMinX: viewMinX,
+                    viewMaxX: viewMaxX,
+                    tickInterval: xInterval,
+                    labelFor: _labelFor,
+                    showNow: showNow,
+                    nowX: nowX,
+                    colL0: colL0,
+                    colL1: colL1,
+                    colL2: colL2,
+                  ),
                 ),
               ),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.share),
-                label: Text(context.t.condividi_button),
-                onPressed: condividi,
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[700],
-                    foregroundColor: Colors.white),
+
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  chip('L2', totalL2, colL2),
+                  chip('L1', totalL1, colL1),
+                  chip('L0', totalL0, colL0),
+                ],
               ),
-            ]),
-            const SizedBox(height: 12),
 
-            // disegno
-            SizedBox(
-              height: 200,
-              width: double.infinity,
-              child: CustomPaint(
-                painter: SwimlanePainter(
-                  periods: seg,
-                  viewMinX: viewMinX,
-                  viewMaxX: viewMaxX,
-                  tickInterval: xInterval,
-                  labelFor: _labelFor,
-                  showNow: showNow,
-                  nowX: nowX,
-                  colL0: colL0,
-                  colL1: colL1,
-                  colL2: colL2,
-                ),
+              const SizedBox(height: 8),
+              Text(
+                context.t.chart_mes03,
+                style: TextStyle(fontSize: 13, color: Colors.grey[700]),
               ),
-            ),
-
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                chip('L2', totalL2, colL2),
-                chip('L1', totalL1, colL1),
-                chip('L0', totalL0, colL0),
-              ],
-            ),
-
-            const SizedBox(height: 8),
-            Text(context.t.chart_mes03,
-                style: TextStyle(fontSize: 13, color: Colors.grey[700])),
-          ]),
+            ],
+          ),
         ),
       ),
     );
@@ -3913,7 +4014,7 @@ class _HomePageState extends State<HomePage> {
               Center(
                 child: Text(
                   context.t.msg_abilitato_01,
-                  style: TextStyle(color: Colors.red[700], fontSize: 15),
+                  style: TextStyle(color: Colors.grey[400], fontSize: 15),
                 ),
               ),
             ],
@@ -3934,9 +4035,9 @@ class _HomePageState extends State<HomePage> {
 
         if (boundary == null) {
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(context.t.chart_mes06)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(context.t.chart_mes06)));
           }
           return;
         }
@@ -4058,8 +4159,10 @@ class _HomePageState extends State<HomePage> {
                           final text = out.isEmpty
                               ? 'h $h\n—'
                               : 'h $h\n${out.join('\n')}';
-                          return BarTooltipItem(text,
-                              const TextStyle(fontWeight: FontWeight.w600));
+                          return BarTooltipItem(
+                            text,
+                            const TextStyle(fontWeight: FontWeight.w600),
+                          );
                         },
                       ),
                     ),
@@ -4092,9 +4195,11 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       topTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false)),
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
                       rightTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false)),
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
                     ),
                     borderData: FlBorderData(show: true),
                     barGroups: datiOrari.map((e) {
@@ -4102,8 +4207,9 @@ class _HomePageState extends State<HomePage> {
                       final l0 = (e.l0 as num).toDouble();
                       final l1 = (e.l1 as num).toDouble();
                       final l2 = (e.l2 as num).toDouble();
-                      final off =
-                          (totSec - (l0 + l1 + l2)).clamp(0, totSec).toDouble();
+                      final off = (totSec - (l0 + l1 + l2))
+                          .clamp(0, totSec)
+                          .toDouble();
 
                       double acc = 0;
                       BarChartRodStackItem add(num sec, Color c) {
@@ -4141,90 +4247,106 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 12),
 
               // ▼▼▼ TORTA RIEPILOGATIVA (L0/L1/L2) ▼▼▼
-              Builder(builder: (_) {
-                final day = _sumDay(datiOrari);
-                final activeTotal = day.values.fold<double>(0, (a, b) => a + b);
+              Builder(
+                builder: (_) {
+                  final day = _sumDay(datiOrari);
+                  final activeTotal = day.values.fold<double>(
+                    0,
+                    (a, b) => a + b,
+                  );
 
-                if (activeTotal <= 0) {
+                  if (activeTotal <= 0) {
+                    return Row(
+                      children: [
+                        SizedBox(
+                          width: 130,
+                          height: 130,
+                          child: PieChart(
+                            PieChartData(
+                              centerSpaceRadius: 22,
+                              sectionsSpace: 2,
+                              sections: [
+                                PieChartSectionData(
+                                  value: 1,
+                                  title: 'No data',
+                                  color: Colors.grey.shade400,
+                                  radius: 44,
+                                  titleStyle: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(child: Text(context.t.attivita_giorno)),
+                      ],
+                    );
+                  }
+
+                  // colori coerenti con la card
+                  const colL2 = Color(0xFF1565C0);
+                  final colL1 = Colors.orange;
+                  final colL0 = Colors.blueGrey;
+
+                  // ordina le voci per valore (desc) per torta/legenda
+                  final entries = <({String k, double v, Color c})>[
+                    (k: 'L0', v: day['L0']!, c: colL0),
+                    (k: 'L1', v: day['L1']!, c: colL1),
+                    (k: 'L2', v: day['L2']!, c: colL2),
+                  ]..sort((a, b) => b.v.compareTo(a.v));
+
+                  final top = entries.first; // etichetta centrale
+
                   return Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      // Torta con etichetta centrale (livello dominante + %)
                       SizedBox(
                         width: 130,
                         height: 130,
-                        child: PieChart(PieChartData(
-                          centerSpaceRadius: 22,
-                          sectionsSpace: 2,
-                          sections: [
-                            PieChartSectionData(
-                              value: 1,
-                              title: 'No data',
-                              color: Colors.grey.shade400,
-                              radius: 44,
-                              titleStyle: const TextStyle(
-                                  color: Colors.white, fontSize: 12),
-                            ),
-                          ],
-                        )),
+                        child: PieChart(
+                          PieChartData(
+                            centerSpaceRadius:
+                                26, // mantieni il “buco” centrale
+                            sectionsSpace: 2,
+                            sections: entries
+                                .map(
+                                  (e) => PieChartSectionData(
+                                    value: e.v,
+                                    color: e.c,
+                                    radius: 44,
+                                    title: '', // niente numeri sui settori
+                                    titleStyle: const TextStyle(fontSize: 0),
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 12),
-                      Expanded(child: Text(context.t.attivita_giorno)),
+
+                      // Legenda ordinata per importanza
+                      Expanded(
+                        child: Wrap(
+                          spacing: 12,
+                          runSpacing: 8,
+                          children: entries
+                              .map(
+                                (e) =>
+                                    _pieLegendRow(e.c, e.k, e.v, activeTotal),
+                              )
+                              .toList(),
+                        ),
+                      ),
                     ],
                   );
-                }
+                },
+              ),
 
-                // colori coerenti con la card
-                const colL2 = Color(0xFF1565C0);
-                final colL1 = Colors.orange;
-                final colL0 = Colors.blueGrey;
-
-                // ordina le voci per valore (desc) per torta/legenda
-                final entries = <({String k, double v, Color c})>[
-                  (k: 'L0', v: day['L0']!, c: colL0),
-                  (k: 'L1', v: day['L1']!, c: colL1),
-                  (k: 'L2', v: day['L2']!, c: colL2),
-                ]..sort((a, b) => b.v.compareTo(a.v));
-
-                final top = entries.first; // etichetta centrale
-
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // Torta con etichetta centrale (livello dominante + %)
-                    SizedBox(
-                      width: 130,
-                      height: 130,
-                      child: PieChart(PieChartData(
-                        centerSpaceRadius: 26, // mantieni il “buco” centrale
-                        sectionsSpace: 2,
-                        sections: entries
-                            .map((e) => PieChartSectionData(
-                                  value: e.v,
-                                  color: e.c,
-                                  radius: 44,
-                                  title: '', // niente numeri sui settori
-                                  titleStyle: const TextStyle(fontSize: 0),
-                                ))
-                            .toList(),
-                      )),
-                    ),
-                    const SizedBox(width: 12),
-
-                    // Legenda ordinata per importanza
-                    Expanded(
-                      child: Wrap(
-                        spacing: 12,
-                        runSpacing: 8,
-                        children: entries
-                            .map((e) =>
-                                _pieLegendRow(e.c, e.k, e.v, activeTotal))
-                            .toList(),
-                      ),
-                    ),
-                  ],
-                );
-              }),
               // ▲▲▲ FINE TORTA ▲▲▲
-
               const SizedBox(height: 8),
 
               // Legenda “fissa” sotto il grafico (senza OFF)
@@ -4250,9 +4372,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-//----------------------------------------------------------------------
-// somma giorni
-//----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // somma giorni
+  //----------------------------------------------------------------------
   Map<String, double> _sumDay(List<OraStat> hours) {
     double l0 = 0, l1 = 0, l2 = 0;
     for (final h in hours) {
@@ -4263,21 +4385,27 @@ class _HomePageState extends State<HomePage> {
     return {'L0': l0, 'L1': l1, 'L2': l2};
   }
 
-//----------------------------------------------------------------------
-// Legend per i cerchietti colorati
-//----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // Legend per i cerchietti colorati
+  //----------------------------------------------------------------------
   Widget _pieLegendRow(Color c, String label, double secs, double total) {
     final perc = total > 0 ? (secs / total * 100) : 0;
     final mm = (secs / 60).round();
-    return Row(mainAxisSize: MainAxisSize.min, children: [
-      Container(
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
           width: 10,
           height: 10,
-          decoration: BoxDecoration(color: c, shape: BoxShape.circle)),
-      const SizedBox(width: 6),
-      Text('$label  ${perc.toStringAsFixed(0)}%  (${mm}m)',
-          style: const TextStyle(fontSize: 12)),
-    ]);
+          decoration: BoxDecoration(color: c, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          '$label  ${perc.toStringAsFixed(0)}%  (${mm}m)',
+          style: const TextStyle(fontSize: 12),
+        ),
+      ],
+    );
   }
 
   //--------------------------------------------------------------------
@@ -4380,14 +4508,14 @@ class _HomePageState extends State<HomePage> {
     return Colors.green;
   }
 
-//----------------------------------------------------------
-// Esporta dati distribuzione livelli in CSV
-//----------------------------------------------------------
+  //----------------------------------------------------------
+  // Esporta dati distribuzione livelli in CSV
+  //----------------------------------------------------------
   void esportaDistribuzioneCsv(List<OraStat> datiOrari) {}
 
-//-----------------------------------------------------------
-// Esporta dati timeline livelli in GPX (esempio minimale)
-//-----------------------------------------------------------
+  //-----------------------------------------------------------
+  // Esporta dati timeline livelli in GPX (esempio minimale)
+  //-----------------------------------------------------------
   void esportaTimelineGpx(List<OraStat> datiOrari) {}
 
   //-----------------------------------------------------------
@@ -4405,9 +4533,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-//-----------------------------------------------------------
-// Mappa i livelli di accuratezza della posizione
-//-----------------------------------------------------------
+  //-----------------------------------------------------------
+  // Mappa i livelli di accuratezza della posizione
+  //-----------------------------------------------------------
   LocationAccuracy _accFromPlan(String? mode) {
     switch ((mode ?? '').toLowerCase()) {
       case 'low':
@@ -4425,9 +4553,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-//-----------------------------------------------------------
-// Mappa i livelli di accuratezza della posizione (metri)
-//-----------------------------------------------------------
+  //-----------------------------------------------------------
+  // Mappa i livelli di accuratezza della posizione (metri)
+  //-----------------------------------------------------------
   double _accMaxFromPlan(String? mode) {
     switch (mode) {
       case 'low':
@@ -4442,9 +4570,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-//-------------------------------------------------------------------
-// ricalcolaEaggiornaAttivita
-//-------------------------------------------------------------------
+  //-------------------------------------------------------------------
+  // ricalcolaEaggiornaAttivita
+  //-------------------------------------------------------------------
   Future<void> _maybeRecalc({bool force = false}) async {
     final now = DateTime.now();
     final gpsuploadsec = (features?['gps_sample_sec'] as num?)?.toInt() ?? 30;
@@ -4460,9 +4588,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-//-------------------------------------------------------------------
-// Flusso di logout
-//-------------------------------------------------------------------
+  //-------------------------------------------------------------------
+  // Flusso di logout
+  //-------------------------------------------------------------------
   Future<void> onLogoutFlow() async {
     countdownTimer?.cancel();
     setState(() {
@@ -4477,9 +4605,9 @@ class _HomePageState extends State<HomePage> {
     lastGpsTsUtc = null;
   }
 
-//-----------------------------------------------------------------
-// Inizializza la coda GPS
-//-----------------------------------------------------------------
+  //-----------------------------------------------------------------
+  // Inizializza la coda GPS
+  //-----------------------------------------------------------------
   void _initQueue() {
     final uploadSec = (features?['gps_upload_sec'] as num?)?.toInt() ?? 180;
     final uid = utenteId;
@@ -4501,9 +4629,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-//-----------------------------------------------------------------
-// Assicura che la coda GPS sia inizializzata
-//-----------------------------------------------------------------
+  //-----------------------------------------------------------------
+  // Assicura che la coda GPS sia inizializzata
+  //-----------------------------------------------------------------
   Future<void> _ensureQueue() async {
     if (gpsQueue != null) return;
     _initQueue(); // ricrea la coda con i parametri del piano
@@ -4512,11 +4640,13 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-//----------------------------------------------------------------------
-// Mostra il dialogo di verifica email
-//----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // Mostra il dialogo di verifica email
+  //----------------------------------------------------------------------
   Future<void> mostraVerificaEmailDialog(
-      BuildContext context, String emailPrecompilata) async {
+    BuildContext context,
+    String emailPrecompilata,
+  ) async {
     bool loading = false;
     String? errore;
 
@@ -4535,8 +4665,10 @@ class _HomePageState extends State<HomePage> {
               if (errore != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
-                  child:
-                      Text(errore!, style: const TextStyle(color: Colors.red)),
+                  child: Text(
+                    errore!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
                 ),
             ],
           ),
@@ -4562,7 +4694,8 @@ class _HomePageState extends State<HomePage> {
                       if (res.statusCode == 200) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                              content: Text(context.t.verifica_mail_erro1)),
+                            content: Text(context.t.verifica_mail_erro1),
+                          ),
                         );
                       } else {
                         setState(() => errore = context.t.verifica_mail_erro2);
@@ -4576,9 +4709,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-//--------------------------------------------------------------------
-// Controlla il permesso GPS
-//--------------------------------------------------------------------
+  //--------------------------------------------------------------------
+  // Controlla il permesso GPS
+  //--------------------------------------------------------------------
   Future<String> _permessoGps() async {
     // Se i servizi sono disattivi, consideriamo come "denied"
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -4591,8 +4724,8 @@ class _HomePageState extends State<HomePage> {
       case LocationPermission.whileInUse:
         // Verifica se l'accuratezza è ridotta (iOS: Approximate Location)
         try {
-          final acc = await Geolocator
-              .getLocationAccuracy(); // requires geolocator >= 9
+          final acc =
+              await Geolocator.getLocationAccuracy(); // requires geolocator >= 9
           if (acc == LocationAccuracyStatus.reduced) return "limited";
         } catch (_) {
           // Se la API non è disponibile sulla piattaforma, ignora
@@ -4609,9 +4742,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-//----------------------------------------------------------------------
-// Chiama /app_open.php con { permesso_gps: ... }
-//-----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // Chiama /app_open.php con { permesso_gps: ... }
+  //-----------------------------------------------------------------------
   Future<void> _callAppOpen() async {
     try {
       final body = json.encode({
@@ -4634,9 +4767,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-//----------------------------------------------------------------------
-// Chiama /app_close.php con { motivo: ... } (default 'exit_user')
-//----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // Chiama /app_close.php con { motivo: ... } (default 'exit_user')
+  //----------------------------------------------------------------------
   Future<void> _callAppClose([String motivo = 'exit_user']) async {
     try {
       final body = json.encode({
@@ -4678,8 +4811,10 @@ class _HomePageState extends State<HomePage> {
 
       if (res.statusCode == 401 && !_refreshingToken) {
         await handle401(); // <--- refresh token e gestisci eventuale retry
-        await callTrackingToggle(attivo,
-            nota: nota); // ricarica i dati dopo il refresh
+        await callTrackingToggle(
+          attivo,
+          nota: nota,
+        ); // ricarica i dati dopo il refresh
         return;
       }
     } catch (e) {
@@ -4701,8 +4836,9 @@ class _HomePageState extends State<HomePage> {
         onWillPop: () async => false, // niente back
         child: Dialog(
           insetPadding: const EdgeInsets.all(40),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Row(
@@ -4736,9 +4872,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-//-----------------------------------------------------------------------------
-// Restituisce un ID univoco per il dispositivo, lo memorizza in secure storage
-//-----------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------
+  // Restituisce un ID univoco per il dispositivo, lo memorizza in secure storage
+  //-----------------------------------------------------------------------------
   Future<String> getDeviceId() async {
     final cur = await _sec.read(key: 'device_id');
     if (cur != null && cur.isNotEmpty) return cur;
@@ -4758,9 +4894,9 @@ class _HomePageState extends State<HomePage> {
     countdownTimer?.cancel();
   }
 
-//----------------------------------------------------------------------
-// Riprendi il tracking dopo una pausa
-//----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // Riprendi il tracking dopo una pausa
+  //----------------------------------------------------------------------
   void riprendiTracking() {
     setState(() {
       trackingInPausa = false;
@@ -4769,9 +4905,9 @@ class _HomePageState extends State<HomePage> {
     riPrendiCountdown();
   }
 
-//----------------------------------------------------------------------
-// Ferma il tracking completamente
-//----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // Ferma il tracking completamente
+  //----------------------------------------------------------------------
   void stopTracking() {
     setState(() {
       trackingAttivo = false;
@@ -4784,9 +4920,9 @@ class _HomePageState extends State<HomePage> {
     ultimaPosizione = '';
   }
 
-//----------------------------------------------------------------------
-// Gestione del token 401 (non più valido): login anonimo e reload dati
-//----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // Gestione del token 401 (non più valido): login anonimo e reload dati
+  //----------------------------------------------------------------------
   Future<void> handle401() async {
     if (_refreshingToken) return;
     _refreshingToken = true;

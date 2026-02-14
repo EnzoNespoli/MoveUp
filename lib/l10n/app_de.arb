@@ -12,7 +12,7 @@
   "priceFree": "Kostenlos",
   "pricePerMonth": "{price}/Monat",
   "@pricePerMonth": { "placeholders": { "price": { "type": "String" } } },
-  "durationDays": "{days, plural, one {# day} other {# days}}",
+  "durationDays": "{days, plural, one {# Tag} other {# Tage}}",
   "@durationDays": { "placeholders": { "days": { "type": "int" } } },
    
   "features": "Funktionen",
@@ -25,11 +25,11 @@
  "onb1": "Weißt du wirklich, wie dein Tag aussieht?",
 "onb1_body": "",
 
-"onb2": "So funktioniert es",
-"onb2_body": "• Starte die Standortaufzeichnung\n• Erlebe deinen Tag\n• Öffne deine Abendzusammenfassung\n• Teile sie mit wem du willst",
+"onb2": "MoveUP hört zu. Du lebst.",
+"onb2_body": "Lass deine Zeit sich erzählen.",
 
-"onb3": "Beginne mit deiner Zeit!",
-"onb3_body": "Aktiviere die Standortaufzeichnung und lass MoveUP deine Tage beobachten.\nDu musst nichts anders machen.",
+"onb3": "Es ist deine Zeit.",
+"onb3_body": "Heute Abend wirst du wissen, wie es gelaufen ist.",
 
   "botton_salta": "Überspringen",
   "condizioni_uso": "Ich habe die ",
@@ -154,7 +154,7 @@
   "inserisci_tua_mail": "E-Mail-Adresse eingeben",
   "link_mail_password": "Wenn die E-Mail registriert ist, haben wir dir einen Link zum Zurücksetzen gesendet.",
   "invia_richiesta_label": "Anfrage senden",
-  "condividi_button": "Teilen",
+  "condividi_button": "",
 
   "form_consensi_01": "Datenschutz",
 "form_consensi_02": "Ich akzeptiere die Datenschutzerklärung",
@@ -286,10 +286,10 @@
 
   "rep_day_export_locked": "Teilen erfordert START/BASIC/PLUS/PRO",
   "rep_day_function_ai": "Funktionen verfügbar mit START/BASIC/PLUS/PRO",
-  "msg_abilitato_01": "Registriere dich, um die heutige Verteilung zu sehen",
-  "msg_abilitato_02": "Zeitleiste mit BASIC verfügbar. Registriere dich zuerst.",
+  "msg_abilitato_01": "Registriere dein Profil, um deine Daten von heute zu sehen.",
+  "msg_abilitato_02": "Registriere dein Profil, um deine Daten von heute zu sehen.",
 
-  "crono_msg_01": "Registriere dich, um die Route des Tages zu sehen.",
+  "crono_msg_01": "Registriere dein Profil, um deine Daten von heute zu sehen.",
   "crono_msg_02": "Dein Tarif erlaubt bis zu",
   "crono_msg_03": "Tage Verlauf.",
   "crono_msg_04": "Route nicht verfügbar. Bitte versuche es erneut.",

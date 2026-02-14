@@ -72,16 +72,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onb1_body => '';
 
   @override
-  String get onb2 => 'How it works';
+  String get onb2 => 'MoveUP listens. You live.';
 
   @override
-  String get onb2_body => '• Start recording your location\n• Live your day\n• Open your evening summary\n• Share it with whoever you want';
+  String get onb2_body => 'Let your time tell its story.';
 
   @override
-  String get onb3 => 'Start from your time!';
+  String get onb3 => 'It\'s your time.';
 
   @override
-  String get onb3_body => 'Enable recording your location and let MoveUP observe your days.\nYou don’t have to do anything differently.';
+  String get onb3_body => 'Tonight you\'ll know how it went.';
 
   @override
   String get botton_salta => 'Skip';
@@ -417,7 +417,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invia_richiesta_label => 'Send request';
 
   @override
-  String get condividi_button => 'Share';
+  String get condividi_button => '';
 
   @override
   String get form_consensi_01 => 'Privacy';
@@ -775,13 +775,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rep_day_function_ai => 'Functions available with START/BASIC/PLUS/PRO';
 
   @override
-  String get msg_abilitato_01 => 'Sign up to see today\'s distribution';
+  String get msg_abilitato_01 => 'Register your profile to see your data for today.';
 
   @override
-  String get msg_abilitato_02 => 'Timeline available with BASIC. Please sign up first.';
+  String get msg_abilitato_02 => 'Register your profile to see your data for today.';
 
   @override
-  String get crono_msg_01 => 'Sign up to view today\'s route.';
+  String get crono_msg_01 => 'Register your profile to see your data for today.';
 
   @override
   String get crono_msg_02 => 'Your plan allows up to';

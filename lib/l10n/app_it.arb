@@ -25,11 +25,11 @@
   "onb1": "Sai davvero com’è fatta la tua giornata?",
   "onb1_body": "",
 
-  "onb2": "Come funziona",
-  "onb2_body": "• Avvia la registrazione della posizione\n• Vivi la tua giornata\n• Apri il riepilogo serale\n• Condividilo con chi vuoi",
+  "onb2": "MoveUP ascolta. Tu vivi.",
+  "onb2_body": "Lascia che il tuo tempo si racconti.",
 
-  "onb3": "Inizia dal tuo tempo!",
-  "onb3_body": "Attiva la registrazione della posizione e lascia che MoveUP osservi le tue giornate.\nNon devi fare nulla di diverso.",
+  "onb3": "È il tuo tempo.",
+  "onb3_body": "Stasera saprai com'è andata.", 
 
   "botton_salta": "Salta",
   "condizioni_uso": "Ho letto e accettato le ",
@@ -94,11 +94,11 @@
   "info_mes04": "Distanza:",
   "info_mes05": "Fonte:",
   "info_mes06": "Passi stimati:",
-  "info_mes07": "Capisci come ti muovi",
-  "info_mes08": "Scopri come impieghi il tuo tempo",
+  "info_mes07": "Sai com’è fatta la tua giornata?",
+  "info_mes08": "Registra. Stasera lo scoprirai.",
 
   "mov_inattivo": "Fermo / Pausa",
-  "mov_leggero": "Movimento lento",
+  "mov_leggero": "Movimento lento", 
   "mov_veloce": "Spostamento veloce",
   
   "chart_mes01": "Nessun grafico disponibile al momento.",
@@ -248,7 +248,7 @@
   "form_crono_11": "Confronto settimanale",
   
   "dashboard_piano": "Piano:",
-  "dashboard_msg": "Vai su Profilo e registrati.\nAvrai la tua settimana tipo",
+  "dashboard_msg": "Il tuo tempo merita memoria.",
   
   "imposta_page_studente": "Studente",
   "imposta_page_impiegato": "Impiegato",
@@ -285,10 +285,10 @@
   
   "rep_day_export_locked": "La condivisione richiede START/BASIC/PLUS/PRO",
   "rep_day_function_ai": "Funzioni disponibili con START/BASIC/PLUS/PRO",
-  "msg_abilitato_01": "Registrati per vedere la distribuzione di oggi",
-  "msg_abilitato_02": "Timeline disponibile con BASIC. Prima registrati.",
+  "msg_abilitato_01": "Registra il tuo profilo per vedere i tuoi dati di oggi.",
+  "msg_abilitato_02": "Registra il tuo profilo per vedere i tuoi dati di oggi.",
 
-  "crono_msg_01": "Registrati per vedere il percorso del giorno.",
+  "crono_msg_01": "Registra il tuo profilo per vedere i tuoi dati di oggi.",
   "crono_msg_02": "Il tuo piano consente fino a",
   "crono_msg_03": "giorni di storico.",
   "crono_msg_04": "Percorso non disponibile. Riprova.",
