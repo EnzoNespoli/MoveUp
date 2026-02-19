@@ -1,4 +1,5 @@
 import 'pages/home_page.dart';
+import 'pages/dashboard_tracking_page.dart';
 import 'package:flutter/material.dart';
 import 'l10n/app_localizations.dart';
 import 'services/locale_controller.dart';
@@ -104,15 +105,7 @@ class _MoveAppState extends State<MoveApp> {
       darkTheme: darkTheme,
 
       // Home + callback lingua
-      home: HomePage(
-        onChangeLocale: (Locale? l) {
-          if (l == null) {
-            lc.useSystem(); // “Lingua di sistema (auto)”
-          } else {
-            lc.useLang(l.languageCode); // es. 'it', 'en', ...
-          }
-        },
-      ),
+      home: const DashboardTrackingPage(),
     );
   }
 }
