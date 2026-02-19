@@ -72,6 +72,8 @@ class _HomePageState extends State<HomePage> {
 
   bool trackingAttivo = false;
   bool trackingInPausa = false;
+  bool showDashboardMode =
+      true; // true = Dashboard snella, false = Home completa
 
   int countdown = 19;
   int countdownLevel = 25;
@@ -244,16 +246,15 @@ class _HomePageState extends State<HomePage> {
         posizioneUtente = ll.LatLng(pos.latitude, pos.longitude);
         final latStr = pos.latitude.toStringAsFixed(5); // 5 dec ~ 1.1 m
         final lonStr = pos.longitude.toStringAsFixed(5);
-        final altStr = pos.altitude.isFinite
-            ? pos.altitude.toStringAsFixed(1)
-            : '—';
+        final altStr =
+            pos.altitude.isFinite ? pos.altitude.toStringAsFixed(1) : '—';
 
         // accuracy can be very large initially (network fix). Format smartly:
         String fmtAcc(double a) => (!a.isFinite)
             ? '—'
             : (a >= 1000)
-            ? '${(a / 1000).toStringAsFixed(1)} km'
-            : '${a.toStringAsFixed(1)} m';
+                ? '${(a / 1000).toStringAsFixed(1)} km'
+                : '${a.toStringAsFixed(1)} m';
 
         ultimaPosizione =
             '$latStr, $lonStr (±${fmtAcc(pos.accuracy ?? double.nan)}, alt. $altStr)';
@@ -1159,16 +1160,15 @@ class _HomePageState extends State<HomePage> {
 
         final latStr = pos.latitude.toStringAsFixed(5); // 5 dec ~ 1.1 m
         final lonStr = pos.longitude.toStringAsFixed(5);
-        final altStr = pos.altitude.isFinite
-            ? pos.altitude.toStringAsFixed(1)
-            : '—';
+        final altStr =
+            pos.altitude.isFinite ? pos.altitude.toStringAsFixed(1) : '—';
 
         // accuracy can be very large initially (network fix). Format smartly:
         String fmtAcc(double a) => (!a.isFinite)
             ? '—'
             : (a >= 1000)
-            ? '${(a / 1000).toStringAsFixed(1)} km'
-            : '${a.toStringAsFixed(1)} m';
+                ? '${(a / 1000).toStringAsFixed(1)} km'
+                : '${a.toStringAsFixed(1)} m';
 
         ultimaPosizione =
             '$latStr, $lonStr (±${fmtAcc(pos.accuracy ?? double.nan)}, alt. $altStr)';
@@ -1192,8 +1192,7 @@ class _HomePageState extends State<HomePage> {
     const R = 6371000.0;
     final dLat = (lat2 - lat1) * (math.pi / 180);
     final dLon = (lon2 - lon1) * (math.pi / 180);
-    final a =
-        math.pow(math.sin(dLat / 2), 2) +
+    final a = math.pow(math.sin(dLat / 2), 2) +
         math.cos(lat1 * (math.pi / 180)) *
             math.cos(lat2 * (math.pi / 180)) *
             math.pow(math.sin(dLon / 2), 2);
@@ -1298,16 +1297,15 @@ class _HomePageState extends State<HomePage> {
         gpsErrore = '';
         final latStr = pos.latitude.toStringAsFixed(5); // 5 dec ~ 1.1 m
         final lonStr = pos.longitude.toStringAsFixed(5);
-        final altStr = pos.altitude.isFinite
-            ? pos.altitude.toStringAsFixed(1)
-            : '—';
+        final altStr =
+            pos.altitude.isFinite ? pos.altitude.toStringAsFixed(1) : '—';
 
         // accuracy can be very large initially (network fix). Format smartly:
         String fmtAcc(double a) => (!a.isFinite)
             ? '—'
             : (a >= 1000)
-            ? '${(a / 1000).toStringAsFixed(1)} km'
-            : '${a.toStringAsFixed(1)} m';
+                ? '${(a / 1000).toStringAsFixed(1)} km'
+                : '${a.toStringAsFixed(1)} m';
 
         ultimaPosizione =
             '$latStr, $lonStr (±${fmtAcc(pos.accuracy ?? double.nan)}, alt. $altStr)';
@@ -1328,43 +1326,41 @@ class _HomePageState extends State<HomePage> {
     final locationSettings = kIsWeb
         ? LocationSettings(accuracy: LocationAccuracy.best, distanceFilter: 20)
         : (Platform.isAndroid
-              ? AndroidSettings(
-                  accuracy: LocationAccuracy.best,
-                  intervalDuration: Duration(
-                    seconds:
-                        (features?['gps_sample_sec'] as num?)?.toInt() ?? 10,
-                  ),
-                  distanceFilter:
-                      (features?['gps_min_distance_m'] as num?)?.toInt() ?? 20,
-                  foregroundNotificationConfig:
-                      const ForegroundNotificationConfig(
-                        notificationTitle: 'MoveUP is running',
-                        notificationText: 'GPS tracking in progress',
-                        enableWakeLock: true,
-                      ),
-                )
-              : AppleSettings(
-                  accuracy: LocationAccuracy.best,
-                  distanceFilter:
-                      (features?['gps_min_distance_m'] as num?)?.toInt() ?? 20,
-                  allowBackgroundLocationUpdates: true,
-                  pauseLocationUpdatesAutomatically: false,
-                  showBackgroundLocationIndicator: true, // SOLO in test
-                ));
+            ? AndroidSettings(
+                accuracy: LocationAccuracy.best,
+                intervalDuration: Duration(
+                  seconds: (features?['gps_sample_sec'] as num?)?.toInt() ?? 10,
+                ),
+                distanceFilter:
+                    (features?['gps_min_distance_m'] as num?)?.toInt() ?? 20,
+                foregroundNotificationConfig:
+                    const ForegroundNotificationConfig(
+                  notificationTitle: 'MoveUP is running',
+                  notificationText: 'GPS tracking in progress',
+                  enableWakeLock: true,
+                ),
+              )
+            : AppleSettings(
+                accuracy: LocationAccuracy.best,
+                distanceFilter:
+                    (features?['gps_min_distance_m'] as num?)?.toInt() ?? 20,
+                allowBackgroundLocationUpdates: true,
+                pauseLocationUpdatesAutomatically: false,
+                showBackgroundLocationIndicator: true, // SOLO in test
+              ));
 
     // 🔄 Avvia lo stream
     await _bgSub?.cancel();
-    _bgSub =
-        Geolocator.getPositionStream(
-          locationSettings: locationSettings, // 👈 niente copyWith
-        ).listen(
-          (pos) {
-            _enqueueFromPosition(pos); // tua funzione di enqueue
-          },
-          onError: (e) {
-            // log/feedback
-          },
-        );
+    _bgSub = Geolocator.getPositionStream(
+      locationSettings: locationSettings, // 👈 niente copyWith
+    ).listen(
+      (pos) {
+        _enqueueFromPosition(pos); // tua funzione di enqueue
+      },
+      onError: (e) {
+        // log/feedback
+      },
+    );
   }
 
   //-------------------------------------------------------------------------
@@ -1685,32 +1681,49 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          body: SingleChildScrollView(
-            controller: _scrollController,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 20),
-                  //--------------------------------------------------------
-                  // HEADER DASHBOARD
-                  //--------------------------------------------------------
-                  DashboardHeader(
-                    consensoTrackingGps: consensoTrackingGps,
-                    utenteId: utenteId,
-                    nomeId: nomeId,
-                    livelloUtente: livelloUtente,
-                    giorniRimanenti: giorniRimanenti,
-                    labelGiorni: _labelGiorni,
-                    coloreGiorni: _coloreGiorni,
-                    chipGiorni: ChipGiorni(
-                      text: _labelGiorni(giorniRimanenti, livelloUtente),
-                      color: _coloreGiorni(giorniRimanenti, livelloUtente),
-                    ),
-                    mostraLoginDialog: mostraLoginDialog,
-                    dailyAnalysis: _dailyAnalysis, // 👈 qui
-                  ),
+          body: showDashboardMode
+              ? DashboardTrackingPage(
+                  trackingAttivo: trackingAttivo,
+                  trackingInPausa: trackingInPausa,
+                  countdownLevel: countdownLevel,
+                  livelli: livelli,
+                  utenteId: utenteId,
+                  onToggleDashboard: () {
+                    setState(() {
+                      showDashboardMode = false;
+                    });
+                  },
+                )
+              : _buildHomeComplete(),
+          // PLACEHOLDER - removed SingleChildScrollView, kept for reference
+          //_buildHomeComplete(),
+          // OLD CODE:
+          // body: SingleChildScrollView(
+          //   controller: _scrollController,
+          //   child: Padding(
+          //     padding: const EdgeInsets.all(16),
+          //     child: Column(
+          //       crossAxisAlignment: CrossAxisAlignment.start,
+          //       children: [
+          //         SizedBox(height: 20),
+          //         //--------------------------------------------------------
+          //         // HEADER DASHBOARD
+          //         //--------------------------------------------------------
+          //         DashboardHeader(
+          //           consensoTrackingGps: consensoTrackingGps,
+          //           utenteId: utenteId,
+          //           nomeId: nomeId,
+          //           livelloUtente: livelloUtente,
+          //           giorniRimanenti: giorniRimanenti,
+          //           labelGiorni: _labelGiorni,
+          //           coloreGiorni: _coloreGiorni,
+          //           chipGiorni: ChipGiorni(
+          //             text: _labelGiorni(giorniRimanenti, livelloUtente),
+          //             color: _coloreGiorni(giorniRimanenti, livelloUtente),
+          //           ),
+          //           mostraLoginDialog: mostraLoginDialog,
+          //           dailyAnalysis: _dailyAnalysis, // 👈 qui
+          //         ),
                   SizedBox(height: 20),
 
                   //--------------------------------------------------------
@@ -1947,13 +1960,13 @@ class _HomePageState extends State<HomePage> {
     icona ??= livello == 0
         ? Icons.hotel
         : livello == 1
-        ? Icons.directions_walk
-        : Icons.directions_run;
+            ? Icons.directions_walk
+            : Icons.directions_run;
     iconaColor ??= livello == 0
         ? Colors.blueGrey
         : livello == 1
-        ? Colors.green[700]!
-        : Colors.red[700]!;
+            ? Colors.green[700]!
+            : Colors.red[700]!;
 
     return Card(
       color: Colors.blueGrey[50],
@@ -2070,8 +2083,8 @@ class _HomePageState extends State<HomePage> {
                           color: livello == 0
                               ? Colors.blueGrey
                               : livello == 1
-                              ? Colors.redAccent
-                              : Colors.amber,
+                                  ? Colors.redAccent
+                                  : Colors.amber,
                           width: 14,
                           borderRadius: BorderRadius.zero,
                         ),
@@ -2093,9 +2106,8 @@ class _HomePageState extends State<HomePage> {
                   final minuti = datiSettimanali[i];
                   final ore = minuti ~/ 60;
                   final min = minuti % 60;
-                  final minutiLabel = ore > 0
-                      ? '${ore}h ${min}min'
-                      : '${min}min';
+                  final minutiLabel =
+                      ore > 0 ? '${ore}h ${min}min' : '${min}min';
                   return Column(
                     children: [
                       Text(dateLabel, style: TextStyle(fontSize: 11)),
@@ -2310,8 +2322,7 @@ class _HomePageState extends State<HomePage> {
                           decoration: InputDecoration(
                             labelText: context.t.form_reg_mail,
                           ),
-                          validator: (v) =>
-                              v != null &&
+                          validator: (v) => v != null &&
                                   RegExp(
                                     r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$',
                                   ).hasMatch(v)
@@ -2373,12 +2384,11 @@ class _HomePageState extends State<HomePage> {
                                       content: Text(
                                         ok
                                             ? context.t.user_login_success ??
-                                                  'Login successful!'
+                                                'Login successful!'
                                             : context.t.user_err05,
                                       ),
-                                      backgroundColor: ok
-                                          ? Colors.black54
-                                          : Colors.red,
+                                      backgroundColor:
+                                          ok ? Colors.black54 : Colors.red,
                                       behavior: SnackBarBehavior.floating,
                                     ),
                                   );
@@ -2526,13 +2536,13 @@ class _HomePageState extends State<HomePage> {
             child: StatefulBuilder(
               builder: (ctx, setState) {
                 InputDecoration deco(String label) => InputDecoration(
-                  labelText: label,
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 10,
-                    horizontal: 12,
-                  ),
-                  border: const OutlineInputBorder(),
-                );
+                      labelText: label,
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 12,
+                      ),
+                      border: const OutlineInputBorder(),
+                    );
 
                 return SingleChildScrollView(
                   child: ConstrainedBox(
@@ -2568,8 +2578,8 @@ class _HomePageState extends State<HomePage> {
                               decoration: deco(ctx.t.form_reg_nome),
                               validator: (v) =>
                                   (v != null && v.trim().isNotEmpty)
-                                  ? null
-                                  : ctx.t.form_reg_err01,
+                                      ? null
+                                      : ctx.t.form_reg_err01,
                               onFieldSubmitted: (_) =>
                                   FocusScope.of(ctx).requestFocus(emailF),
                             ),
@@ -2581,8 +2591,7 @@ class _HomePageState extends State<HomePage> {
                               keyboardType: TextInputType.emailAddress,
                               textInputAction: TextInputAction.next,
                               decoration: deco(ctx.t.form_reg_mail),
-                              validator: (v) =>
-                                  (v != null &&
+                              validator: (v) => (v != null &&
                                       RegExp(
                                         r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$',
                                       ).hasMatch(v))
@@ -2598,20 +2607,19 @@ class _HomePageState extends State<HomePage> {
                               focusNode: passF,
                               obscureText: obscure1,
                               textInputAction: TextInputAction.next,
-                              decoration: deco(ctx.t.form_reg_password)
-                                  .copyWith(
-                                    suffixIcon: IconButton(
-                                      icon: Icon(
-                                        obscure1
-                                            ? Icons.visibility
-                                            : Icons.visibility_off,
-                                      ),
-                                      onPressed: () =>
-                                          setState(() => obscure1 = !obscure1),
-                                    ),
+                              decoration:
+                                  deco(ctx.t.form_reg_password).copyWith(
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    obscure1
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
                                   ),
-                              validator: (v) =>
-                                  (v != null &&
+                                  onPressed: () =>
+                                      setState(() => obscure1 = !obscure1),
+                                ),
+                              ),
+                              validator: (v) => (v != null &&
                                       RegExp(
                                         r'^(?=.*[A-Z])(?=.*\d).{8,}$',
                                       ).hasMatch(v))
@@ -2627,20 +2635,19 @@ class _HomePageState extends State<HomePage> {
                               focusNode: pass2F,
                               obscureText: obscure2,
                               textInputAction: TextInputAction.done,
-                              decoration:
-                                  deco(
-                                    context.t.conferma_password_label,
-                                  ).copyWith(
-                                    suffixIcon: IconButton(
-                                      icon: Icon(
-                                        obscure2
-                                            ? Icons.visibility
-                                            : Icons.visibility_off,
-                                      ),
-                                      onPressed: () =>
-                                          setState(() => obscure2 = !obscure2),
-                                    ),
+                              decoration: deco(
+                                context.t.conferma_password_label,
+                              ).copyWith(
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    obscure2
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
                                   ),
+                                  onPressed: () =>
+                                      setState(() => obscure2 = !obscure2),
+                                ),
+                              ),
                               validator: (v) => (v != null && v == passC.text)
                                   ? null
                                   : ctx.t.form_reg_err06,
@@ -2687,8 +2694,7 @@ class _HomePageState extends State<HomePage> {
                                           margin: EdgeInsets.only(
                                             left: 16,
                                             right: 16,
-                                            bottom:
-                                                MediaQuery.of(
+                                            bottom: MediaQuery.of(
                                                   context,
                                                 ).viewInsets.bottom +
                                                 16,
@@ -3083,8 +3089,8 @@ class _HomePageState extends State<HomePage> {
                       color: livello == 0
                           ? Colors.blueGrey
                           : livello == 1
-                          ? Colors.redAccent
-                          : Colors.amber,
+                              ? Colors.redAccent
+                              : Colors.amber,
                       width: 14,
                       borderRadius: BorderRadius.zero,
                     ),
@@ -3131,8 +3137,7 @@ class _HomePageState extends State<HomePage> {
 
     try {
       final oggi = DateTime.now();
-      final dataStr =
-          "${oggi.year.toString().padLeft(4, '0')}-"
+      final dataStr = "${oggi.year.toString().padLeft(4, '0')}-"
           "${oggi.month.toString().padLeft(2, '0')}-"
           "${oggi.day.toString().padLeft(2, '0')}";
       final url =
@@ -3195,8 +3200,7 @@ class _HomePageState extends State<HomePage> {
   //--------------------------------------------------------------
   Future<void> _caricaSettimana(int livello) async {
     final oggi = DateTime.now();
-    final dataStr =
-        "${oggi.year.toString().padLeft(4, '0')}-"
+    final dataStr = "${oggi.year.toString().padLeft(4, '0')}-"
         "${oggi.month.toString().padLeft(2, '0')}-"
         "${oggi.day.toString().padLeft(2, '0')}";
     final url =
@@ -3296,8 +3300,7 @@ class _HomePageState extends State<HomePage> {
     String apiBaseUrl,
     Map<String, String> headers,
   ) async {
-    final d =
-        '${giorno.year.toString().padLeft(4, '0')}-'
+    final d = '${giorno.year.toString().padLeft(4, '0')}-'
         '${giorno.month.toString().padLeft(2, '0')}-'
         '${giorno.day.toString().padLeft(2, '0')}';
 
@@ -3324,12 +3327,10 @@ class _HomePageState extends State<HomePage> {
       throw Exception(data['error'] ?? 'Errore API');
     }
 
-    final oraria = (data['oraria'] as List)
-        .map((e) => OraStat.fromJson(e))
-        .toList();
-    final periodi = (data['periodi'] as List)
-        .map((e) => Periodo.fromJson(e))
-        .toList();
+    final oraria =
+        (data['oraria'] as List).map((e) => OraStat.fromJson(e)).toList();
+    final periodi =
+        (data['periodi'] as List).map((e) => Periodo.fromJson(e)).toList();
     return (oraria, periodi);
   }
 
@@ -3342,8 +3343,7 @@ class _HomePageState extends State<HomePage> {
     String apiBaseUrl,
     Map<String, String> headers,
   ) async {
-    final d =
-        '${giorno.year.toString().padLeft(4, '0')}-'
+    final d = '${giorno.year.toString().padLeft(4, '0')}-'
         '${giorno.month.toString().padLeft(2, '0')}-'
         '${giorno.day.toString().padLeft(2, '0')}';
 
@@ -3371,12 +3371,10 @@ class _HomePageState extends State<HomePage> {
       throw Exception(data['error'] ?? 'Errore API');
     }
 
-    final oraria = (data['oraria'] as List)
-        .map((e) => OraStat.fromJson(e))
-        .toList();
-    final periodi = (data['periodi_norm'] as List)
-        .map((e) => Periodo.fromJson(e))
-        .toList();
+    final oraria =
+        (data['oraria'] as List).map((e) => OraStat.fromJson(e)).toList();
+    final periodi =
+        (data['periodi_norm'] as List).map((e) => Periodo.fromJson(e)).toList();
     return (oraria, periodi);
   }
 
@@ -3453,9 +3451,9 @@ class _HomePageState extends State<HomePage> {
     // Riempi i buchi con OFF (secondi rimanenti nell'ora)
     for (int h = 0; h < 24; h++) {
       final totaleSecondi = durataPerOraLivello[h]!.values.fold(
-        0,
-        (a, b) => a + b,
-      );
+            0,
+            (a, b) => a + b,
+          );
       final secondiMancanti = 3600 - totaleSecondi; // 3600 secondi in un'ora
       if (secondiMancanti > 0) {
         durataPerOraLivello[h]![-1] = secondiMancanti;
@@ -4207,9 +4205,8 @@ class _HomePageState extends State<HomePage> {
                       final l0 = (e.l0 as num).toDouble();
                       final l1 = (e.l1 as num).toDouble();
                       final l2 = (e.l2 as num).toDouble();
-                      final off = (totSec - (l0 + l1 + l2))
-                          .clamp(0, totSec)
-                          .toDouble();
+                      final off =
+                          (totSec - (l0 + l1 + l2)).clamp(0, totSec).toDouble();
 
                       double acc = 0;
                       BarChartRodStackItem add(num sec, Color c) {
@@ -4724,8 +4721,8 @@ class _HomePageState extends State<HomePage> {
       case LocationPermission.whileInUse:
         // Verifica se l'accuratezza è ridotta (iOS: Approximate Location)
         try {
-          final acc =
-              await Geolocator.getLocationAccuracy(); // requires geolocator >= 9
+          final acc = await Geolocator
+              .getLocationAccuracy(); // requires geolocator >= 9
           if (acc == LocationAccuracyStatus.reduced) return "limited";
         } catch (_) {
           // Se la API non è disponibile sulla piattaforma, ignora
@@ -4950,6 +4947,149 @@ class _HomePageState extends State<HomePage> {
       token: token,
       baseUrl: apiBaseUrl,
       lang: Localizations.localeOf(context).languageCode,
+    );
+  }
+
+  //----------------------------------------------------------------------
+  // Build the complete home page layout (non-dashboard mode)
+  //----------------------------------------------------------------------
+  Widget _buildHomeComplete() {
+    return SingleChildScrollView(
+      controller: _scrollController,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 20),
+            //--------------------------------------------------------
+            // HEADER DASHBOARD
+            //--------------------------------------------------------
+            DashboardHeader(
+              consensoTrackingGps: consensoTrackingGps,
+              utenteId: utenteId,
+              nomeId: nomeId,
+              livelloUtente: livelloUtente,
+              giorniRimanenti: giorniRimanenti,
+              labelGiorni: _labelGiorni,
+              coloreGiorni: _coloreGiorni,
+              chipGiorni: ChipGiorni(
+                text: _labelGiorni(giorniRimanenti, livelloUtente),
+                color: _coloreGiorni(giorniRimanenti, livelloUtente),
+              ),
+              mostraLoginDialog: mostraLoginDialog,
+              dailyAnalysis: _dailyAnalysis,
+            ),
+            SizedBox(height: 20),
+            //--------------------------------------------------------
+            // CARD TRACKING GPS
+            //--------------------------------------------------------
+            CardTrackingGps(
+              trackingAttivo: trackingAttivo,
+              trackingInPausa: trackingInPausa,
+              consensoTrackingGps: consensoTrackingGps,
+              countdown: countdown,
+              countdownLevel: countdownLevel,
+              ascoltoSeconds: ascoltoSeconds,
+              onTrackingChanged: _attivaTracking,
+              onPause: pausaTracking,
+              onStop: stopTracking,
+              onPlay: riprendiTracking,
+              ultimaPosizione: ultimaPosizione,
+              lastGpsTsUtc: lastGpsTsUtc,
+            ),
+            SizedBox(height: 20),
+            const HeroCarousel(),
+            SizedBox(height: 20),
+            CardMappaPosizione(
+              posizioneUtente: posizioneUtente,
+              zoom: _zoom,
+              onRefresh: _refreshPosizione,
+              onZoomIn: () => _zoomDelta(1),
+              onZoomOut: () => _zoomDelta(-1),
+              onMapCreated: (c) => _gctrl = c,
+            ),
+            SizedBox(height: 20),
+            CardReportGiornaliero(
+              riepilogo0: riepilogoLivello(0),
+              riepilogo1: riepilogoLivello(1),
+              riepilogo2: riepilogoLivello(2),
+              ultimaPosizione: ultimaPosizione,
+              features: features,
+              historyDaysMax: limitsHistoryDaysMax,
+              isAnonymous: utenteTemporaneo,
+              planName: livelloUtente,
+              date: DateTime.now(),
+              utenteId: utenteId,
+              jwtToken: _jwtToken.toString(),
+            ),
+            SizedBox(height: 20),
+            CardReportSettimanale(
+              riepilogo0: datiLivelliSett[0] ?? [],
+              riepilogo1: datiLivelliSett[1] ?? [],
+              riepilogo2: datiLivelliSett[2] ?? [],
+              ultimaPosizione: ultimaPosizione,
+              features: features,
+              historyDaysMax: limitsHistoryDaysMax,
+              isAnonymous: utenteTemporaneo,
+              planName: livelloUtente,
+              date: DateTime.now(),
+              utenteId: utenteId,
+              jwtToken: _jwtToken.toString(),
+              repeatRoutes: _repeatRoutes,
+              costiWeek: _costiWeek,
+            ),
+            SizedBox(height: 20),
+            if (datiGiornalieri == null) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 32),
+                child: Center(
+                  child: Text(
+                    context.t.chart_mes01,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.blueGrey[700],
+                    ),
+                  ),
+                ),
+              ),
+            ] else ...[
+              cardDistribuzioneLivelli(datiGiornalieri!.$1),
+              cardTimelineLivelliBar(datiPrefatti!.$2),
+            ],
+            SizedBox(height: 20),
+            cardLivelloConGrafico(
+              livello: 0,
+              titolo: '🛌 ${context.t.mov_inattivo}',
+              color: Colors.blueGrey[50]!,
+              datiSettimanali: datiSettimanali(datiLivelli[0]),
+            ),
+            cardLivelloConGrafico(
+              livello: 1,
+              titolo: '🚶 ${context.t.mov_leggero}',
+              color: Colors.blueGrey[50]!,
+              datiSettimanali: datiSettimanali(datiLivelli[1]),
+            ),
+            cardLivelloConGrafico(
+              livello: 2,
+              titolo: '🚗 ${context.t.mov_veloce}',
+              color: Colors.blueGrey[50]!,
+              datiSettimanali: datiSettimanali(datiLivelli[2]),
+            ),
+            SizedBox(height: 12),
+            Text(gpsErrore),
+            SizedBox(height: 12),
+            CardDedica(
+              title: context.t.dedica_title,
+              testo: context.t.dedica_testo,
+              assetPhoto1: 'assets/img/lova1.jpg',
+              assetPhoto2: 'assets/img/lova.jpg',
+            ),
+            SizedBox(height: 20),
+            AppFooter(),
+          ],
+        ),
+      ),
     );
   }
 
