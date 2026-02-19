@@ -9,7 +9,7 @@ class DashboardTrackingPage extends StatefulWidget {
 }
 
 class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
-  bool isTracking = false; // false = SPENTO, true = TRACCIATO
+  bool isTracking = false; // false = SPENTO, true = REGISTRA
 
   // Statistiche demo (da collegare ai dati reali)
   final Map<String, dynamic> stats = {
@@ -65,7 +65,7 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         _buildStatusTab(
-                          'TRACCIATO',
+                          'REGISTRA',
                           isTracking,
                           () => isTracking ? null : _toggleTracking(),
                         ),
