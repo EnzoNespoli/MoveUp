@@ -211,7 +211,9 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
           padding: const EdgeInsets.fromLTRB(0, 32, 0, 0),
           alignment: Alignment.center,
           child: ElevatedButton(
-            onPressed: _toggleTracking,
+            onPressed: () {
+              // TODO: collegare al servizio di tracking GPS della HomePage
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: widget.trackingAttivo
                   ? const Color(0xFFFF4444) // Rosso per STOP
