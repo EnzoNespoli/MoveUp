@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
+import 'home_page.dart';
 
 class DashboardTrackingPage extends StatefulWidget {
   const DashboardTrackingPage({super.key});
@@ -242,7 +243,18 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
   Widget _buildOutlineButton(String label, BuildContext context) {
     return OutlinedButton(
       onPressed: () {
-        // TODO: implementare navigazione
+        if (label == 'DETTAGLI') {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => HomePage(
+                onChangeLocale: (Locale? l) {
+                  // Callback per cambio lingua (se necessario implementare)
+                },
+              ),
+            ),
+          );
+        }
+        // ACCEDI non fa nulla per ora
       },
       style: OutlinedButton.styleFrom(
         foregroundColor: Colors.white,
