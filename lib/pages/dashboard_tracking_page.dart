@@ -1,33 +1,66 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
-import 'home_page.dart';
 
 class DashboardTrackingPage extends StatefulWidget {
-  const DashboardTrackingPage({super.key});
+  final bool trackingAttivo;
+  final bool trackingInPausa;
+  final int countdownLevel;
+  final List<Map<String, dynamic>> livelli;
+  final String utenteId;
+  final VoidCallback onToggleDashboard;
+
+  const DashboardTrackingPage({
+    super.key,
+    required this.trackingAttivo,
+    required this.trackingInPausa,
+    required this.countdownLevel,
+    required this.livelli,
+    required this.utenteId,
+    required this.onToggleDashboard,
+  });
 
   @override
   State<DashboardTrackingPage> createState() => _DashboardTrackingPageState();
 }
 
 class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
-  bool isTracking = false; // false = SPENTO, true = REGISTRA
+  // Usa i dati dal widget, non variabili locali
 
-  // Statistiche demo (da collegare ai dati reali)
-  final Map<String, dynamic> stats = {
-    'notTracked': {
-      'percentage': 35,
-      'label': 'NON TRACCIATO',
-      'color': Color(0xFF4A4A4A)
-    },
-    'slow': {'percentage': 40, 'label': 'FERMO', 'color': Color(0xFF4CAF50)},
-    'medium': {'percentage': 20, 'label': 'LENTO', 'color': Color(0xFFFFC107)},
-    'fast': {'percentage': 5, 'label': 'VELOCE', 'color': Color(0xFFFF4444)},
-  };
+  // Statistiche - verranno costruite dai dati di HomePage
+  late Map<String, dynamic> stats;
 
-  void _toggleTracking() {
-    setState(() {
-      isTracking = !isTracking;
-    });
+  @override
+  void initState() {
+    super.initState();
+    // Costruisci le statistiche dai dati reali
+    _buildStats();
+  }
+
+  void _buildStats() {
+    // Qui potrai usare i dati reali da widget.livelli
+    // Per ora, manteniamo i valori demo
+    stats = {
+      'notTracked': {
+        'percentage': 35,
+        'label': 'NON TRACCIATO',
+        'color': const Color(0xFF4A4A4A)
+      },
+      'slow': {
+        'percentage': 40,
+        'label': 'FERMO',
+        'color': const Color(0xFF4CAF50)
+      },
+      'medium': {
+        'percentage': 20,
+        'label': 'LENTO',
+        'color': const Color(0xFFFFC107)
+      },
+      'fast': {
+        'percentage': 5,
+        'label': 'VELOCE',
+        'color': const Color(0xFFFF4444)
+      },
+    };
   }
 
   @override
@@ -67,13 +100,13 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
                       children: [
                         _buildStatusTab(
                           'REGISTRA',
-                          isTracking,
-                          () => isTracking ? null : _toggleTracking(),
+                          widget.trackingAttivo,
+                          () => widget.trackingAttivo ? null : () {},
                         ),
                         _buildStatusTab(
                           'SPENTO',
-                          !isTracking,
-                          () => !isTracking ? null : _toggleTracking(),
+                          !widget.trackingAttivo,
+                          () => !widget.trackingAttivo ? null : () {},
                         ),
                       ],
                     ),
@@ -180,7 +213,7 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
           child: ElevatedButton(
             onPressed: _toggleTracking,
             style: ElevatedButton.styleFrom(
-              backgroundColor: isTracking
+              backgroundColor: widget.trackingAttivo
                   ? const Color(0xFFFF4444) // Rosso per STOP
                   : const Color(0xFF4CAF50), // Verde per START
               foregroundColor: Colors.white,
@@ -194,7 +227,7 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
               elevation: 4,
             ),
             child: Text(
-              isTracking ? 'STOP' : 'START',
+              widget.trackingAttivo ? 'STOP' : 'START',
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -244,15 +277,8 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
     return OutlinedButton(
       onPressed: () {
         if (label == 'DETTAGLI') {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => HomePage(
-                onChangeLocale: (Locale? l) {
-                  // Callback per cambio lingua (se necessario implementare)
-                },
-              ),
-            ),
-          );
+          // Chiama il callback per togglare la visualizzazione
+          widget.onToggleDashboard();
         }
         // ACCEDI non fa nulla per ora
       },
