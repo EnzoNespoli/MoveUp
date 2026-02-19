@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'dart:convert';
 import 'onboarding_page.dart';
+import 'dashboard_tracking_page.dart';
 import 'card_sceltastorico.dart';
 import 'card_dedica.dart';
 import 'card_diario_gps.dart';
