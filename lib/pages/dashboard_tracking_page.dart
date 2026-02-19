@@ -179,7 +179,9 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
           child: ElevatedButton(
             onPressed: _toggleTracking,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1E90FF), // Blu come nella foto
+              backgroundColor: isTracking
+                  ? const Color(0xFFFF4444) // Rosso per STOP
+                  : const Color(0xFF4CAF50), // Verde per START
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(
                 horizontal: 64,
