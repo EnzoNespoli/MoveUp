@@ -484,12 +484,25 @@
 "help_q2_body": "Ja. MoveUP kann auch bei ausgeschaltetem Bildschirm weiterarbeiten, wenn du der Aufzeichnung deiner Position zugestimmt hast.",
 "help_q3_body": "Damit MoveUP auch dann korrekt funktioniert, wenn du die App nicht aktiv nutzt, zum Beispiel bei ausgeschaltetem Bildschirm.",
 "help_q4_body": "MoveUP nutzt GPS auf intelligente Weise. Der Verbrauch hängt davon ab, wie viel du dich bewegst, ist aber für den täglichen Gebrauch optimiert.",
-"help_q5_body": "\"WARTET\" bedeutet, dass MoveUP aktiv ist, aber auf eine neue Bewegung oder ein gültiges GPS-Signal wartet.",
+"help_q5_body": "WARTET bedeutet, dass MoveUP aktiv ist, aber auf eine neue Bewegung oder ein gültiges GPS-Signal wartet.",
 "help_q6_body": "Ja. Auch Phasen der Inaktivität sind wichtig, um deinen Tag korrekt zu analysieren.",
 "help_q7_body": "Das ist normal. Es hängt davon ab, wie viel du dich bewegt hast, von der GPS-Signalqualität und von eventuellen Pausen in der Aufzeichnung.",
 "help_q8_body": "Ja. Sie können die Aufnahme jederzeit vom Startbildschirm aus pausieren oder beenden.",
-"help_q9_body": "Ja. Deine Bewegungsdaten sind privat und werden nur für die Funktionen der App verwendet.",
-"help_q10_body": "Die Aufnahme wird sofort beendet. Du kannst MoveUP jederzeit erneut installieren."
+  "help_q9_body": "Ja. Deine Bewegungsdaten sind privat und werden nur für die Funktionen der App verwendet.",
+  "help_q10_body": "Die Aufnahme wird sofort beendet. Du kannst MoveUP jederzeit erneut installieren.",
+
+  "dash_dettaglio": "DETAILS",
+  "dash_profilo": "PROFIL",
+  "dash_totale": "Gesamt",
+  "dash_aggiorna": "Daten aktualisieren",
+  "dash_oggi": "HEUTE",
+  "dash_registrazione": "AUFZEICHNUNG",
+  "dash_spento": "AUS",
+  "dash_benvenuto": "Willkommen",
+  "dash_fermo": "STILLSTAND",
+  "dash_lento": "LANGSAM",
+  "dash_veloce": "SCHNELL",
+  "dash_non_tracciato": "NICHT AUFGEZEICHNET"
 
 
 

@@ -1306,7 +1306,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get help_q4_body => 'MoveUP uses GPS intelligently. Battery consumption depends on how much you move, but it is optimized for daily use.';
 
   @override
-  String get help_q5_body => '\"WAITING\" means that MoveUP is active but is waiting for a new movement or a valid GPS signal.';
+  String get help_q5_body => 'WAITING means that MoveUP is active but is waiting for a new movement or a valid GPS signal.';
 
   @override
   String get help_q6_body => 'Yes. Periods of inactivity are also important to correctly analyze your day.';
@@ -1322,4 +1322,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get help_q10_body => 'Recording stops immediately. You can reinstall MoveUP at any time.';
+
+  @override
+  String get dash_dettaglio => 'DETAILS';
+
+  @override
+  String get dash_profilo => 'PROFILE';
+
+  @override
+  String get dash_totale => 'Total';
+
+  @override
+  String get dash_aggiorna => 'Update data';
+
+  @override
+  String get dash_oggi => 'TODAY';
+
+  @override
+  String get dash_registrazione => 'RECORDING';
+
+  @override
+  String get dash_spento => 'OFF';
+
+  @override
+  String get dash_benvenuto => 'Welcome';
+
+  @override
+  String get dash_fermo => 'STILL';
+
+  @override
+  String get dash_lento => 'SLOW';
+
+  @override
+  String get dash_veloce => 'FAST';
+
+  @override
+  String get dash_non_tracciato => 'NOT TRACKED';
 }

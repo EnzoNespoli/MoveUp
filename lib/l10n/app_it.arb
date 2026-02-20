@@ -487,8 +487,24 @@
 "help_q7_body": "È normale. Dipende da quanto ti sei mosso, dalla qualità del segnale GPS e da eventuali pause nella registrazione.",
 "help_q8_body": "Sì. Puoi mettere in pausa o fermare la registrazione in qualsiasi momento dalla schermata principale.",
 "help_q9_body": "Sì. I tuoi dati di movimento sono personali e vengono utilizzati solo per le funzionalità dell’app.",
-"help_q10_body": "La registrazione si interrompe immediatamente. Puoi reinstallare MoveUP in qualsiasi momento."
+"help_q10_body": "La registrazione si interrompe immediatamente. Puoi reinstallare MoveUP in qualsiasi momento.",
 
- 
+"dash_dettaglio":"DETTAGLI",
+"dash_profilo":"PROFILO",
+"dash_totale":"Totale",
+"dash_aggiorna":"Aggiorna dati",
+"dash_oggi":"OGGI",
+"dash_registrazione":"REGISTRAZIONE",
+"dash_spento":"SPENTO",
+"dash_benvenuto":"Benvenuto",
+"dash_fermo":"FERMO",
+"dash_lento":"LENTO",
+"dash_veloce":"VELOCE",
+"dash_non_tracciato":"NON TRACCIATO"
+
+
+
+
+
 
 }

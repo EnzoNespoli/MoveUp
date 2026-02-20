@@ -484,12 +484,25 @@
 "help_q2_body": "Oui. MoveUP peut continuer à fonctionner même avec l’écran éteint, si vous avez donné votre consentement pour l’enregistrement de votre position.",
 "help_q3_body": "Pour permettre à MoveUP de fonctionner correctement même lorsque vous n’utilisez pas activement l’application, par exemple avec l’écran éteint.",
 "help_q4_body": "MoveUP utilise le GPS de manière intelligente. La consommation dépend de vos déplacements, mais elle est optimisée pour un usage quotidien.",
-"help_q5_body": "\"EN ATTENTE\" signifie que MoveUP est actif mais attend un nouveau mouvement ou un signal GPS valide.",
+"help_q5_body": "EN ATTENTE signifie que MoveUP est actif mais attend un nouveau mouvement ou un signal GPS valide.",
 "help_q6_body": "Oui. Les périodes d’inactivité sont également importantes pour analyser correctement votre journée.",
 "help_q7_body": "C’est normal. Cela dépend de vos déplacements, de la qualité du signal GPS et des éventuelles pauses dans l’enregistrement.",
 "help_q8_body": "Oui. Vous pouvez mettre en pause ou arrêter l'enregistrement à tout moment depuis l’écran principal.",
-"help_q9_body": "Oui. Vos données de déplacement sont personnelles et utilisées uniquement pour les fonctionnalités de l’application.",
-"help_q10_body": "L'enregistrement s’arrête immédiatement. Vous pouvez réinstaller MoveUP à tout moment."
+  "help_q9_body": "Oui. Vos données de déplacement sont personnelles et utilisées uniquement pour les fonctionnalités de l'application.",
+  "help_q10_body": "L'enregistrement s'arrête immédiatement. Vous pouvez réinstaller MoveUP à tout moment.",
+
+  "dash_dettaglio": "DÉTAILS",
+  "dash_profilo": "PROFIL",
+  "dash_totale": "Total",
+  "dash_aggiorna": "Mettre à jour les données",
+  "dash_oggi": "AUJOURD'HUI",
+  "dash_registrazione": "ENREGISTREMENT",
+  "dash_spento": "ARRÊTÉ",
+  "dash_benvenuto": "Bienvenue",
+  "dash_fermo": "IMMOBILE",
+  "dash_lento": "LENT",
+  "dash_veloce": "RAPIDE",
+  "dash_non_tracciato": "NON ENREGISTRÉ"
 
 
 

@@ -484,12 +484,24 @@
 "help_q2_body": "Sí. MoveUP puede seguir funcionando con la pantalla apagada si has dado tu consentimiento para la grabación de tu ubicación.",
 "help_q3_body": "Para permitir que MoveUP funcione correctamente incluso cuando no estás usando activamente la aplicación, por ejemplo con la pantalla apagada.",
 "help_q4_body": "MoveUP utiliza el GPS de forma inteligente. El consumo depende de cuánto te muevas, pero está optimizado para el uso diario.",
-"help_q5_body": "\"EN ESPERA\" significa que MoveUP está activo pero esperando un nuevo movimiento o una señal GPS válida.",
+"help_q5_body": "EN ESPERA significa que MoveUP está activo pero esperando un nuevo movimiento o una señal GPS válida.",
 "help_q6_body": "Sí. Los periodos de inactividad también son importantes para analizar correctamente tu día.",
 "help_q7_body": "Es normal. Depende de cuánto te hayas movido, de la calidad de la señal GPS y de posibles pausas en la grabación.",
 "help_q8_body": "Sí. Puedes pausar o detener la grabación en cualquier momento desde la pantalla principal.",
 "help_q9_body": "Sí. Tus datos de movimiento son personales y se utilizan únicamente para las funciones de la aplicación.",
-"help_q10_body": "La grabación se detiene inmediatamente. Puedes reinstalar MoveUP en cualquier momento."
+"help_q10_body": "La grabación se detiene inmediatamente. Puedes reinstalar MoveUP en cualquier momento.",
 
+"dash_dettaglio": "DETALLES",
+"dash_profilo": "PERFIL",
+"dash_totale": "Total",
+"dash_aggiorna": "Actualizar datos",
+"dash_oggi": "HOY",
+"dash_registrazione": "GRABACIÓN",
+"dash_spento": "APAGADO",
+"dash_benvenuto": "Bienvenido",
+"dash_fermo": "PARADO",
+"dash_lento": "LENTO",
+"dash_veloce": "RÁPIDO",
+"dash_non_tracciato": "NO REGISTRADO"
 
 }

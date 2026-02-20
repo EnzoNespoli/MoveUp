@@ -9,11 +9,13 @@ class AppHeaderBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showBack;
   final Widget? banner; // appare sotto al sottotitolo, nel bottom dell’AppBar
   final void Function(Locale?)? onChangeLocale;
+  final VoidCallback? onDashboardTap; // per tornare alla dashboard
 
   const AppHeaderBar({
     this.showBack = false,
     this.banner,
     this.onChangeLocale,
+    this.onDashboardTap,
     super.key,
   });
 
@@ -98,6 +100,12 @@ class AppHeaderBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
+        if (onDashboardTap != null)
+          IconButton(
+            tooltip: 'Dashboard',
+            icon: const Icon(Icons.dashboard_outlined),
+            onPressed: onDashboardTap,
+          ),
         IconButton(
           tooltip: context.t.help_title, // es: "Aiuto"
           icon: const Icon(Icons.help_outline),

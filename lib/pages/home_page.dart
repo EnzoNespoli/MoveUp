@@ -80,6 +80,7 @@ class _HomePageState extends State<HomePage> {
   int countdownLevel = 25;
   int ascoltoSeconds = 0;
   Timer? countdownTimer;
+  Timer? statsRefreshTimer;
   String utenteId = '';
   String nomeId = '';
   String debugUtente = '';
@@ -186,6 +187,12 @@ class _HomePageState extends State<HomePage> {
 
     // Se hai già un token in RAM al boot:
     GpsLogE.instance.setToken(_jwtToken);
+
+    // Avvia timer per refresh automatico stats ogni 5 minuti
+    statsRefreshTimer = Timer.periodic(
+      const Duration(minutes: 5),
+      (_) => aggiornaRiepilogoLivelli(),
+    );
   }
 
   //----------------------------------------------------------
@@ -682,9 +689,11 @@ class _HomePageState extends State<HomePage> {
 
         setState(() {
           for (int livello = 0; livello <= 2; livello++) {
+            final minuti = (dati['livello$livello'] as num?)?.toInt() ?? 0;
             livelli[livello]['durata'] = formattaMinuti(
-              dati['livello$livello'],
+              minuti,
             );
+            livelli[livello]['minuti'] = minuti;
             livelli[livello]['trend'] = trendTesto(
               dati['livello${livello}_diff'],
             );
@@ -727,19 +736,26 @@ class _HomePageState extends State<HomePage> {
 
       if (dati['success'] == true) {
         setState(() {
+          final livello0Min = (dati['livello0'] as num?)?.toInt() ?? 0;
+          final livello1Min = (dati['livello1'] as num?)?.toInt() ?? 0;
+          final livello2Min = (dati['livello2'] as num?)?.toInt() ?? 0;
+
           // Livello 0: solo durata e metri
-          livelli[0]['durata'] = formattaMinuti(dati['livello0'] ?? 0);
+          livelli[0]['durata'] = formattaMinuti(livello0Min);
+          livelli[0]['minuti'] = livello0Min;
           livelli[0]['trend'] = trendTesto(dati['livello0_diff'] ?? 0);
           livelli[0]['metri'] = dati['livello0_m'] ?? 0;
 
           // Livello 1: durata, metri, passi
-          livelli[1]['durata'] = formattaMinuti(dati['livello1'] ?? 0);
+          livelli[1]['durata'] = formattaMinuti(livello1Min);
+          livelli[1]['minuti'] = livello1Min;
           livelli[1]['trend'] = trendTesto(dati['livello1_diff'] ?? 0);
           livelli[1]['metri'] = dati['livello1_m'] ?? 0;
           livelli[1]['passi'] = ((dati['livello1_m'] ?? 0) / 0.7).round();
 
           // Livello 2: durata, metri, km
-          livelli[2]['durata'] = formattaMinuti(dati['livello2'] ?? 0);
+          livelli[2]['durata'] = formattaMinuti(livello2Min);
+          livelli[2]['minuti'] = livello2Min;
           livelli[2]['trend'] = trendTesto(dati['livello2_diff'] ?? 0);
           livelli[2]['metri'] = dati['livello2_m'] ?? 0;
           livelli[2]['km'] = ((dati['livello2_m'] ?? 0) / 1000);
@@ -764,6 +780,23 @@ class _HomePageState extends State<HomePage> {
   //-------------------------------------------------------------------------
   // Widget principale della pagina
   //-------------------------------------------------------------------------
+  void _showTrackingFeedback(bool attiva, {bool isError = false, String? msg}) {
+    if (!mounted) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        content:
+            Text(msg ?? (attiva ? context.t.gps_err14 : context.t.gps_err15)),
+        backgroundColor: isError
+            ? Colors.red.shade700
+            : (attiva ? Colors.green.shade700 : Colors.blueGrey.shade700),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   void _attivaTracking(bool attiva) {
     if (!mounted) return; // widget ancora vivo?
 
@@ -775,6 +808,7 @@ class _HomePageState extends State<HomePage> {
         trackingAttivo = false;
         gpsErrore = err;
       });
+      _showTrackingFeedback(false, isError: true, msg: context.t.gps_err13);
 
       return;
     }
@@ -796,6 +830,7 @@ class _HomePageState extends State<HomePage> {
           //ultimaPosizione = '';
         }
       });
+      _showTrackingFeedback(attiva);
 
       return;
     }
@@ -816,6 +851,7 @@ class _HomePageState extends State<HomePage> {
         ultimaPosizione = '';
       }
     });
+    _showTrackingFeedback(attiva);
   }
 
   //-------------------------------------------------------------------------
@@ -1486,6 +1522,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     countdownTimer?.cancel();
+    statsRefreshTimer?.cancel();
     _gctrl?.dispose();
     _callAppClose();
     super.dispose();
@@ -1667,6 +1704,13 @@ class _HomePageState extends State<HomePage> {
           appBar: AppHeaderBar(
             showBack: false,
             onChangeLocale: widget.onChangeLocale, // <-- QUI
+            onDashboardTap: showDashboardMode
+                ? null
+                : () {
+                    setState(() {
+                      showDashboardMode = true;
+                    });
+                  },
             banner: Container(
               margin: EdgeInsets.only(bottom: 4),
               padding: EdgeInsets.all(8),
@@ -1686,14 +1730,19 @@ class _HomePageState extends State<HomePage> {
               ? DashboardTrackingPage(
                   trackingAttivo: trackingAttivo,
                   trackingInPausa: trackingInPausa,
+                  ascoltoSeconds: ascoltoSeconds,
                   countdownLevel: countdownLevel,
                   livelli: livelli,
                   utenteId: utenteId,
+                  nomeId: nomeId,
                   onToggleDashboard: () {
                     setState(() {
                       showDashboardMode = false;
                     });
                   },
+                  onOpenProfile: _openProfileFromDashboard,
+                  onTrackingToggle: _attivaTracking,
+                  onRefreshStats: aggiornaRiepilogoLivelli,
                 )
               : _buildHomeComplete(),
           // PLACEHOLDER - removed SingleChildScrollView, kept for reference
@@ -1725,14 +1774,16 @@ class _HomePageState extends State<HomePage> {
           //           mostraLoginDialog: mostraLoginDialog,
           //           dailyAnalysis: _dailyAnalysis, // 👈 qui
           //         ),
-          bottomNavigationBar: BottomNavBar(
-            utenteTemporaneo: utenteTemporaneo,
-            utenteId: utenteId,
-            nomeId: nomeId,
-            leggiConsensi: leggiConsensi,
-            mostraLoginDialog: mostraLoginDialog,
-            eseguiLogout: _eseguiLogout,
-          ),
+          bottomNavigationBar: showDashboardMode
+              ? null
+              : BottomNavBar(
+                  utenteTemporaneo: utenteTemporaneo,
+                  utenteId: utenteId,
+                  nomeId: nomeId,
+                  leggiConsensi: leggiConsensi,
+                  mostraLoginDialog: mostraLoginDialog,
+                  eseguiLogout: _eseguiLogout,
+                ),
         ),
         // overlay full-screen di attesa
         if (_initialLoading)
@@ -1763,6 +1814,32 @@ class _HomePageState extends State<HomePage> {
           ),
       ],
     ); // Scaffold
+  }
+
+  void _openProfileFromDashboard() {
+    if (utenteTemporaneo) {
+      mostraLoginDialog(context);
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(context.t.bottom_profilo),
+        content: Text(
+          '${context.t.bottom_nome} ${nomeId.isNotEmpty ? nomeId : context.t.bottom_err02}',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _eseguiLogout();
+            },
+            child: Text(context.t.bottom_logout),
+          ),
+        ],
+      ),
+    );
   }
 
   //-------------------------------------------------------------------------
@@ -4900,6 +4977,29 @@ class _HomePageState extends State<HomePage> {
             SizedBox(height: 12),
             Text(gpsErrore),
             SizedBox(height: 12),
+            //---------------------------------------------------------
+            // --- SEZIONE dettagli GPS giornaliero
+            //-----------------------------------------------------------
+            CardDiarioGps(),
+            SizedBox(height: 20),
+
+            //---------------------------------------------------------
+            // --- SEZIONE NOTIFICHE
+            //-----------------------------------------------------------
+            CardNotifiche(
+              service: NotificationService(),
+              utenteId: int.tryParse(utenteId) ?? 0,
+              token: _jwtToken ?? '',
+              baseUrl: apiBaseUrl,
+            ),
+            SizedBox(height: 20),
+
+            //---------------------------------------------------------
+            // --- SEZIONE SCELTA STORICO
+            //-----------------------------------------------------------
+            CardSceltaStorico(pianoDescrizioneBuilder: _pianoDescrizione),
+            SizedBox(height: 20),
+
             CardDedica(
               title: context.t.dedica_title,
               testo: context.t.dedica_testo,

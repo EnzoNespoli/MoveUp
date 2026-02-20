@@ -2654,7 +2654,7 @@ abstract class AppLocalizations {
   /// No description provided for @help_q5_body.
   ///
   /// In en, this message translates to:
-  /// **'\"WAITING\" means that MoveUP is active but is waiting for a new movement or a valid GPS signal.'**
+  /// **'WAITING means that MoveUP is active but is waiting for a new movement or a valid GPS signal.'**
   String get help_q5_body;
 
   /// No description provided for @help_q6_body.
@@ -2686,6 +2686,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recording stops immediately. You can reinstall MoveUP at any time.'**
   String get help_q10_body;
+
+  /// No description provided for @dash_dettaglio.
+  ///
+  /// In en, this message translates to:
+  /// **'DETAILS'**
+  String get dash_dettaglio;
+
+  /// No description provided for @dash_profilo.
+  ///
+  /// In en, this message translates to:
+  /// **'PROFILE'**
+  String get dash_profilo;
+
+  /// No description provided for @dash_totale.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get dash_totale;
+
+  /// No description provided for @dash_aggiorna.
+  ///
+  /// In en, this message translates to:
+  /// **'Update data'**
+  String get dash_aggiorna;
+
+  /// No description provided for @dash_oggi.
+  ///
+  /// In en, this message translates to:
+  /// **'TODAY'**
+  String get dash_oggi;
+
+  /// No description provided for @dash_registrazione.
+  ///
+  /// In en, this message translates to:
+  /// **'RECORDING'**
+  String get dash_registrazione;
+
+  /// No description provided for @dash_spento.
+  ///
+  /// In en, this message translates to:
+  /// **'OFF'**
+  String get dash_spento;
+
+  /// No description provided for @dash_benvenuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome'**
+  String get dash_benvenuto;
+
+  /// No description provided for @dash_fermo.
+  ///
+  /// In en, this message translates to:
+  /// **'STILL'**
+  String get dash_fermo;
+
+  /// No description provided for @dash_lento.
+  ///
+  /// In en, this message translates to:
+  /// **'SLOW'**
+  String get dash_lento;
+
+  /// No description provided for @dash_veloce.
+  ///
+  /// In en, this message translates to:
+  /// **'FAST'**
+  String get dash_veloce;
+
+  /// No description provided for @dash_non_tracciato.
+  ///
+  /// In en, this message translates to:
+  /// **'NOT TRACKED'**
+  String get dash_non_tracciato;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

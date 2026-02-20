@@ -1306,7 +1306,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get help_q4_body => 'MoveUP utilise le GPS de manière intelligente. La consommation dépend de vos déplacements, mais elle est optimisée pour un usage quotidien.';
 
   @override
-  String get help_q5_body => '\"EN ATTENTE\" signifie que MoveUP est actif mais attend un nouveau mouvement ou un signal GPS valide.';
+  String get help_q5_body => 'EN ATTENTE signifie que MoveUP est actif mais attend un nouveau mouvement ou un signal GPS valide.';
 
   @override
   String get help_q6_body => 'Oui. Les périodes d’inactivité sont également importantes pour analyser correctement votre journée.';
@@ -1318,8 +1318,44 @@ class AppLocalizationsFr extends AppLocalizations {
   String get help_q8_body => 'Oui. Vous pouvez mettre en pause ou arrêter l\'enregistrement à tout moment depuis l’écran principal.';
 
   @override
-  String get help_q9_body => 'Oui. Vos données de déplacement sont personnelles et utilisées uniquement pour les fonctionnalités de l’application.';
+  String get help_q9_body => 'Oui. Vos données de déplacement sont personnelles et utilisées uniquement pour les fonctionnalités de l\'application.';
 
   @override
-  String get help_q10_body => 'L\'enregistrement s’arrête immédiatement. Vous pouvez réinstaller MoveUP à tout moment.';
+  String get help_q10_body => 'L\'enregistrement s\'arrête immédiatement. Vous pouvez réinstaller MoveUP à tout moment.';
+
+  @override
+  String get dash_dettaglio => 'DÉTAILS';
+
+  @override
+  String get dash_profilo => 'PROFIL';
+
+  @override
+  String get dash_totale => 'Total';
+
+  @override
+  String get dash_aggiorna => 'Mettre à jour les données';
+
+  @override
+  String get dash_oggi => 'AUJOURD\'HUI';
+
+  @override
+  String get dash_registrazione => 'ENREGISTREMENT';
+
+  @override
+  String get dash_spento => 'ARRÊTÉ';
+
+  @override
+  String get dash_benvenuto => 'Bienvenue';
+
+  @override
+  String get dash_fermo => 'IMMOBILE';
+
+  @override
+  String get dash_lento => 'LENT';
+
+  @override
+  String get dash_veloce => 'RAPIDE';
+
+  @override
+  String get dash_non_tracciato => 'NON ENREGISTRÉ';
 }

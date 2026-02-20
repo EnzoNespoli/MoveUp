@@ -1306,7 +1306,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get help_q4_body => 'MoveUP utiliza el GPS de forma inteligente. El consumo depende de cuánto te muevas, pero está optimizado para el uso diario.';
 
   @override
-  String get help_q5_body => '\"EN ESPERA\" significa que MoveUP está activo pero esperando un nuevo movimiento o una señal GPS válida.';
+  String get help_q5_body => 'EN ESPERA significa que MoveUP está activo pero esperando un nuevo movimiento o una señal GPS válida.';
 
   @override
   String get help_q6_body => 'Sí. Los periodos de inactividad también son importantes para analizar correctamente tu día.';
@@ -1322,4 +1322,40 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get help_q10_body => 'La grabación se detiene inmediatamente. Puedes reinstalar MoveUP en cualquier momento.';
+
+  @override
+  String get dash_dettaglio => 'DETALLES';
+
+  @override
+  String get dash_profilo => 'PERFIL';
+
+  @override
+  String get dash_totale => 'Total';
+
+  @override
+  String get dash_aggiorna => 'Actualizar datos';
+
+  @override
+  String get dash_oggi => 'HOY';
+
+  @override
+  String get dash_registrazione => 'GRABACIÓN';
+
+  @override
+  String get dash_spento => 'APAGADO';
+
+  @override
+  String get dash_benvenuto => 'Bienvenido';
+
+  @override
+  String get dash_fermo => 'PARADO';
+
+  @override
+  String get dash_lento => 'LENTO';
+
+  @override
+  String get dash_veloce => 'RÁPIDO';
+
+  @override
+  String get dash_non_tracciato => 'NO REGISTRADO';
 }

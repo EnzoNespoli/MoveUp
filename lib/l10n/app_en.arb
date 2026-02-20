@@ -483,12 +483,25 @@
 "help_q2_body": "Yes. MoveUP can continue working even when the screen is off, if you have given consent to recording your location.",
 "help_q3_body": "To allow MoveUP to work correctly even when you are not actively using the app, for example with the screen turned off.",
 "help_q4_body": "MoveUP uses GPS intelligently. Battery consumption depends on how much you move, but it is optimized for daily use.",
-"help_q5_body": "\"WAITING\" means that MoveUP is active but is waiting for a new movement or a valid GPS signal.",
+"help_q5_body": "WAITING means that MoveUP is active but is waiting for a new movement or a valid GPS signal.",
 "help_q6_body": "Yes. Periods of inactivity are also important to correctly analyze your day.",
 "help_q7_body": "This is normal. It depends on how much you moved, GPS signal quality, and any pauses in recording.",
 "help_q8_body": "Yes. You can pause or stop recording at any time from the main screen.",
 "help_q9_body": "Yes. Your movement data are personal and are used only for the app’s features.",
-"help_q10_body": "Recording stops immediately. You can reinstall MoveUP at any time."
+"help_q10_body": "Recording stops immediately. You can reinstall MoveUP at any time.",
+
+"dash_dettaglio": "DETAILS",
+"dash_profilo": "PROFILE",
+"dash_totale": "Total",
+"dash_aggiorna": "Update data",
+"dash_oggi": "TODAY",
+"dash_registrazione": "RECORDING",
+"dash_spento": "OFF",
+"dash_benvenuto": "Welcome",
+"dash_fermo": "STILL",
+"dash_lento": "SLOW",
+"dash_veloce": "FAST",
+"dash_non_tracciato": "NOT TRACKED"
 
 
 

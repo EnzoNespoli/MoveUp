@@ -1322,4 +1322,40 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get help_q10_body => 'La registrazione si interrompe immediatamente. Puoi reinstallare MoveUP in qualsiasi momento.';
+
+  @override
+  String get dash_dettaglio => 'DETTAGLI';
+
+  @override
+  String get dash_profilo => 'PROFILO';
+
+  @override
+  String get dash_totale => 'Totale';
+
+  @override
+  String get dash_aggiorna => 'Aggiorna dati';
+
+  @override
+  String get dash_oggi => 'OGGI';
+
+  @override
+  String get dash_registrazione => 'REGISTRAZIONE';
+
+  @override
+  String get dash_spento => 'SPENTO';
+
+  @override
+  String get dash_benvenuto => 'Benvenuto';
+
+  @override
+  String get dash_fermo => 'FERMO';
+
+  @override
+  String get dash_lento => 'LENTO';
+
+  @override
+  String get dash_veloce => 'VELOCE';
+
+  @override
+  String get dash_non_tracciato => 'NON TRACCIATO';
 }
