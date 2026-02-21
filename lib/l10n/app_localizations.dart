@@ -2390,7 +2390,7 @@ abstract class AppLocalizations {
   /// No description provided for @analisi_oggi.
   ///
   /// In en, this message translates to:
-  /// **'Analysis of today'**
+  /// **'Recorded data'**
   String get analisi_oggi;
 
   /// No description provided for @movimento.

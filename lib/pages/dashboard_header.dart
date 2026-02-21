@@ -12,8 +12,8 @@ class DashboardHeader extends StatelessWidget {
   final Color Function(int?, String) coloreGiorni;
   final Widget chipGiorni;
   final Function(BuildContext) mostraLoginDialog;
-  // 👇 nuovo
   final DailyAnalysis? dailyAnalysis;
+  final List<Map<String, dynamic>> livelli;
 
   const DashboardHeader({
     Key? key,
@@ -26,25 +26,28 @@ class DashboardHeader extends StatelessWidget {
     required this.coloreGiorni,
     required this.chipGiorni,
     required this.mostraLoginDialog,
-    this.dailyAnalysis, // 👈 opzionale
+    this.dailyAnalysis,
+    required this.livelli,
   }) : super(key: key);
 
-  String _fmtMinSec(int sec) {
-    final m = sec ~/ 60;
-    final s = sec % 60;
-    final h = m ~/ 60;
-    final rm = m % 60;
+  String _fmtMinutes(int minutes) {
+    if (minutes <= 0) return '--';
+
+    final h = minutes ~/ 60;
+    final m = minutes % 60;
 
     if (h > 0) {
-      // es: 8h 22min
-      return "${h}h ${rm}min";
-    } else if (m > 0) {
-      // es: 67min 25s
-      return "${m}min${s > 0 ? " ${s}s" : ""}";
+      return '${h}h ${m}min';
     } else {
-      // solo secondi
-      return "${s}s";
+      return '${m}min';
     }
+  }
+
+  int _levelMinutes(int idx) {
+    if (idx < 0 || idx >= livelli.length) return 0;
+    final dynamic value = livelli[idx]['minuti'];
+    if (value is num) return value.toInt();
+    return 0;
   }
 
   @override
@@ -276,89 +279,93 @@ class DashboardHeader extends StatelessWidget {
           ],
         ),
 
-        // 👇 QUI METTIAMO L'ANALISI SE ARRIVA
-        if (dailyAnalysis != null) ...[
-          const SizedBox(height: 14),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: dailyAnalysis!.percGap > 25
-                  ? Colors.red.shade50
-                  : Colors.green.shade50,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: dailyAnalysis!.percGap > 25
-                    ? Colors.red.shade200
-                    : Colors.green.shade200,
+        // 👇 STATISTICHE GIORNALIERE DAI LIVELLI
+        const SizedBox(height: 14),
+        Builder(
+          builder: (context) {
+            final fermoMin = _levelMinutes(0);
+            final lentoMin = _levelMinutes(1);
+            final veloceMin = _levelMinutes(2);
+            final movimentoMin = lentoMin + veloceMin;
+
+            // Calcola tempo NON TRACCIATO (non il gap GPS!)
+            final trackedMin = fermoMin + lentoMin + veloceMin;
+            final nonTracciatoMin =
+                trackedMin >= 1440 ? 0 : (1440 - trackedMin);
+
+            // Calcola percentuale di completezza
+            final percCompletezza = trackedMin > 0
+                ? ((trackedMin / 1440) * 100).clamp(0, 100)
+                : 0.0;
+            final percNonTracciato = 100 - percCompletezza;
+
+            final isIncomplete = percNonTracciato > 25;
+
+            final oggi = DateTime.now();
+            final giornoStr =
+                "${oggi.year.toString().padLeft(4, '0')}-${oggi.month.toString().padLeft(2, '0')}-${oggi.day.toString().padLeft(2, '0')}";
+
+            return Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isIncomplete ? Colors.red.shade50 : Colors.green.shade50,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: isIncomplete
+                      ? Colors.red.shade200
+                      : Colors.green.shade200,
+                ),
               ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.t.analisi_oggi + " (${dailyAnalysis!.giorno})",
-                  style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _messaggioLabel(context, dailyAnalysis!),
-                  style: const TextStyle(fontSize: 13, color: Colors.blue),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _MiniStat(
-                        icon: "🛑",
-                        label: context.t.mov_inattivo,
-                        value: _fmtMinSec(dailyAnalysis!.secFermoTot),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.t.analisi_oggi + " ($giornoStr)",
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    isIncomplete
+                        ? '${context.t.dati_incompleti} ${percNonTracciato.toStringAsFixed(0)}%.'
+                        : context.t.completo,
+                    style: const TextStyle(fontSize: 13, color: Colors.blue),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _MiniStat(
+                          icon: "🛑",
+                          label: context.t.mov_inattivo,
+                          value: _fmtMinutes(fermoMin),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: _MiniStat(
-                        icon: "🚶",
-                        label: context.t.movimento,
-                        value: _fmtMinSec(dailyAnalysis!.secMov),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: _MiniStat(
+                          icon: "🚶",
+                          label: context.t.movimento,
+                          value: _fmtMinutes(movimentoMin),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: _MiniStat(
-                        icon: "📵",
-                        label: context.t.non_reg,
-                        value: _fmtMinSec(dailyAnalysis!.secGap),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: _MiniStat(
+                          icon: "📵",
+                          label: context.t.non_reg,
+                          value: _fmtMinutes(nonTracciatoMin),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ],
     );
-  }
-
-  String _statoLabel(BuildContext context, DailyAnalysis a) {
-    return a.stato == 'parziale' ? context.t.parziale : context.t.completo;
-  }
-
-  String _messaggioLabel(BuildContext context, DailyAnalysis a) {
-    if (a.percGap > 25) {
-      // "Dati incompleti: il telefono non ha registrato per circa"
-      return '${context.t.dati_incompleti} ${a.percGap.toStringAsFixed(0)}%.';
-    } else if (a.percMov >= 40) {
-      return context.t.ottima_attivita;
-    } else if (a.percMov >= 25) {
-      return context.t.buona_attivita;
-    } else if (a.percFermo >= 50) {
-      // "Giornata piuttosto statica " + "(fermo/pausa)"
-      return '${context.t.giorno_statico1} (${a.percFermo.toStringAsFixed(0)}% ${context.t.giorno_statico2}).';
-    } else {
-      return context.t.attivita_media;
-    }
   }
 }
 

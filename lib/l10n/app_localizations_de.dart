@@ -1174,7 +1174,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get dedica_testo => 'Meine Frau und Lova, die mir die Kraft gegeben haben, bis hierher zu kommen. 💚🐾';
 
   @override
-  String get analisi_oggi => 'Analyse des heutigen Tages';
+  String get analisi_oggi => 'Aufgezeichnete Daten';
 
   @override
   String get movimento => 'Bewegung';

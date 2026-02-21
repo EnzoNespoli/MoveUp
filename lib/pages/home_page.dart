@@ -30,6 +30,7 @@ import '../db.dart'; // Importa la costante globale
 import '../lingua.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -88,9 +89,9 @@ class _HomePageState extends State<HomePage> {
   String gpsErrore = '';
 
   List<Map<String, dynamic>> livelli = [
-    {'durata': '--', 'trend': '--'},
-    {'durata': '--', 'trend': '--'},
-    {'durata': '--', 'trend': '--'},
+    {'durata': '--', 'trend': '--', 'minuti': 0},
+    {'durata': '--', 'trend': '--', 'minuti': 0},
+    {'durata': '--', 'trend': '--', 'minuti': 0},
   ];
 
   List<List<Map<String, dynamic>>> sessioniLivelli = [[], [], []];
@@ -148,6 +149,7 @@ class _HomePageState extends State<HomePage> {
   double? _lastLat, _lastLon;
 
   DateTime? _lastRecalcAt;
+  bool _isRecalcRunning = false;
   bool _loaderOpen = false;
 
   final _sec = const FlutterSecureStorage();
@@ -191,7 +193,7 @@ class _HomePageState extends State<HomePage> {
     // Avvia timer per refresh automatico stats ogni 5 minuti
     statsRefreshTimer = Timer.periodic(
       const Duration(minutes: 5),
-      (_) => aggiornaRiepilogoLivelli(),
+      (_) => _ricalcolaEaggiornaAttivita('timer_5m'),
     );
   }
 
@@ -331,6 +333,7 @@ class _HomePageState extends State<HomePage> {
         setState(() {});
         return;
       }
+      GpsLogE.instance.setToken(_jwtToken);
       await _loadAll();
       return;
     }
@@ -349,6 +352,7 @@ class _HomePageState extends State<HomePage> {
     if (refreshed) {
       // Refresh riuscito → aggiorno token e continuo
       _jwtToken = await _storage.read(key: 'jwt_token');
+      GpsLogE.instance.setToken(_jwtToken);
       await _loadAll();
       return;
     }
@@ -400,9 +404,20 @@ class _HomePageState extends State<HomePage> {
       // se avevi bloccato per 401, sblocca e prova a svuotare
       gpsQueue?.onLoginOk();
       await gpsQueue?.maybeFlush(force: true);
+
+      // Debug: verifica dati caricati
+      if (kDebugMode) {
+        print(
+            '[DEBUG _loadAll] Dati caricati: livelli=${livelli}, dailyAnalysis=${_dailyAnalysis}');
+      }
     } finally {
       if (showLoader) _hideBlockingLoader();
-      if (mounted) setState(() => _initialLoading = false);
+      if (mounted) {
+        setState(() {
+          _initialLoading = false;
+          // Forza l'aggiornamento della UI con i nuovi dati caricati
+        });
+      }
     }
   }
 
@@ -410,17 +425,21 @@ class _HomePageState extends State<HomePage> {
   // crea token chiamando login anonimo per avere autenticazione
   //---------------------------------------------------------
   Future<bool> _loginAnon() async {
-    final uri = Uri.parse('$apiBaseAut/anon.php');
-    final res = await http.get(uri);
-    if (res.statusCode != 200) return false;
-    final data = jsonDecode(res.body) as Map<String, dynamic>;
-    final token = data['token'] as String;
+    try {
+      final uri = Uri.parse('$apiBaseAut/anon.php');
+      final res = await http.get(uri);
+      if (res.statusCode != 200) return false;
+      final data = jsonDecode(res.body) as Map<String, dynamic>;
+      final token = data['token'] as String;
 
-    await _storage.write(key: 'jwt_token', value: token);
+      await _storage.write(key: 'jwt_token', value: token);
 
-    // salva token e usalo negli header:
-    // headers: {'Authorization': 'Bearer $token'}
-    return data['ok'] == true;
+      // salva token e usalo negli header:
+      // headers: {'Authorization': 'Bearer $token'}
+      return data['ok'] == true;
+    } catch (e) {
+      return false;
+    }
   }
 
   //---------------------------------------------------------
@@ -524,106 +543,157 @@ class _HomePageState extends State<HomePage> {
   //-------------------------------------------------------------------------
   // verifica esistenza utente
   //-------------------------------------------------------------------------
-  Future<bool> verificaEsistenzaUtente(String utenteId) async {
-    try {
-      final res = await http.get(
-        Uri.parse("$apiBaseUrl/utenti_read.php?utente_id=$utenteId"),
-        headers: _jwtToken != null ? _authHeaders() : null,
-      );
+  Future<bool> verificaEsistenzaUtente(String utenteId, {int retry = 0}) async {
+    // Guardie base
+    if (utenteId.trim().isEmpty) return false;
 
-      if (res.statusCode == 401 && !_refreshingToken) {
-        await handle401(); // <--- refresh token e gestisci eventuale retry
-        return verificaEsistenzaUtente(utenteId); // riprova dopo il refresh
+    try {
+      final uri = Uri.parse("$apiBaseUrl/utenti_read.php?utente_id=$utenteId");
+
+      final res = await http
+          .get(
+            uri,
+            headers: (_jwtToken != null && _jwtToken!.isNotEmpty)
+                ? _authHeaders()
+                : null,
+          )
+          .timeout(const Duration(seconds: 12));
+
+      // 401: prova a refreshare UNA volta, poi riprova
+      if (res.statusCode == 401) {
+        // Se stiamo già refreshando, non innescare loop: aspetta e fallisci "soft"
+        if (_refreshingToken) return false;
+
+        if (retry < 1) {
+          await handle401(); // refresh token
+          return verificaEsistenzaUtente(utenteId, retry: retry + 1);
+        }
+        return false;
       }
 
       if (res.statusCode != 200) return false;
 
       final body = json.decode(res.body);
-
-      return body['success'] == true;
+      return body is Map && body['success'] == true;
     } catch (_) {
-      return false; // in caso di errore rete, non bloccare l'app
+      // errore rete / timeout / json: non bloccare nulla
+      return false;
     }
   }
 
   //----------------------------------------------------------------
   // inizializza utente generico
   //----------------------------------------------------------------
-  Future<void> inizializzaUtente() async {
-    if (utenteTemporaneo) {
-      try {
-        final res = await http.post(
-          Uri.parse("$apiBaseUrl/crea_utente.php"),
-          headers: _jwtToken != null ? _authHeaders() : null,
-          body: jsonEncode({'tipo': 'anonimo'}),
-        );
+  Future<void> inizializzaUtente({int retry = 0}) async {
+    if (!utenteTemporaneo) return;
 
-        if (res.statusCode == 401 && !_refreshingToken) {
-          await handle401(); // <--- refresh token e gestisci eventuale retry
-          await inizializzaUtente(); // riprova dopo il refresh
-          return;
+    try {
+      final uri = Uri.parse("$apiBaseUrl/crea_utente.php");
+
+      final res = await http
+          .post(
+            uri,
+            headers: (_jwtToken != null && _jwtToken!.isNotEmpty)
+                ? _authHeaders()
+                : null,
+            body: jsonEncode({'tipo': 'anonimo'}),
+          )
+          .timeout(const Duration(seconds: 12));
+
+      // Gestione 401 con massimo 1 retry
+      if (res.statusCode == 401) {
+        if (_refreshingToken) return;
+
+        if (retry < 1) {
+          await handle401();
+          return inizializzaUtente(retry: retry + 1);
         }
+        return;
+      }
 
-        final data = json.decode(res.body);
+      if (res.statusCode != 200) return;
 
-        if (data['success'] == true) {
-          setState(() {
-            utenteId = data['utente_id'].toString();
-            nomeId = data['nome']?.toString() ?? 'Error User';
-            debugUtente = "Nome: $nomeId";
-          });
-          // ...dopo aver ottenuto utenteId e nomeId...
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString("utenteIdAnonimo", utenteId);
-          await prefs.setString("nomeIdAnonimo", nomeId);
+      final data = json.decode(res.body);
 
-          //imposta timezone
-          syncTimezone(utenteId);
-        }
-      } catch (e) {
-        utenteId = '';
-        nomeId = 'Utente ERRATO $e';
+      if (data is Map && data['success'] == true) {
+        final newUserId = data['utente_id'].toString();
+        final newNomeId = data['nome']?.toString() ?? 'Error User';
 
         setState(() {
-          gpsErrore = '❌ ${context.t.user_err01} $e';
+          utenteId = newUserId;
+          nomeId = newNomeId;
+          debugUtente = "Nome: $nomeId";
         });
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString("utenteIdAnonimo", newUserId);
+        await prefs.setString("nomeIdAnonimo", newNomeId);
+
+        await syncTimezone(newUserId); // ora sicuro
       }
-    } else {
-      //
+    } catch (e) {
+      setState(() {
+        utenteId = '';
+        nomeId = 'ID ERROR $e';
+        gpsErrore = '❌ ${context.t.user_err01} $e';
+      });
     }
   }
 
   //-------------------------------------------------------------------------
   // sincronizza timezone
   //-------------------------------------------------------------------------
-  Future<void> syncTimezone(String userId) async {
-    String? tz;
+  Future<void> syncTimezone(String userId, {int retry = 0}) async {
+    if (userId.trim().isEmpty) return;
+
+    String tz;
+
     try {
-      tz = await NativeTimezone.getLocalTimezone(); // "Europe/Rome"
-    } catch (e) {
-      tz = null;
+      tz = await NativeTimezone.getLocalTimezone();
+    } catch (_) {
+      tz = 'Europe/Rome';
     }
 
-    if (tz == null || tz.isEmpty) {
-      tz = 'Europe/Rome'; // fallback oppure scegli una timezone di default
+    if (tz.isEmpty) {
+      tz = 'Europe/Rome';
     }
 
-    final res = await http.post(
-      Uri.parse('$apiBaseUrl/timezone.php'),
-      headers: _jwtToken != null ? _authHeaders() : null,
-      body: jsonEncode({'utente_id': userId, 'timezone': tz}),
-    );
+    try {
+      final uri = Uri.parse('$apiBaseUrl/timezone.php');
 
-    if (res.statusCode == 401 && !_refreshingToken) {
-      await handle401(); // <--- refresh token e gestisci eventuale retry
-      await syncTimezone(userId); // riprova dopo il refresh
-      return;
+      final res = await http
+          .post(
+            uri,
+            headers: (_jwtToken != null && _jwtToken!.isNotEmpty)
+                ? _authHeaders()
+                : null,
+            body: jsonEncode({
+              'utente_id': userId,
+              'timezone': tz,
+            }),
+          )
+          .timeout(const Duration(seconds: 12));
+
+      if (res.statusCode == 401) {
+        if (_refreshingToken) return;
+
+        if (retry < 1) {
+          await handle401();
+          return syncTimezone(userId, retry: retry + 1);
+        }
+        return;
+      }
+
+      if (res.statusCode != 200) return;
+
+      final data = json.decode(res.body);
+
+      if (data is Map && data['success'] == true) {
+        // ok
+      }
+    } catch (_) {
+      // errore rete silenzioso
     }
-
-    final data = json.decode(res.body);
-
-    if (data['success'] == true) {
-    } else {}
   }
 
   //-------------------------------------------------------------------------
@@ -1418,16 +1488,30 @@ class _HomePageState extends State<HomePage> {
   // Uri.parse("$apiBaseUrl/ricalcola_attivita.php?utente_id=$utenteId&data=$yyyyMmDd")
   //-------------------------------------------------------------------------
   Future<void> _ricalcolaEaggiornaAttivita(String txt) async {
+    if (utenteId.isEmpty || _jwtToken == null || _jwtToken!.isEmpty) return;
+    if (_initialLoading) return;
+
+    if (_isRecalcRunning) {
+      if (kDebugMode && prtDbg) {
+        debugPrint('[_ricalcolaEaggiornaAttivita] skip overlap: $txt');
+      }
+      return;
+    }
+    _isRecalcRunning = true;
+
     try {
-      final res = await http.get(
-        Uri.parse("$apiBaseUrl/ricalcola_attivita.php?utente_id=$utenteId"),
-        headers: _jwtToken != null ? _authHeaders() : null,
-      );
+      Future<http.Response> doRequest() {
+        return http.get(
+          Uri.parse("$apiBaseUrl/ricalcola_attivita.php?utente_id=$utenteId"),
+          headers: _jwtToken != null ? _authHeaders() : null,
+        );
+      }
+
+      var res = await doRequest();
 
       if (res.statusCode == 401 && !_refreshingToken) {
-        await handle401(); // <--- refresh token e gestisci eventuale retry
-        await _ricalcolaEaggiornaAttivita(txt); // retry
-        return;
+        await handle401();
+        res = await doRequest();
       }
 
       final data = json.decode(res.body);
@@ -1449,6 +1533,8 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         gpsErrore = '❌ ${context.t.att_err01} $e';
       });
+    } finally {
+      _isRecalcRunning = false;
     }
   }
 
@@ -1728,6 +1814,8 @@ class _HomePageState extends State<HomePage> {
           ),
           body: showDashboardMode
               ? DashboardTrackingPage(
+                  key: ValueKey(
+                      'dash_${livelli[0]['minuti']}_${livelli[1]['minuti']}_${livelli[2]['minuti']}_$utenteId'),
                   trackingAttivo: trackingAttivo,
                   trackingInPausa: trackingInPausa,
                   ascoltoSeconds: ascoltoSeconds,
@@ -1739,10 +1827,13 @@ class _HomePageState extends State<HomePage> {
                     setState(() {
                       showDashboardMode = false;
                     });
+                    //??_ricalcolaEaggiornaAttivita('open_attivita_footer');
                   },
                   onOpenProfile: _openProfileFromDashboard,
                   onTrackingToggle: _attivaTracking,
-                  onRefreshStats: aggiornaRiepilogoLivelli,
+                  onRefreshStats: () {
+                    //?? _ricalcolaEaggiornaAttivita('dashboard_refresh_button');
+                  },
                 )
               : _buildHomeComplete(),
           // PLACEHOLDER - removed SingleChildScrollView, kept for reference
@@ -1816,6 +1907,9 @@ class _HomePageState extends State<HomePage> {
     ); // Scaffold
   }
 
+  //-------------------------------------------------------------------------
+  // Gestisce l'apertura del profilo utente dal dashboard
+  //-------------------------------------------------------------------------
   void _openProfileFromDashboard() {
     if (utenteTemporaneo) {
       mostraLoginDialog(context);
@@ -2056,20 +2150,20 @@ class _HomePageState extends State<HomePage> {
       if (data['success'] == true) {
         await _callAppClose();
 
+        // Salva PRIMA il tutto in SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString("utenteIdLogin", data['user_id'].toString());
+        await prefs.setString("nomeIdLogin", data['nome'].toString());
+
         setState(() {
           utenteId = data['user_id'].toString();
           nomeId = data['nome'].toString();
           debugUtente = "Nome: $nomeId";
-          utenteTemporaneo = false; // <-- AGGIUNGI QUESTO!
+          utenteTemporaneo = false;
         });
 
         //imposta timezone
         syncTimezone(utenteId);
-
-        // ...dopo aver ottenuto utenteId e nomeId...
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString("utenteIdLogin", utenteId);
-        await prefs.setString("nomeIdLogin", nomeId);
 
         loading = true;
 
@@ -2273,7 +2367,13 @@ class _HomePageState extends State<HomePage> {
                                   );
 
                                   // chiudi la modale
+                                  if (!mounted) return;
                                   Navigator.pop(ctx);
+
+                                  // Forza rebuild UI dopo login
+                                  if (mounted && ok) {
+                                    setState(() {});
+                                  }
 
                                   // mostra feedback dopo la chiusura
                                   if (!mounted) return;
@@ -4877,6 +4977,7 @@ class _HomePageState extends State<HomePage> {
               ),
               mostraLoginDialog: mostraLoginDialog,
               dailyAnalysis: _dailyAnalysis,
+              livelli: livelli,
             ),
             SizedBox(height: 20),
             //--------------------------------------------------------

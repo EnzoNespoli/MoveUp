@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../lingua.dart';
 
@@ -46,6 +47,10 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
     super.initState();
     // Inizializza con mappa vuota, poi riempila
     stats = {};
+    if (kDebugMode) {
+      print(
+          '[DEBUG DashboardTrackingPage.initState] Widget creato con livelli=${widget.livelli}');
+    }
   }
 
   @override
@@ -62,7 +67,19 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
   @override
   void didUpdateWidget(covariant DashboardTrackingPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.livelli != widget.livelli) {
+    // Controlla se i dati sono cambiati (confronto contenuto, non reference)
+    final oldMinutes = oldWidget.livelli.map((e) => e['minuti']).toList();
+    final newMinutes = widget.livelli.map((e) => e['minuti']).toList();
+
+    if (kDebugMode) {
+      print(
+          '[DEBUG didUpdateWidget] oldMinutes=$oldMinutes, newMinutes=$newMinutes');
+    }
+
+    if (oldMinutes.toString() != newMinutes.toString()) {
+      if (kDebugMode) {
+        print('[DEBUG didUpdateWidget] Dati cambiati, aggiorno stats');
+      }
       setState(_buildStats);
     }
   }
@@ -80,6 +97,12 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
     final veloceMin = _levelMinutes(2);
     final trackedMin = fermoMin + lentoMin + veloceMin;
 
+    // Debug: verifica i dati ricevuti
+    if (kDebugMode) {
+      print(
+          '[DEBUG DashboardTrackingPage] livelli=${widget.livelli}, fermoMin=$fermoMin, lentoMin=$lentoMin, veloceMin=$veloceMin');
+    }
+
     final nonTracciatoMin = trackedMin >= 1440 ? 0 : (1440 - trackedMin);
     final totaleMin = trackedMin + nonTracciatoMin;
 
@@ -91,21 +114,25 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
 
     stats = {
       'slow': {
+        'minutes': fermoMin,
         'percentage': pct(fermoMin),
         'label': context.t.dash_fermo,
         'color': const Color(0xFF4CAF50)
       },
       'medium': {
+        'minutes': lentoMin,
         'percentage': pct(lentoMin),
         'label': context.t.dash_lento,
         'color': const Color(0xFFFFC107)
       },
       'fast': {
+        'minutes': veloceMin,
         'percentage': pct(veloceMin),
         'label': context.t.dash_veloce,
         'color': const Color(0xFFFF4444)
       },
       'notTracked': {
+        'minutes': nonTracciatoMin,
         'percentage': pct(nonTracciatoMin),
         'label': context.t.dash_non_tracciato,
         'color': const Color(0xFF4A4A4A)
@@ -124,6 +151,19 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
     final mm = (seconds ~/ 60).toString().padLeft(2, '0');
     final ss = (seconds % 60).toString().padLeft(2, '0');
     return '$mm:$ss';
+  }
+
+  String _fmtMinutes(int minutes) {
+    if (minutes <= 0) return '--';
+
+    final h = minutes ~/ 60;
+    final m = minutes % 60;
+
+    if (h > 0) {
+      return '${h}h ${m}min';
+    } else {
+      return '${m}min';
+    }
   }
 
   double _totalPercentage() {
@@ -506,6 +546,10 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
     }
     return stats.entries.map((entry) {
       final data = entry.value;
+      final minutes = data['minutes'] as int;
+      final timeStr = _fmtMinutes(minutes);
+      final pctStr = (data['percentage'] as double).toStringAsFixed(2);
+
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 6),
         child: Row(
@@ -520,10 +564,10 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
               ),
             ),
             const SizedBox(width: 16),
-            // Label e percentuale
+            // Label, tempo e percentuale
             Expanded(
               child: Text(
-                '${data['label']} ${(data['percentage'] as double).toStringAsFixed(2)}%',
+                '${data['label']} $timeStr ($pctStr%)',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: Colors.black87,
                       fontWeight: FontWeight.w600,
