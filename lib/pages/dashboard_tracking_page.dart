@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../lingua.dart';
@@ -42,15 +43,34 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
   late Map<String, dynamic> stats;
   bool _statsInitialized = false;
 
+  // Timer leggero per aggiornamento periodico (ogni 5 minuti)
+  // Evita di appesantire il sistema con chiamate troppo frequenti
+  Timer? _autoRefreshTimer;
+
   @override
   void initState() {
     super.initState();
     // Inizializza con mappa vuota, poi riempila
     stats = {};
-    if (kDebugMode) {
-      print(
-          '[DEBUG DashboardTrackingPage.initState] Widget creato con livelli=${widget.livelli}');
-    }
+
+    // Timer leggero: aggiorna i livelli ogni 5 minuti (300 secondi)
+    // Non appesantisce il sistema e tiene i dati ragionevolmente aggiornati
+    _autoRefreshTimer = Timer.periodic(
+      const Duration(minutes: 5),
+      (timer) {
+        // Chiama il refresh per aggiornare i livelli da server
+        if (mounted) {
+          widget.onRefreshStats();
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    // Cancella il timer quando il widget viene distrutto
+    _autoRefreshTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -170,7 +190,9 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
     final total = stats.values
         .map((v) => (v['percentage'] as double?) ?? 0.0)
         .fold<double>(0.0, (sum, p) => sum + p);
-    return double.parse(total.toStringAsFixed(2));
+    // Cappa il valore massimo a 100.0 per evitare errori di arrotondamento (100.01%)
+    final capped = total.clamp(0.0, 100.0);
+    return double.parse(capped.toStringAsFixed(2));
   }
 
   @override

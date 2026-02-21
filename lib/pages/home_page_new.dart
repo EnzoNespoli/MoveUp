@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'dart:convert';
 import 'onboarding_page.dart';
+import 'dashboard_tracking_page.dart';
 import 'card_sceltastorico.dart';
 import 'card_dedica.dart';
 import 'card_diario_gps.dart';
 import 'card_mappaposizione.dart';
 import 'dashboard_header.dart';
-import 'dashboard_tracking_page.dart';
 import 'card_trakinggps.dart';
 import 'card_reportgiornaliero.dart';
 import 'card_reportsettimanale.dart';
@@ -30,6 +30,7 @@ import '../db.dart'; // Importa la costante globale
 import '../lingua.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -80,6 +81,7 @@ class _HomePageState extends State<HomePage> {
   int countdownLevel = 25;
   int ascoltoSeconds = 0;
   Timer? countdownTimer;
+  Timer? statsRefreshTimer;
   String utenteId = '';
   String nomeId = '';
   String debugUtente = '';
@@ -147,6 +149,7 @@ class _HomePageState extends State<HomePage> {
   double? _lastLat, _lastLon;
 
   DateTime? _lastRecalcAt;
+  bool _isRecalcRunning = false;
   bool _loaderOpen = false;
 
   final _sec = const FlutterSecureStorage();
@@ -183,9 +186,6 @@ class _HomePageState extends State<HomePage> {
     _checkOnboarding();
     _getVersion();
     _getToken();
-
-    // Se hai già un token in RAM al boot:
-    GpsLogE.instance.setToken(_jwtToken);
   }
 
   //----------------------------------------------------------
@@ -250,7 +250,7 @@ class _HomePageState extends State<HomePage> {
         final altStr =
             pos.altitude.isFinite ? pos.altitude.toStringAsFixed(1) : '—';
 
-// accuracy can be very large initially (network fix). Format smartly:
+        // accuracy can be very large initially (network fix). Format smartly:
         String fmtAcc(double a) => (!a.isFinite)
             ? '—'
             : (a >= 1000)
@@ -324,6 +324,7 @@ class _HomePageState extends State<HomePage> {
         setState(() {});
         return;
       }
+      GpsLogE.instance.setToken(_jwtToken);
       await _loadAll();
       return;
     }
@@ -333,6 +334,7 @@ class _HomePageState extends State<HomePage> {
 
     if (!isExpired) {
       // Token valido → procedo
+      GpsLogE.instance.setToken(_jwtToken);
       await _loadAll();
       return;
     }
@@ -340,8 +342,7 @@ class _HomePageState extends State<HomePage> {
     // 4) Token scaduto → provo il refresh (se disponibile)
     final refreshed = await _loginAnon(); // ⬅️ fai login e salva il token
     if (refreshed) {
-      // Refresh riuscito → aggiorno token e continuo
-      _jwtToken = await _storage.read(key: 'jwt_token');
+      // Refresh riuscito → continuo
       await _loadAll();
       return;
     }
@@ -368,6 +369,14 @@ class _HomePageState extends State<HomePage> {
     try {
       await _caricaUtente(); // carica o crea utente
 
+      // VERIFICA che l'utente sia stato caricato correttamente
+      if (utenteId.isEmpty) {
+        if (kDebugMode) {
+          print('[ERROR _loadAll] utenteId è vuoto dopo _caricaUtente()');
+        }
+        return; // Non procedere se non c'è un utenteId valido
+      }
+
       // 1) PRIMA ricalcola (una sola volta)
       await _ricalcolaEaggiornaAttivita('loadAll');
       _lastRecalcAt = DateTime.now(); // così magariRecalc non lo rifà subito
@@ -393,9 +402,29 @@ class _HomePageState extends State<HomePage> {
       // se avevi bloccato per 401, sblocca e prova a svuotare
       gpsQueue?.onLoginOk();
       await gpsQueue?.maybeFlush(force: true);
+
+      // Debug: verifica dati caricati
+      if (kDebugMode) {
+        print(
+            '[DEBUG _loadAll] Dati caricati: livelli=${livelli}, dailyAnalysis=${_dailyAnalysis}');
+      }
+
+      // Avvia timer per refresh automatico stats ogni 5 minuti
+      // Solo se non è già stato avviato
+      if (statsRefreshTimer == null || !statsRefreshTimer!.isActive) {
+        statsRefreshTimer = Timer.periodic(
+          const Duration(minutes: 5),
+          (_) => _ricalcolaEaggiornaAttivita('timer_5m'),
+        );
+      }
     } finally {
       if (showLoader) _hideBlockingLoader();
-      if (mounted) setState(() => _initialLoading = false);
+      if (mounted) {
+        setState(() {
+          _initialLoading = false;
+          // Forza l'aggiornamento della UI con i nuovi dati caricati
+        });
+      }
     }
   }
 
@@ -403,20 +432,25 @@ class _HomePageState extends State<HomePage> {
   // crea token chiamando login anonimo per avere autenticazione
   //---------------------------------------------------------
   Future<bool> _loginAnon() async {
-    final uri = Uri.parse('$apiBaseAut/anon.php');
-    final res = await http.get(uri);
-    if (res.statusCode != 200) return false;
-    final data = jsonDecode(res.body) as Map<String, dynamic>;
-    final token = data['token'] as String;
+    try {
+      final uri = Uri.parse('$apiBaseAut/anon.php');
+      final res = await http.get(uri);
+      if (res.statusCode != 200) return false;
+      final data = jsonDecode(res.body) as Map<String, dynamic>;
+      final token = data['token'] as String;
 
-    await _storage.write(key: 'jwt_token', value: token);
+      await _storage.write(key: 'jwt_token', value: token);
 
-    _jwtToken = token;
-    GpsLogE.instance.setToken(token);
+      // Aggiorna _jwtToken e passa il token al logger
+      _jwtToken = token;
+      GpsLogE.instance.setToken(token);
 
-    // salva token e usalo negli header:
-    // headers: {'Authorization': 'Bearer $token'}
-    return data['ok'] == true;
+      // salva token e usalo negli header:
+      // headers: {'Authorization': 'Bearer $token'}
+      return data['ok'] == true;
+    } catch (e) {
+      return false;
+    }
   }
 
   //---------------------------------------------------------
@@ -535,7 +569,6 @@ class _HomePageState extends State<HomePage> {
       if (res.statusCode != 200) return false;
 
       final body = json.decode(res.body);
-
       return body['success'] == true;
     } catch (_) {
       return false; // in caso di errore rete, non bloccare l'app
@@ -548,11 +581,19 @@ class _HomePageState extends State<HomePage> {
   Future<void> inizializzaUtente() async {
     if (utenteTemporaneo) {
       try {
+        if (kDebugMode) {
+          print('[DEBUG inizializzaUtente] Inizio creazione utente anonimo');
+        }
+
         final res = await http.post(
           Uri.parse("$apiBaseUrl/crea_utente.php"),
           headers: _jwtToken != null ? _authHeaders() : null,
           body: jsonEncode({'tipo': 'anonimo'}),
         );
+
+        if (kDebugMode) {
+          print('[DEBUG inizializzaUtente] statusCode: ${res.statusCode}');
+        }
 
         if (res.statusCode == 401 && !_refreshingToken) {
           await handle401(); // <--- refresh token e gestisci eventuale retry
@@ -560,7 +601,18 @@ class _HomePageState extends State<HomePage> {
           return;
         }
 
+        if (res.statusCode != 200) {
+          if (kDebugMode) {
+            print('[ERROR inizializzaUtente] statusCode != 200: ${res.body}');
+          }
+          return;
+        }
+
         final data = json.decode(res.body);
+
+        if (kDebugMode) {
+          print('[DEBUG inizializzaUtente] Response data: $data');
+        }
 
         if (data['success'] == true) {
           setState(() {
@@ -568,6 +620,12 @@ class _HomePageState extends State<HomePage> {
             nomeId = data['nome']?.toString() ?? 'Error User';
             debugUtente = "Nome: $nomeId";
           });
+
+          if (kDebugMode) {
+            print(
+                '[DEBUG inizializzaUtente] Utente creato: $utenteId / $nomeId');
+          }
+
           // ...dopo aver ottenuto utenteId e nomeId...
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString("utenteIdAnonimo", utenteId);
@@ -575,17 +633,27 @@ class _HomePageState extends State<HomePage> {
 
           //imposta timezone
           syncTimezone(utenteId);
+        } else {
+          if (kDebugMode) {
+            print(
+                '[ERROR inizializzaUtente] success != true: ${data['message']}');
+          }
         }
       } catch (e) {
-        utenteId = '';
-        nomeId = 'Utente ERRATO $e';
-
+        if (kDebugMode) {
+          print('[ERROR inizializzaUtente] Exception: $e');
+        }
         setState(() {
+          utenteId = '';
+          nomeId = 'Utente ERRATO $e';
           gpsErrore = '❌ ${context.t.user_err01} $e';
         });
       }
     } else {
-      //
+      // utente già loggato
+      if (kDebugMode) {
+        print('[DEBUG inizializzaUtente] Utente già loggato, skip');
+      }
     }
   }
 
@@ -593,33 +661,45 @@ class _HomePageState extends State<HomePage> {
   // sincronizza timezone
   //-------------------------------------------------------------------------
   Future<void> syncTimezone(String userId) async {
-    String? tz;
+    if (userId.trim().isEmpty) return;
+
+    String tz;
+
     try {
-      tz = await NativeTimezone.getLocalTimezone(); // "Europe/Rome"
-    } catch (e) {
-      tz = null;
+      tz = await NativeTimezone.getLocalTimezone();
+    } catch (_) {
+      tz = 'Europe/Rome';
     }
 
-    if (tz == null || tz.isEmpty) {
-      tz = 'Europe/Rome'; // fallback oppure scegli una timezone di default
+    if (tz.isEmpty) {
+      tz = 'Europe/Rome';
     }
 
-    final res = await http.post(
-      Uri.parse('$apiBaseUrl/timezone.php'),
-      headers: _jwtToken != null ? _authHeaders() : null,
-      body: jsonEncode({'utente_id': userId, 'timezone': tz}),
-    );
+    try {
+      final res = await http.post(
+        Uri.parse('$apiBaseUrl/timezone.php'),
+        headers: _jwtToken != null ? _authHeaders() : null,
+        body: jsonEncode({
+          'utente_id': userId,
+          'timezone': tz,
+        }),
+      );
 
-    if (res.statusCode == 401 && !_refreshingToken) {
-      await handle401(); // <--- refresh token e gestisci eventuale retry
-      await syncTimezone(userId); // riprova dopo il refresh
-      return;
+      if (res.statusCode == 401 && !_refreshingToken) {
+        await handle401();
+        return syncTimezone(userId);
+      }
+
+      if (res.statusCode != 200) return;
+
+      final data = json.decode(res.body);
+
+      if (data['success'] == true) {
+        // ok
+      }
+    } catch (_) {
+      // errore rete silenzioso
     }
-
-    final data = json.decode(res.body);
-
-    if (data['success'] == true) {
-    } else {}
   }
 
   //-------------------------------------------------------------------------
@@ -646,6 +726,73 @@ class _HomePageState extends State<HomePage> {
   }
 
   //-------------------------------------------------------------------------
+  // Ricalcola e aggiorna le attività
+  //-------------------------------------------------------------------------
+  Future<void> aggiornaLivelliAttivita() async {
+    try {
+      final res = await http.get(
+        Uri.parse("$apiBaseUrl/attivita_utente.php?utente_id=$utenteId"),
+        headers: _jwtToken != null ? _authHeaders() : null,
+      );
+
+      if (res.statusCode == 401 && !_refreshingToken) {
+        await handle401(); // <--- refresh token e gestisci eventuale retry
+        await aggiornaLivelliAttivita(); // riprova dopo il refresh
+        return;
+      }
+
+      final dati = json.decode(res.body);
+
+      if (dati['success'] == true) {
+        List dettagli = dati['dettagli'] ?? [];
+
+        // Aggiorna sessioni per ogni livello in modo compatto
+        for (int livello = 0; livello <= 2; livello++) {
+          sessioniLivelli[livello] = dettagli
+              .where((s) => s['tipo_attivita'] == livello)
+              .map<Map<String, dynamic>>(
+                (s) => {
+                  'inizio': s['data_ora_inizio'],
+                  'fine': s['data_ora_fine'],
+                  'durata': (s['durata_sec'] / 60).round(),
+                  'distanza': s['distanza_metri'],
+                  'fonte': s['fonte'],
+                  'passi': ((s['distanza_metri'] ?? 0) / 0.7).round(),
+                },
+              )
+              .toList();
+        }
+
+        setState(() {
+          for (int livello = 0; livello <= 2; livello++) {
+            final minuti = (dati['livello$livello'] as num?)?.toInt() ?? 0;
+            livelli[livello]['durata'] = formattaMinuti(
+              minuti,
+            );
+            livelli[livello]['minuti'] = minuti;
+            livelli[livello]['trend'] = trendTesto(
+              dati['livello${livello}_diff'],
+            );
+          }
+        });
+      } else if (res.statusCode == 401) {
+        await _storage.delete(key: 'jwt_token');
+        await _loginAnon(); // ricreo il token
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(context.t.session_expired)));
+          await _eseguiLogout();
+        }
+      }
+    } catch (e) {
+      setState(() {
+        gpsErrore = '❌ error http 500 : $e';
+      });
+    }
+  }
+
+  //-------------------------------------------------------------------------
   // Ricalcola e aggiorna il riepilogo
   //-------------------------------------------------------------------------
   Future<void> aggiornaRiepilogoLivelli() async {
@@ -665,35 +812,37 @@ class _HomePageState extends State<HomePage> {
 
       if (dati['success'] == true) {
         setState(() {
+          final livello0Min = (dati['livello0'] as num?)?.toInt() ?? 0;
+          final livello1Min = (dati['livello1'] as num?)?.toInt() ?? 0;
+          final livello2Min = (dati['livello2'] as num?)?.toInt() ?? 0;
+
           // Livello 0: solo durata e metri
-          livelli[0]['durata'] = formattaMinuti(dati['livello0'] ?? 0);
+          livelli[0]['durata'] = formattaMinuti(livello0Min);
+          livelli[0]['minuti'] = livello0Min;
           livelli[0]['trend'] = trendTesto(dati['livello0_diff'] ?? 0);
           livelli[0]['metri'] = dati['livello0_m'] ?? 0;
-          livelli[0]['minuti'] = dati['livello0'] ?? 0;
 
           // Livello 1: durata, metri, passi
-          livelli[1]['durata'] = formattaMinuti(dati['livello1'] ?? 0);
+          livelli[1]['durata'] = formattaMinuti(livello1Min);
+          livelli[1]['minuti'] = livello1Min;
           livelli[1]['trend'] = trendTesto(dati['livello1_diff'] ?? 0);
           livelli[1]['metri'] = dati['livello1_m'] ?? 0;
           livelli[1]['passi'] = ((dati['livello1_m'] ?? 0) / 0.7).round();
-          livelli[1]['minuti'] = dati['livello1'] ?? 0;
 
           // Livello 2: durata, metri, km
-          livelli[2]['durata'] = formattaMinuti(dati['livello2'] ?? 0);
+          livelli[2]['durata'] = formattaMinuti(livello2Min);
+          livelli[2]['minuti'] = livello2Min;
           livelli[2]['trend'] = trendTesto(dati['livello2_diff'] ?? 0);
           livelli[2]['metri'] = dati['livello2_m'] ?? 0;
           livelli[2]['km'] = ((dati['livello2_m'] ?? 0) / 1000);
-          livelli[2]['minuti'] = dati['livello2'] ?? 0;
         });
       } else if (res.statusCode == 401) {
         await _storage.delete(key: 'jwt_token');
         await _loginAnon(); // ricreo il token
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(context.t.session_expired),
-            ),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(context.t.session_expired)));
           await _eseguiLogout();
         }
       }
@@ -707,6 +856,23 @@ class _HomePageState extends State<HomePage> {
   //-------------------------------------------------------------------------
   // Widget principale della pagina
   //-------------------------------------------------------------------------
+  void _showTrackingFeedback(bool attiva, {bool isError = false, String? msg}) {
+    if (!mounted) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        content:
+            Text(msg ?? (attiva ? context.t.gps_err14 : context.t.gps_err15)),
+        backgroundColor: isError
+            ? Colors.red.shade700
+            : (attiva ? Colors.green.shade700 : Colors.blueGrey.shade700),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   void _attivaTracking(bool attiva) {
     if (!mounted) return; // widget ancora vivo?
 
@@ -718,6 +884,7 @@ class _HomePageState extends State<HomePage> {
         trackingAttivo = false;
         gpsErrore = err;
       });
+      _showTrackingFeedback(false, isError: true, msg: context.t.gps_err13);
 
       return;
     }
@@ -739,6 +906,7 @@ class _HomePageState extends State<HomePage> {
           //ultimaPosizione = '';
         }
       });
+      _showTrackingFeedback(attiva);
 
       return;
     }
@@ -759,6 +927,7 @@ class _HomePageState extends State<HomePage> {
         ultimaPosizione = '';
       }
     });
+    _showTrackingFeedback(attiva);
   }
 
   //-------------------------------------------------------------------------
@@ -928,8 +1097,12 @@ class _HomePageState extends State<HomePage> {
           _lastTs != null) {
         final dt = nowUtc.difference(_lastTs!).inMilliseconds / 1000.0;
         if (dt > 0) {
-          final dist = _distM(_lastPos!.latitude, _lastPos!.longitude,
-              pos.latitude, pos.longitude);
+          final dist = _distM(
+            _lastPos!.latitude,
+            _lastPos!.longitude,
+            pos.latitude,
+            pos.longitude,
+          );
           // ignora micro-salti dentro l’accuracy
           final acc = (pos.accuracy ?? 0);
           speedKmh = (dist > acc) ? (dist / dt) * 3.6 : 0.0;
@@ -953,27 +1126,6 @@ class _HomePageState extends State<HomePage> {
           altM: altitudine.isNaN ? 0.0 : altitudine,
         );
       }
-
-//      if (precisione.isNaN || precisione > accMax) {
-//        GpsLog.instance.logError(
-//          'Accuracy filter failed: $precisione > $accMax',
-//        );
-
-      // su errore:
-//        GpsLogE.instance.add(GpsLogEntryE(
-//          ts: DateTime.now(),
-//          status: GpsLogStatusE.error,
-//          lat: pos.latitude,
-//          lon: pos.longitude,
-//          accM: precisione,
-//          altM: altitudine,
-//          msg: 'Accuracy filter failed: $precisione > $accMax',
-//          errorCode: 'HTTP_500',
-//        ));
-
-//        setState(() => gpsErrore = context.t.gps_err06);
-//        return;
-//      }
 
       // Filtro movimento minimo
       double deltaM = 0.0;
@@ -1143,8 +1295,10 @@ class _HomePageState extends State<HomePage> {
   //-------------------------------------------------------------------------
   // Mette in coda i dati gps anche a telefono spento
   //-------------------------------------------------------------------------
-  Future<bool> _enqueueFromPosition(Position pos,
-      {bool updateUI = false}) async {
+  Future<bool> _enqueueFromPosition(
+    Position pos, {
+    bool updateUI = false,
+  }) async {
     // --- parametri e filtri come già fai ---
     final f = (features ?? {}) as Map<String, dynamic>;
     final accMode = (f['gps_accuracy_mode'] as String?) ?? 'balanced';
@@ -1163,7 +1317,11 @@ class _HomePageState extends State<HomePage> {
 
     if (_lastLat != null && _lastLon != null) {
       final deltaM = Geolocator.distanceBetween(
-          _lastLat!, _lastLon!, pos.latitude, pos.longitude);
+        _lastLat!,
+        _lastLon!,
+        pos.latitude,
+        pos.longitude,
+      );
       if (deltaM < minMoveM) {
         // log/queue error come già fai...
         return false;
@@ -1179,8 +1337,12 @@ class _HomePageState extends State<HomePage> {
         _lastTs != null) {
       final dt = nowUtc.difference(_lastTs!).inMilliseconds / 1000.0;
       if (dt > 0) {
-        final dist = _distM(_lastPos!.latitude, _lastPos!.longitude,
-            pos.latitude, pos.longitude);
+        final dist = _distM(
+          _lastPos!.latitude,
+          _lastPos!.longitude,
+          pos.latitude,
+          pos.longitude,
+        );
         // ignora micro-salti dentro l’accuracy
         final acc = (pos.accuracy ?? 0);
         speedKmh = (dist > acc) ? (dist / dt) * 3.6 : 0.0;
@@ -1259,8 +1421,8 @@ class _HomePageState extends State<HomePage> {
             ? AndroidSettings(
                 accuracy: LocationAccuracy.best,
                 intervalDuration: Duration(
-                    seconds:
-                        (features?['gps_sample_sec'] as num?)?.toInt() ?? 10),
+                  seconds: (features?['gps_sample_sec'] as num?)?.toInt() ?? 10,
+                ),
                 distanceFilter:
                     (features?['gps_min_distance_m'] as num?)?.toInt() ?? 20,
                 foregroundNotificationConfig:
@@ -1283,11 +1445,14 @@ class _HomePageState extends State<HomePage> {
     await _bgSub?.cancel();
     _bgSub = Geolocator.getPositionStream(
       locationSettings: locationSettings, // 👈 niente copyWith
-    ).listen((pos) {
-      _enqueueFromPosition(pos); // tua funzione di enqueue
-    }, onError: (e) {
-      // log/feedback
-    });
+    ).listen(
+      (pos) {
+        _enqueueFromPosition(pos); // tua funzione di enqueue
+      },
+      onError: (e) {
+        // log/feedback
+      },
+    );
   }
 
   //-------------------------------------------------------------------------
@@ -1308,22 +1473,36 @@ class _HomePageState extends State<HomePage> {
   // Uri.parse("$apiBaseUrl/ricalcola_attivita.php?utente_id=$utenteId&data=$yyyyMmDd")
   //-------------------------------------------------------------------------
   Future<void> _ricalcolaEaggiornaAttivita(String txt) async {
+    if (utenteId.isEmpty || _jwtToken == null || _jwtToken!.isEmpty) return;
+    if (_initialLoading) return;
+
+    if (_isRecalcRunning) {
+      if (kDebugMode && prtDbg) {
+        debugPrint('[_ricalcolaEaggiornaAttivita] skip overlap: $txt');
+      }
+      return;
+    }
+    _isRecalcRunning = true;
+
     try {
-      final res = await http.get(
-        Uri.parse("$apiBaseUrl/ricalcola_attivita.php?utente_id=$utenteId"),
-        headers: _jwtToken != null ? _authHeaders() : null,
-      );
+      Future<http.Response> doRequest() {
+        return http.get(
+          Uri.parse("$apiBaseUrl/ricalcola_attivita.php?utente_id=$utenteId"),
+          headers: _jwtToken != null ? _authHeaders() : null,
+        );
+      }
+
+      var res = await doRequest();
 
       if (res.statusCode == 401 && !_refreshingToken) {
-        await handle401(); // <--- refresh token e gestisci eventuale retry
-        await _ricalcolaEaggiornaAttivita(txt); // retry
-        return;
+        await handle401();
+        res = await doRequest();
       }
 
       final data = json.decode(res.body);
       if (data['success'] == true) {
         // 2. Solo se la ricalcolazione è andata a buon fine, aggiorna i livelli
-
+        //await aggiornaRiepilogoLivelli();
         await Future.wait([
           aggiornaRiepilogoLivelli(),
           _caricaDatiGiornalieri(),
@@ -1339,6 +1518,8 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         gpsErrore = '❌ ${context.t.att_err01} $e';
       });
+    } finally {
+      _isRecalcRunning = false;
     }
   }
 
@@ -1412,6 +1593,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     countdownTimer?.cancel();
+    statsRefreshTimer?.cancel();
     _gctrl?.dispose();
     _callAppClose();
     super.dispose();
@@ -1460,14 +1642,17 @@ class _HomePageState extends State<HomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                        '🕒 ${context.t.info_mes01} ${sessione['data_ora_inizio']}'),
+                      '🕒 ${context.t.info_mes01} ${sessione['data_ora_inizio']}',
+                    ),
                     Text(
-                        '⏱️ ${context.t.info_mes02} ${sessione['data_ora_fine']}'),
+                      '⏱️ ${context.t.info_mes02} ${sessione['data_ora_fine']}',
+                    ),
                     Text(
                       '⏳ ${context.t.info_mes03} ${(sessione['durata_sec'] / 60).round()} min',
                     ),
                     Text(
-                        '📏 ${context.t.info_mes04} ${sessione['distanza_metri']} m'),
+                      '📏 ${context.t.info_mes04} ${sessione['distanza_metri']} m',
+                    ),
                     Text('🛰️ ${context.t.info_mes05} ${sessione['fonte']}'),
                     //if (livello == 1)
                     //  Text(
@@ -1627,226 +1812,44 @@ class _HomePageState extends State<HomePage> {
                     setState(() {
                       showDashboardMode = false;
                     });
+                    //??_ricalcolaEaggiornaAttivita('open_attivita_footer');
                   },
                   onOpenProfile: _openProfileFromDashboard,
                   onTrackingToggle: _attivaTracking,
                   onRefreshStats: () {
-                    _ricalcolaEaggiornaAttivita('dashboard_refresh_button');
+                    //?? _ricalcolaEaggiornaAttivita('dashboard_refresh_button');
                   },
                 )
-              : SingleChildScrollView(
-                  controller: _scrollController,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 20),
-                        //--------------------------------------------------------
-                        // HEADER DASHBOARD
-                        //--------------------------------------------------------
-                        DashboardHeader(
-                          consensoTrackingGps: consensoTrackingGps,
-                          utenteId: utenteId,
-                          nomeId: nomeId,
-                          livelloUtente: livelloUtente,
-                          giorniRimanenti: giorniRimanenti,
-                          labelGiorni: _labelGiorni,
-                          coloreGiorni: _coloreGiorni,
-                          chipGiorni: ChipGiorni(
-                            text: _labelGiorni(giorniRimanenti, livelloUtente),
-                            color:
-                                _coloreGiorni(giorniRimanenti, livelloUtente),
-                          ),
-                          mostraLoginDialog: mostraLoginDialog,
-                          dailyAnalysis: _dailyAnalysis, // 👈 qui
-                          livelli: livelli,
-                        ),
-                        SizedBox(height: 20),
-
-                        //--------------------------------------------------------
-                        // CARD TRACKING GPS
-                        //--------------------------------------------------------
-                        CardTrackingGps(
-                          trackingAttivo: trackingAttivo,
-                          trackingInPausa: trackingInPausa,
-                          consensoTrackingGps: consensoTrackingGps,
-                          countdown: countdown,
-                          countdownLevel: countdownLevel,
-                          ascoltoSeconds: ascoltoSeconds,
-                          onTrackingChanged: _attivaTracking,
-                          onPause: pausaTracking,
-                          onStop: stopTracking,
-                          onPlay: riprendiTracking,
-                          ultimaPosizione: ultimaPosizione,
-                          lastGpsTsUtc: lastGpsTsUtc,
-                        ),
-                        SizedBox(height: 20),
-                        //---------------------------------------------
-                        // CAROSELLO IMMAGINI inizio
-                        //---------------------------------------------
-                        const HeroCarousel(),
-                        SizedBox(height: 20),
-                        //----------------------------------------------
-                        // mappa posizione
-                        //-----------------------------------------------
-                        CardMappaPosizione(
-                          posizioneUtente: posizioneUtente, // ll.LatLng?
-                          zoom: _zoom,
-                          onRefresh: _refreshPosizione,
-                          onZoomIn: () => _zoomDelta(1),
-                          onZoomOut: () => _zoomDelta(-1),
-                          onMapCreated: (c) =>
-                              _gctrl = c, // ⬅️ prendi il controller
-                          // path: listaPuntiLL,                 // se vuoi disegnare un percorso
-                        ),
-                        SizedBox(height: 20),
-                        //----------------------------------
-                        // --- MAPPA POSIZIONE UTENTE fine ---
-                        //------------------------------------------
-                        //-------------------------------------------------
-                        // report inizio
-                        //---------------------------------------------------
-                        CardReportGiornaliero(
-                          riepilogo0: riepilogoLivello(0),
-                          riepilogo1: riepilogoLivello(1),
-                          riepilogo2: riepilogoLivello(2),
-                          ultimaPosizione: ultimaPosizione,
-                          features: features, // object dall’API
-                          historyDaysMax:
-                              limitsHistoryDaysMax, // min(history_days, retention)
-                          isAnonymous: utenteTemporaneo, // bool
-                          planName:
-                              livelloUtente, // "Free" | "Start" | "Basic"...
-                          date: DateTime.now(),
-                          utenteId: utenteId,
-                          jwtToken: _jwtToken.toString(),
-                        ),
-                        //-------------------------
-                        //report fine
-                        //-------------------
-                        SizedBox(height: 20),
-                        //-------------------------------------------------
-                        // report settimanale inizio
-                        //---------------------------------------------------
-                        CardReportSettimanale(
-                          riepilogo0: datiLivelliSett[0] ?? [],
-                          riepilogo1: datiLivelliSett[1] ?? [],
-                          riepilogo2: datiLivelliSett[2] ?? [],
-                          ultimaPosizione: ultimaPosizione,
-                          features: features, // object dall’API
-                          historyDaysMax:
-                              limitsHistoryDaysMax, // min(history_days, retention)
-                          isAnonymous: utenteTemporaneo, // bool
-                          planName:
-                              livelloUtente, // "Free" | "Start" | "Basic"...
-                          date: DateTime.now(),
-                          utenteId: utenteId,
-                          jwtToken: _jwtToken.toString(),
-                          repeatRoutes: _repeatRoutes,
-                          costiWeek: _costiWeek,
-                        ),
-                        //-------------------------
-                        //report fine
-                        //-------------------
-                        //-------------------------
-                        //grafici
-                        //-------------------
-                        if (datiGiornalieri == null) ...[
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 32),
-                            child: Center(
-                              child: Text(
-                                context.t.chart_mes01,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.blueGrey[700],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ] else ...[
-                          cardDistribuzioneLivelli(datiGiornalieri!.$1),
-                          cardTimelineLivelliBar(datiPrefatti!.$2),
-                          //cardTimelineSwimlanes(datiGiornalieri!.$2),
-                        ],
-                        //-------------------------
-                        //grafici fine
-                        //-------------------
-                        SizedBox(height: 20),
-                        //-----------------------------------------------------
-                        // LIVELLI DI ATTIVITÀ
-                        //-----------------------------------------------------
-                        cardLivelloConGrafico(
-                          livello: 0,
-                          titolo: '🛌 ${context.t.mov_inattivo}',
-                          color: Colors.blueGrey[50]!,
-                          datiSettimanali: datiSettimanali(datiLivelli[0]),
-                        ),
-
-                        cardLivelloConGrafico(
-                          livello: 1,
-                          titolo: '🚶 ${context.t.mov_leggero}',
-                          color: Colors.blueGrey[50]!,
-                          datiSettimanali: datiSettimanali(datiLivelli[1]),
-                        ),
-
-                        cardLivelloConGrafico(
-                          livello: 2,
-                          titolo: '🚗 ${context.t.mov_veloce}',
-                          color: Colors.blueGrey[50]!,
-                          datiSettimanali: datiSettimanali(datiLivelli[2]),
-                        ),
-
-                        SizedBox(height: 12),
-                        //--------------------------------------------------------
-                        //Text('Ultima posizione: $ultimaPosizione'),  // uso stringa
-                        Text(gpsErrore),
-                        SizedBox(height: 12), // Spazio prima del footer
-
-                        //---------------------------------------------------------
-                        // --- SEZIONE dettagli GPS giornaliero
-                        //-----------------------------------------------------------
-                        CardDiarioGps(),
-                        SizedBox(height: 20),
-
-                        //---------------------------------------------------------
-                        // --- SEZIONE NOTIFICHE
-                        //-----------------------------------------------------------
-                        CardNotifiche(
-                          service: NotificationService(),
-                          utenteId: int.tryParse(utenteId) ?? 0,
-                          token: _jwtToken ?? '',
-                          baseUrl: apiBaseUrl,
-                        ),
-                        SizedBox(height: 20),
-
-                        //---------------------------------------------------------
-                        // --- SEZIONE SCELTA STORICO
-                        //-----------------------------------------------------------
-                        CardSceltaStorico(
-                            pianoDescrizioneBuilder: _pianoDescrizione),
-                        SizedBox(height: 20),
-
-                        //---------------------------------------------------------
-                        // --- SEZIONE DEDICA
-                        //-----------------------------------------------------------
-                        CardDedica(
-                          title: context.t.dedica_title,
-                          testo: context.t.dedica_testo,
-                          assetPhoto1: 'assets/img/lova1.jpg',
-                          assetPhoto2: 'assets/img/lova.jpg',
-                        ),
-                        SizedBox(height: 20),
-
-                        //--------------------------------------------------------
-                        // FOOTER
-                        //--------------------------------------------------------
-                        AppFooter(), // <-- AGGIUNGI QUI IL FOOTER!
-                      ],
-                    ),
-                  ),
-                ),
+              : _buildHomeComplete(),
+          // PLACEHOLDER - removed SingleChildScrollView, kept for reference
+          //_buildHomeComplete(),
+          // OLD CODE:
+          // body: SingleChildScrollView(
+          //   controller: _scrollController,
+          //   child: Padding(
+          //     padding: const EdgeInsets.all(16),
+          //     child: Column(
+          //       crossAxisAlignment: CrossAxisAlignment.start,
+          //       children: [
+          //         SizedBox(height: 20),
+          //         //--------------------------------------------------------
+          //         // HEADER DASHBOARD
+          //         //--------------------------------------------------------
+          //         DashboardHeader(
+          //           consensoTrackingGps: consensoTrackingGps,
+          //           utenteId: utenteId,
+          //           nomeId: nomeId,
+          //           livelloUtente: livelloUtente,
+          //           giorniRimanenti: giorniRimanenti,
+          //           labelGiorni: _labelGiorni,
+          //           coloreGiorni: _coloreGiorni,
+          //           chipGiorni: ChipGiorni(
+          //             text: _labelGiorni(giorniRimanenti, livelloUtente),
+          //             color: _coloreGiorni(giorniRimanenti, livelloUtente),
+          //           ),
+          //           mostraLoginDialog: mostraLoginDialog,
+          //           dailyAnalysis: _dailyAnalysis, // 👈 qui
+          //         ),
           bottomNavigationBar: showDashboardMode
               ? null
               : BottomNavBar(
@@ -1868,13 +1871,18 @@ class _HomePageState extends State<HomePage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // usa la tua immagine di attesa in assets
-                    Image.asset('assets/img/logo_app.png',
-                        width: 160, height: 160),
+                    Image.asset(
+                      'assets/img/logo_app.png',
+                      width: 160,
+                      height: 160,
+                    ),
                     const SizedBox(height: 18),
                     const CircularProgressIndicator(),
                     const SizedBox(height: 8),
-                    Text('Loading...',
-                        style: TextStyle(color: Colors.grey[700])),
+                    Text(
+                      'Loading...',
+                      style: TextStyle(color: Colors.grey[700]),
+                    ),
                   ],
                 ),
               ),
@@ -2107,7 +2115,7 @@ class _HomePageState extends State<HomePage> {
           'client': 'app',
           // opzionale ma utile:
           'device_id': await getDeviceId(),
-          'app_version': appVersion
+          'app_version': appVersion,
         }),
       );
 
@@ -2127,20 +2135,20 @@ class _HomePageState extends State<HomePage> {
       if (data['success'] == true) {
         await _callAppClose();
 
+        // Salva PRIMA il tutto in SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString("utenteIdLogin", data['user_id'].toString());
+        await prefs.setString("nomeIdLogin", data['nome'].toString());
+
         setState(() {
           utenteId = data['user_id'].toString();
           nomeId = data['nome'].toString();
           debugUtente = "Nome: $nomeId";
-          utenteTemporaneo = false; // <-- AGGIUNGI QUESTO!
+          utenteTemporaneo = false;
         });
 
         //imposta timezone
         syncTimezone(utenteId);
-
-        // ...dopo aver ottenuto utenteId e nomeId...
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString("utenteIdLogin", utenteId);
-        await prefs.setString("nomeIdLogin", nomeId);
 
         loading = true;
 
@@ -2153,7 +2161,10 @@ class _HomePageState extends State<HomePage> {
         if (!consensiOk) {
           //await mostraDialogConsensi(context, utenteId);
           await mostraDialogConsensiObbligatoria(
-              context, utenteId, _openUrl); // <-- QUI
+            context,
+            utenteId,
+            _openUrl,
+          ); // <-- QUI
         } else {
           await leggiConsensi();
         }
@@ -2208,7 +2219,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   //------------------------------------------------------------------
-  // Funzione per controllare se i consensi esistono
+  // Funzione per aggiornare la data dell'ultimo accesso
   //------------------------------------------------------------------
   Future<bool> _aggiornaDataUltimoAccesso() async {
     try {
@@ -2257,9 +2268,7 @@ class _HomePageState extends State<HomePage> {
             child: SingleChildScrollView(
               // per evitare overflow su schermi piccoli
               child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: size.height * 0.9,
-                ),
+                constraints: BoxConstraints(maxHeight: size.height * 0.9),
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
                   child: Form(
@@ -2277,8 +2286,10 @@ class _HomePageState extends State<HomePage> {
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
-                        Text('Login',
-                            style: Theme.of(ctx).textTheme.titleLarge),
+                        Text(
+                          'Login',
+                          style: Theme.of(ctx).textTheme.titleLarge,
+                        ),
                         const SizedBox(height: 12),
                         TextFormField(
                           controller: emailC,
@@ -2286,10 +2297,12 @@ class _HomePageState extends State<HomePage> {
                           keyboardType: TextInputType.emailAddress,
                           textInputAction: TextInputAction.next,
                           decoration: InputDecoration(
-                              labelText: context.t.form_reg_mail),
+                            labelText: context.t.form_reg_mail,
+                          ),
                           validator: (v) => v != null &&
-                                  RegExp(r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$')
-                                      .hasMatch(v)
+                                  RegExp(
+                                    r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$',
+                                  ).hasMatch(v)
                               ? null
                               : 'Email non valida',
                           onFieldSubmitted: (_) =>
@@ -2302,7 +2315,8 @@ class _HomePageState extends State<HomePage> {
                           obscureText: true,
                           textInputAction: TextInputAction.done,
                           decoration: InputDecoration(
-                              labelText: context.t.form_reg_password),
+                            labelText: context.t.form_reg_password,
+                          ),
                           validator: (v) => (v ?? '').length >= 8
                               ? null
                               : context.t.form_reg_err03,
@@ -2338,16 +2352,24 @@ class _HomePageState extends State<HomePage> {
                                   );
 
                                   // chiudi la modale
+                                  if (!mounted) return;
                                   Navigator.pop(ctx);
+
+                                  // Forza rebuild UI dopo login
+                                  if (mounted && ok) {
+                                    setState(() {});
+                                  }
 
                                   // mostra feedback dopo la chiusura
                                   if (!mounted) return;
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(ok
-                                          ? context.t.user_login_success ??
-                                              'Login successful!'
-                                          : context.t.user_err05),
+                                      content: Text(
+                                        ok
+                                            ? context.t.user_login_success ??
+                                                'Login successful!'
+                                            : context.t.user_err05,
+                                      ),
                                       backgroundColor:
                                           ok ? Colors.black54 : Colors.red,
                                       behavior: SnackBarBehavior.floating,
@@ -2355,19 +2377,21 @@ class _HomePageState extends State<HomePage> {
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.black45,
+                                  backgroundColor: Colors.blue[700],
                                   foregroundColor: Colors.white,
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
                                   ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  elevation: 2,
                                 ),
                                 child: Text(
                                   context.t.user_err06, // "Accedi"
                                   style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
                                     fontSize: 16,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ),
@@ -2384,8 +2408,9 @@ class _HomePageState extends State<HomePage> {
                                 mostraRegistrazioneDialog(context);
                               },
                               style: ElevatedButton.styleFrom(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 14),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -2393,7 +2418,9 @@ class _HomePageState extends State<HomePage> {
                               child: Text(
                                 context.t.user_err07, // "Registrati"
                                 style: const TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w600),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),
@@ -2410,9 +2437,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-//---------------------------------------------------------------
-// Mostra il dialog di reimpostazione password
-//---------------------------------------------------------------
+  //---------------------------------------------------------------
+  // Mostra il dialog di reimpostazione password
+  //---------------------------------------------------------------
   Future<void> mostraPasswordResetDialog(BuildContext context) async {
     final emailController = TextEditingController();
     bool loading = false;
@@ -2434,8 +2461,10 @@ class _HomePageState extends State<HomePage> {
               if (errore != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
-                  child:
-                      Text(errore!, style: const TextStyle(color: Colors.red)),
+                  child: Text(
+                    errore!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
                 ),
             ],
           ),
@@ -2453,18 +2482,14 @@ class _HomePageState extends State<HomePage> {
                       await http.post(
                         Uri.parse('$apiBaseUrl/password_reset_request.php'),
                         headers: {
-                          'Content-Type': 'application/json; charset=utf-8'
+                          'Content-Type': 'application/json; charset=utf-8',
                         },
                         body: jsonEncode({'email': email}),
                       );
                       setState(() => loading = false);
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            context.t.link_mail_password,
-                          ),
-                        ),
+                        SnackBar(content: Text(context.t.link_mail_password)),
                       );
                     },
               child: Text(context.t.invia_richiesta_label),
@@ -2513,7 +2538,9 @@ class _HomePageState extends State<HomePage> {
                 InputDecoration deco(String label) => InputDecoration(
                       labelText: label,
                       contentPadding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 12),
+                        vertical: 10,
+                        horizontal: 12,
+                      ),
                       border: const OutlineInputBorder(),
                     );
 
@@ -2538,8 +2565,10 @@ class _HomePageState extends State<HomePage> {
                                 borderRadius: BorderRadius.circular(2),
                               ),
                             ),
-                            Text(ctx.t.form_reg_testa,
-                                style: Theme.of(ctx).textTheme.titleLarge),
+                            Text(
+                              ctx.t.form_reg_testa,
+                              style: Theme.of(ctx).textTheme.titleLarge,
+                            ),
                             const SizedBox(height: 12),
 
                             TextFormField(
@@ -2563,8 +2592,9 @@ class _HomePageState extends State<HomePage> {
                               textInputAction: TextInputAction.next,
                               decoration: deco(ctx.t.form_reg_mail),
                               validator: (v) => (v != null &&
-                                      RegExp(r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$')
-                                          .hasMatch(v))
+                                      RegExp(
+                                        r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$',
+                                      ).hasMatch(v))
                                   ? null
                                   : ctx.t.form_reg_err02,
                               onFieldSubmitted: (_) =>
@@ -2580,16 +2610,19 @@ class _HomePageState extends State<HomePage> {
                               decoration:
                                   deco(ctx.t.form_reg_password).copyWith(
                                 suffixIcon: IconButton(
-                                  icon: Icon(obscure1
-                                      ? Icons.visibility
-                                      : Icons.visibility_off),
+                                  icon: Icon(
+                                    obscure1
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                  ),
                                   onPressed: () =>
                                       setState(() => obscure1 = !obscure1),
                                 ),
                               ),
                               validator: (v) => (v != null &&
-                                      RegExp(r'^(?=.*[A-Z])(?=.*\d).{8,}$')
-                                          .hasMatch(v))
+                                      RegExp(
+                                        r'^(?=.*[A-Z])(?=.*\d).{8,}$',
+                                      ).hasMatch(v))
                                   ? null
                                   : ctx.t.form_reg_err03,
                               onFieldSubmitted: (_) =>
@@ -2602,13 +2635,15 @@ class _HomePageState extends State<HomePage> {
                               focusNode: pass2F,
                               obscureText: obscure2,
                               textInputAction: TextInputAction.done,
-                              decoration:
-                                  deco(context.t.conferma_password_label)
-                                      .copyWith(
+                              decoration: deco(
+                                context.t.conferma_password_label,
+                              ).copyWith(
                                 suffixIcon: IconButton(
-                                  icon: Icon(obscure2
-                                      ? Icons.visibility
-                                      : Icons.visibility_off),
+                                  icon: Icon(
+                                    obscure2
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                  ),
                                   onPressed: () =>
                                       setState(() => obscure2 = !obscure2),
                                 ),
@@ -2646,29 +2681,35 @@ class _HomePageState extends State<HomePage> {
 
                                       if (ok) {
                                         await mostraVerificaEmailDialog(
-                                            context, emailC.text.trim());
+                                          context,
+                                          emailC.text.trim(),
+                                        );
                                       }
 
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
                                         SnackBar(
                                           behavior: SnackBarBehavior.floating,
                                           margin: EdgeInsets.only(
                                             left: 16,
                                             right: 16,
-                                            bottom: MediaQuery.of(context)
-                                                    .viewInsets
-                                                    .bottom +
+                                            bottom: MediaQuery.of(
+                                                  context,
+                                                ).viewInsets.bottom +
                                                 16,
                                           ),
-                                          content: Text(ok
-                                              ? ctx.t.form_reg_err04
-                                              : ctx.t.form_reg_err05),
+                                          content: Text(
+                                            ok
+                                                ? ctx.t.form_reg_err04
+                                                : ctx.t.form_reg_err05,
+                                          ),
                                         ),
                                       );
                                     },
-                                    child:
-                                        Text(ctx.t.user_err07), // "Registrati"
+                                    child: Text(
+                                      ctx.t.user_err07,
+                                    ), // "Registrati"
                                   ),
                                 ),
                               ],
@@ -2792,9 +2833,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-//-------------------------------------------------------------------------
-// Dialog Privacy obbligatoria (Apple compliant) + link esterni
-//-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
+  // Dialog Privacy obbligatoria (Apple compliant) + link esterni
+  //-------------------------------------------------------------------------
   Future<void> mostraDialogConsensiObbligatoria(
     BuildContext context,
     String utenteId,
@@ -2846,7 +2887,8 @@ class _HomePageState extends State<HomePage> {
                   onChanged: (v) =>
                       setState(() => consensoPrivacy = v ?? false),
                   title: Text(
-                      context.t.form_consensi_02), // "Accetto Privacy Policy"
+                    context.t.form_consensi_02,
+                  ), // "Accetto Privacy Policy"
                   controlAffinity: ListTileControlAffinity.leading,
                   contentPadding: EdgeInsets.zero,
                 ),
@@ -2869,8 +2911,9 @@ class _HomePageState extends State<HomePage> {
                       Navigator.pop(context);
                     }
                   : null, // disabilitato finché non accetta
-              child:
-                  Text(context.t.form_consensi_06), // "Conferma" / "Continua"
+              child: Text(
+                context.t.form_consensi_06,
+              ), // "Conferma" / "Continua"
             ),
           ],
         ),
@@ -2878,9 +2921,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-//---------------------------------------------------------------------
-// Apri URL esterno
-//---------------------------------------------------------------------
+  //---------------------------------------------------------------------
+  // Apri URL esterno
+  //---------------------------------------------------------------------
   Future<void> _openUrl(String url) async {
     final uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
@@ -3175,8 +3218,9 @@ class _HomePageState extends State<HomePage> {
 
       final body = json.decode(res.body);
       final List totali = (body['totali'] as List? ?? []);
-      totali.sort((a, b) =>
-          a['data'].toString().compareTo(b['data'].toString())); // lun→dom
+      totali.sort(
+        (a, b) => a['data'].toString().compareTo(b['data'].toString()),
+      ); // lun→dom
 
       setState(() {
         datiLivelli[livello] = dettagli is List ? dettagli : [];
@@ -3192,11 +3236,9 @@ class _HomePageState extends State<HomePage> {
       await _storage.delete(key: 'jwt_token');
       await _loginAnon(); // ricreo il token
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.t.session_expired),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.t.session_expired)));
         Navigator.of(context).pushReplacementNamed('/login');
       }
     } else {
@@ -3268,7 +3310,11 @@ class _HomePageState extends State<HomePage> {
     if (res.statusCode == 401 && !_refreshingToken) {
       await handle401(); // <--- refresh token e gestisci eventuale retry
       return await fetchAttivita24h(
-          utenteId, giorno, apiBaseUrl, headers); // retry
+        utenteId,
+        giorno,
+        apiBaseUrl,
+        headers,
+      ); // retry
       //return;
     }
 
@@ -3308,7 +3354,11 @@ class _HomePageState extends State<HomePage> {
     if (res.statusCode == 401 && !_refreshingToken) {
       await handle401(); // <--- refresh token e gestisci eventuale retry
       return await fetchTimelinePrefatta(
-          utenteId, giorno, apiBaseUrl, headers); // retry
+        utenteId,
+        giorno,
+        apiBaseUrl,
+        headers,
+      ); // retry
       //return;
     }
 
@@ -3328,9 +3378,9 @@ class _HomePageState extends State<HomePage> {
     return (oraria, periodi);
   }
 
-//----------------------------------------------------------------------
-// Timeline livelli con BARRE - versione semplificata e più affidabile
-//----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // Timeline livelli con BARRE - versione semplificata e più affidabile
+  //----------------------------------------------------------------------
   Widget cardTimelineLivelliBar(List<Periodo> periodi_norm) {
     if (utenteTemporaneo) {
       return Card(
@@ -3353,7 +3403,7 @@ class _HomePageState extends State<HomePage> {
               Center(
                 child: Text(
                   context.t.msg_abilitato_01,
-                  style: TextStyle(color: Colors.red[700], fontSize: 15),
+                  style: TextStyle(color: Colors.grey[400], fontSize: 15),
                 ),
               ),
             ],
@@ -3380,8 +3430,14 @@ class _HomePageState extends State<HomePage> {
 
       while (corrente.isBefore(fine)) {
         final ora = corrente.hour;
-        final fineOra =
-            DateTime(corrente.year, corrente.month, corrente.day, ora, 59, 59);
+        final fineOra = DateTime(
+          corrente.year,
+          corrente.month,
+          corrente.day,
+          ora,
+          59,
+          59,
+        );
         final finePeriodo = fine.isBefore(fineOra) ? fine : fineOra;
 
         final secondi = finePeriodo.difference(corrente).inSeconds;
@@ -3394,8 +3450,10 @@ class _HomePageState extends State<HomePage> {
 
     // Riempi i buchi con OFF (secondi rimanenti nell'ora)
     for (int h = 0; h < 24; h++) {
-      final totaleSecondi =
-          durataPerOraLivello[h]!.values.fold(0, (a, b) => a + b);
+      final totaleSecondi = durataPerOraLivello[h]!.values.fold(
+            0,
+            (a, b) => a + b,
+          );
       final secondiMancanti = 3600 - totaleSecondi; // 3600 secondi in un'ora
       if (secondiMancanti > 0) {
         durataPerOraLivello[h]![-1] = secondiMancanti;
@@ -3472,9 +3530,9 @@ class _HomePageState extends State<HomePage> {
         final boundary = renderObj is RenderRepaintBoundary ? renderObj : null;
         if (boundary == null) {
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(context.t.chart_mes06)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(context.t.chart_mes06)));
           }
           return;
         }
@@ -3598,16 +3656,12 @@ class _HomePageState extends State<HomePage> {
                     gridData: FlGridData(
                       show: true,
                       horizontalInterval: 15,
-                      getDrawingHorizontalLine: (v) => FlLine(
-                        color: Colors.blueGrey[100],
-                        strokeWidth: 1,
-                      ),
+                      getDrawingHorizontalLine: (v) =>
+                          FlLine(color: Colors.blueGrey[100], strokeWidth: 1),
                       drawVerticalLine: true,
                       verticalInterval: 1,
-                      getDrawingVerticalLine: (v) => FlLine(
-                        color: Colors.blueGrey[50],
-                        strokeWidth: 0.5,
-                      ),
+                      getDrawingVerticalLine: (v) =>
+                          FlLine(color: Colors.blueGrey[50], strokeWidth: 0.5),
                     ),
                     titlesData: FlTitlesData(
                       leftTitles: AxisTitles(
@@ -3616,9 +3670,13 @@ class _HomePageState extends State<HomePage> {
                           reservedSize: 40,
                           interval: 15,
                           getTitlesWidget: (v, _) {
-                            return Text('${v.toInt()}m',
-                                style: TextStyle(
-                                    color: Colors.grey[700], fontSize: 10));
+                            return Text(
+                              '${v.toInt()}m',
+                              style: TextStyle(
+                                color: Colors.grey[700],
+                                fontSize: 10,
+                              ),
+                            );
                           },
                         ),
                       ),
@@ -3630,17 +3688,21 @@ class _HomePageState extends State<HomePage> {
                           getTitlesWidget: (v, _) {
                             final ora = v.toInt();
                             if (ora >= 0 && ora < 24 && ora % 2 == 0) {
-                              return Text('$ora',
-                                  style: TextStyle(fontSize: 10));
+                              return Text(
+                                '$ora',
+                                style: TextStyle(fontSize: 10),
+                              );
                             }
                             return const SizedBox.shrink();
                           },
                         ),
                       ),
                       topTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false)),
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
                       rightTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false)),
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
                     ),
                     borderData: FlBorderData(
                       show: true,
@@ -3673,9 +3735,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-//----------------------------------------------------------------------
-// Timeline livelli basata sui PERIODI dell'API (non per ora) - swimlan
-//----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // Timeline livelli basata sui PERIODI dell'API (non per ora) - swimlan
+  //----------------------------------------------------------------------
   Widget cardTimelineSwimlanes(List<Periodo> periodi) {
     if (utenteTemporaneo) {
       return Card(
@@ -3698,7 +3760,7 @@ class _HomePageState extends State<HomePage> {
               Center(
                 child: Text(
                   context.t.msg_abilitato_01,
-                  style: TextStyle(color: Colors.red[700], fontSize: 15),
+                  style: TextStyle(color: Colors.grey[400], fontSize: 15),
                 ),
               ),
             ],
@@ -3772,9 +3834,9 @@ class _HomePageState extends State<HomePage> {
         final boundary = renderObj is RenderRepaintBoundary ? renderObj : null;
         if (boundary == null) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(context.t.chart_mes06)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(context.t.chart_mes06)));
           }
           return;
         }
@@ -3784,8 +3846,9 @@ class _HomePageState extends State<HomePage> {
           tries++;
         }
         final dpr = MediaQuery.of(context).devicePixelRatio;
-        final img =
-            await boundary.toImage(pixelRatio: (dpr * 2).clamp(2.0, 4.0));
+        final img = await boundary.toImage(
+          pixelRatio: (dpr * 2).clamp(2.0, 4.0),
+        );
         final bd = await img.toByteData(format: ui.ImageByteFormat.png);
         if (bd == null) throw Exception('toByteData returned null');
         final bytes = bd.buffer.asUint8List();
@@ -3794,8 +3857,9 @@ class _HomePageState extends State<HomePage> {
           '${dir.path}/move_chart_timeline_swim_${DateTime.now().millisecondsSinceEpoch}.png',
         );
         await file.writeAsBytes(bytes, flush: true);
-        await Share.shareXFiles([XFile(file.path)],
-            text: context.t.chart_mes07);
+        await Share.shareXFiles([
+          XFile(file.path),
+        ], text: context.t.chart_mes07);
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -3820,14 +3884,18 @@ class _HomePageState extends State<HomePage> {
           borderRadius: BorderRadius.circular(999),
           border: Border.all(color: color.withOpacity(.35)),
         ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Container(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
               width: 8,
               height: 8,
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
-          const SizedBox(width: 6),
-          Text('$label ${m}m', style: TextStyle(color: darken(color))),
-        ]),
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: 6),
+            Text('$label ${m}m', style: TextStyle(color: darken(color))),
+          ],
+        ),
       );
     }
 
@@ -3842,64 +3910,72 @@ class _HomePageState extends State<HomePage> {
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(children: [
-              Expanded(
-                child: Text(
-                  context.t.chart_mes10,
-                  style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black54),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      context.t.chart_mes10,
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.share),
+                    label: Text(context.t.condividi_button),
+                    onPressed: condividi,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[700],
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // disegno
+              SizedBox(
+                height: 200,
+                width: double.infinity,
+                child: CustomPaint(
+                  painter: SwimlanePainter(
+                    periods: seg,
+                    viewMinX: viewMinX,
+                    viewMaxX: viewMaxX,
+                    tickInterval: xInterval,
+                    labelFor: _labelFor,
+                    showNow: showNow,
+                    nowX: nowX,
+                    colL0: colL0,
+                    colL1: colL1,
+                    colL2: colL2,
+                  ),
                 ),
               ),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.share),
-                label: Text(context.t.condividi_button),
-                onPressed: condividi,
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[700],
-                    foregroundColor: Colors.white),
+
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  chip('L2', totalL2, colL2),
+                  chip('L1', totalL1, colL1),
+                  chip('L0', totalL0, colL0),
+                ],
               ),
-            ]),
-            const SizedBox(height: 12),
 
-            // disegno
-            SizedBox(
-              height: 200,
-              width: double.infinity,
-              child: CustomPaint(
-                painter: SwimlanePainter(
-                  periods: seg,
-                  viewMinX: viewMinX,
-                  viewMaxX: viewMaxX,
-                  tickInterval: xInterval,
-                  labelFor: _labelFor,
-                  showNow: showNow,
-                  nowX: nowX,
-                  colL0: colL0,
-                  colL1: colL1,
-                  colL2: colL2,
-                ),
+              const SizedBox(height: 8),
+              Text(
+                context.t.chart_mes03,
+                style: TextStyle(fontSize: 13, color: Colors.grey[700]),
               ),
-            ),
-
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                chip('L2', totalL2, colL2),
-                chip('L1', totalL1, colL1),
-                chip('L0', totalL0, colL0),
-              ],
-            ),
-
-            const SizedBox(height: 8),
-            Text(context.t.chart_mes03,
-                style: TextStyle(fontSize: 13, color: Colors.grey[700])),
-          ]),
+            ],
+          ),
         ),
       ),
     );
@@ -3936,7 +4012,7 @@ class _HomePageState extends State<HomePage> {
               Center(
                 child: Text(
                   context.t.msg_abilitato_01,
-                  style: TextStyle(color: Colors.red[700], fontSize: 15),
+                  style: TextStyle(color: Colors.grey[400], fontSize: 15),
                 ),
               ),
             ],
@@ -3957,9 +4033,9 @@ class _HomePageState extends State<HomePage> {
 
         if (boundary == null) {
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(context.t.chart_mes06)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(context.t.chart_mes06)));
           }
           return;
         }
@@ -4081,8 +4157,10 @@ class _HomePageState extends State<HomePage> {
                           final text = out.isEmpty
                               ? 'h $h\n—'
                               : 'h $h\n${out.join('\n')}';
-                          return BarTooltipItem(text,
-                              const TextStyle(fontWeight: FontWeight.w600));
+                          return BarTooltipItem(
+                            text,
+                            const TextStyle(fontWeight: FontWeight.w600),
+                          );
                         },
                       ),
                     ),
@@ -4115,9 +4193,11 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       topTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false)),
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
                       rightTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false)),
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
                     ),
                     borderData: FlBorderData(show: true),
                     barGroups: datiOrari.map((e) {
@@ -4164,90 +4244,106 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 12),
 
               // ▼▼▼ TORTA RIEPILOGATIVA (L0/L1/L2) ▼▼▼
-              Builder(builder: (_) {
-                final day = _sumDay(datiOrari);
-                final activeTotal = day.values.fold<double>(0, (a, b) => a + b);
+              Builder(
+                builder: (_) {
+                  final day = _sumDay(datiOrari);
+                  final activeTotal = day.values.fold<double>(
+                    0,
+                    (a, b) => a + b,
+                  );
 
-                if (activeTotal <= 0) {
+                  if (activeTotal <= 0) {
+                    return Row(
+                      children: [
+                        SizedBox(
+                          width: 130,
+                          height: 130,
+                          child: PieChart(
+                            PieChartData(
+                              centerSpaceRadius: 22,
+                              sectionsSpace: 2,
+                              sections: [
+                                PieChartSectionData(
+                                  value: 1,
+                                  title: 'No data',
+                                  color: Colors.grey.shade400,
+                                  radius: 44,
+                                  titleStyle: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(child: Text(context.t.attivita_giorno)),
+                      ],
+                    );
+                  }
+
+                  // colori coerenti con la card
+                  const colL2 = Color(0xFF1565C0);
+                  final colL1 = Colors.orange;
+                  final colL0 = Colors.blueGrey;
+
+                  // ordina le voci per valore (desc) per torta/legenda
+                  final entries = <({String k, double v, Color c})>[
+                    (k: 'L0', v: day['L0']!, c: colL0),
+                    (k: 'L1', v: day['L1']!, c: colL1),
+                    (k: 'L2', v: day['L2']!, c: colL2),
+                  ]..sort((a, b) => b.v.compareTo(a.v));
+
+                  final top = entries.first; // etichetta centrale
+
                   return Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      // Torta con etichetta centrale (livello dominante + %)
                       SizedBox(
                         width: 130,
                         height: 130,
-                        child: PieChart(PieChartData(
-                          centerSpaceRadius: 22,
-                          sectionsSpace: 2,
-                          sections: [
-                            PieChartSectionData(
-                              value: 1,
-                              title: 'No data',
-                              color: Colors.grey.shade400,
-                              radius: 44,
-                              titleStyle: const TextStyle(
-                                  color: Colors.white, fontSize: 12),
-                            ),
-                          ],
-                        )),
+                        child: PieChart(
+                          PieChartData(
+                            centerSpaceRadius:
+                                26, // mantieni il “buco” centrale
+                            sectionsSpace: 2,
+                            sections: entries
+                                .map(
+                                  (e) => PieChartSectionData(
+                                    value: e.v,
+                                    color: e.c,
+                                    radius: 44,
+                                    title: '', // niente numeri sui settori
+                                    titleStyle: const TextStyle(fontSize: 0),
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 12),
-                      Expanded(child: Text(context.t.attivita_giorno)),
+
+                      // Legenda ordinata per importanza
+                      Expanded(
+                        child: Wrap(
+                          spacing: 12,
+                          runSpacing: 8,
+                          children: entries
+                              .map(
+                                (e) =>
+                                    _pieLegendRow(e.c, e.k, e.v, activeTotal),
+                              )
+                              .toList(),
+                        ),
+                      ),
                     ],
                   );
-                }
+                },
+              ),
 
-                // colori coerenti con la card
-                const colL2 = Color(0xFF1565C0);
-                final colL1 = Colors.orange;
-                final colL0 = Colors.blueGrey;
-
-                // ordina le voci per valore (desc) per torta/legenda
-                final entries = <({String k, double v, Color c})>[
-                  (k: 'L0', v: day['L0']!, c: colL0),
-                  (k: 'L1', v: day['L1']!, c: colL1),
-                  (k: 'L2', v: day['L2']!, c: colL2),
-                ]..sort((a, b) => b.v.compareTo(a.v));
-
-                final top = entries.first; // etichetta centrale
-
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // Torta con etichetta centrale (livello dominante + %)
-                    SizedBox(
-                      width: 130,
-                      height: 130,
-                      child: PieChart(PieChartData(
-                        centerSpaceRadius: 26, // mantieni il “buco” centrale
-                        sectionsSpace: 2,
-                        sections: entries
-                            .map((e) => PieChartSectionData(
-                                  value: e.v,
-                                  color: e.c,
-                                  radius: 44,
-                                  title: '', // niente numeri sui settori
-                                  titleStyle: const TextStyle(fontSize: 0),
-                                ))
-                            .toList(),
-                      )),
-                    ),
-                    const SizedBox(width: 12),
-
-                    // Legenda ordinata per importanza
-                    Expanded(
-                      child: Wrap(
-                        spacing: 12,
-                        runSpacing: 8,
-                        children: entries
-                            .map((e) =>
-                                _pieLegendRow(e.c, e.k, e.v, activeTotal))
-                            .toList(),
-                      ),
-                    ),
-                  ],
-                );
-              }),
               // ▲▲▲ FINE TORTA ▲▲▲
-
               const SizedBox(height: 8),
 
               // Legenda “fissa” sotto il grafico (senza OFF)
@@ -4273,9 +4369,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-//----------------------------------------------------------------------
-// somma giorni
-//----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // somma giorni
+  //----------------------------------------------------------------------
   Map<String, double> _sumDay(List<OraStat> hours) {
     double l0 = 0, l1 = 0, l2 = 0;
     for (final h in hours) {
@@ -4286,21 +4382,27 @@ class _HomePageState extends State<HomePage> {
     return {'L0': l0, 'L1': l1, 'L2': l2};
   }
 
-//----------------------------------------------------------------------
-// Legend per i cerchietti colorati
-//----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // Legend per i cerchietti colorati
+  //----------------------------------------------------------------------
   Widget _pieLegendRow(Color c, String label, double secs, double total) {
     final perc = total > 0 ? (secs / total * 100) : 0;
     final mm = (secs / 60).round();
-    return Row(mainAxisSize: MainAxisSize.min, children: [
-      Container(
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
           width: 10,
           height: 10,
-          decoration: BoxDecoration(color: c, shape: BoxShape.circle)),
-      const SizedBox(width: 6),
-      Text('$label  ${perc.toStringAsFixed(0)}%  (${mm}m)',
-          style: const TextStyle(fontSize: 12)),
-    ]);
+          decoration: BoxDecoration(color: c, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          '$label  ${perc.toStringAsFixed(0)}%  (${mm}m)',
+          style: const TextStyle(fontSize: 12),
+        ),
+      ],
+    );
   }
 
   //--------------------------------------------------------------------
@@ -4344,7 +4446,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   //-----------------------------------------------------------
-  // Carica il livello utente e le features attive
+  // Carica il livello utente
   //-----------------------------------------------------------
   Future<void> _caricaLivelloUtente() async {
     try {
@@ -4403,14 +4505,14 @@ class _HomePageState extends State<HomePage> {
     return Colors.green;
   }
 
-//----------------------------------------------------------
-// Esporta dati distribuzione livelli in CSV
-//----------------------------------------------------------
+  //----------------------------------------------------------
+  // Esporta dati distribuzione livelli in CSV
+  //----------------------------------------------------------
   void esportaDistribuzioneCsv(List<OraStat> datiOrari) {}
 
-//-----------------------------------------------------------
-// Esporta dati timeline livelli in GPX (esempio minimale)
-//-----------------------------------------------------------
+  //-----------------------------------------------------------
+  // Esporta dati timeline livelli in GPX (esempio minimale)
+  //-----------------------------------------------------------
   void esportaTimelineGpx(List<OraStat> datiOrari) {}
 
   //-----------------------------------------------------------
@@ -4428,9 +4530,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-//-----------------------------------------------------------
-// Mappa i livelli di accuratezza della posizione
-//-----------------------------------------------------------
+  //-----------------------------------------------------------
+  // Mappa i livelli di accuratezza della posizione
+  //-----------------------------------------------------------
   LocationAccuracy _accFromPlan(String? mode) {
     switch ((mode ?? '').toLowerCase()) {
       case 'low':
@@ -4448,9 +4550,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-//-----------------------------------------------------------
-// Mappa i livelli di accuratezza della posizione (metri)
-//-----------------------------------------------------------
+  //-----------------------------------------------------------
+  // Mappa i livelli di accuratezza della posizione (metri)
+  //-----------------------------------------------------------
   double _accMaxFromPlan(String? mode) {
     switch (mode) {
       case 'low':
@@ -4465,9 +4567,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-//-------------------------------------------------------------------
-// ricalcolaEaggiornaAttivita
-//-------------------------------------------------------------------
+  //-------------------------------------------------------------------
+  // ricalcolaEaggiornaAttivita
+  //-------------------------------------------------------------------
   Future<void> _maybeRecalc({bool force = false}) async {
     final now = DateTime.now();
     final gpsuploadsec = (features?['gps_sample_sec'] as num?)?.toInt() ?? 30;
@@ -4483,9 +4585,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-//-------------------------------------------------------------------
-// Flusso di logout
-//-------------------------------------------------------------------
+  //-------------------------------------------------------------------
+  // Flusso di logout
+  //-------------------------------------------------------------------
   Future<void> onLogoutFlow() async {
     countdownTimer?.cancel();
     setState(() {
@@ -4500,9 +4602,9 @@ class _HomePageState extends State<HomePage> {
     lastGpsTsUtc = null;
   }
 
-//-----------------------------------------------------------------
-// Inizializza la coda GPS
-//-----------------------------------------------------------------
+  //-----------------------------------------------------------------
+  // Inizializza la coda GPS
+  //-----------------------------------------------------------------
   void _initQueue() {
     final uploadSec = (features?['gps_upload_sec'] as num?)?.toInt() ?? 180;
     final uid = utenteId;
@@ -4524,9 +4626,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-//-----------------------------------------------------------------
-// Assicura che la coda GPS sia inizializzata
-//-----------------------------------------------------------------
+  //-----------------------------------------------------------------
+  // Assicura che la coda GPS sia inizializzata
+  //-----------------------------------------------------------------
   Future<void> _ensureQueue() async {
     if (gpsQueue != null) return;
     _initQueue(); // ricrea la coda con i parametri del piano
@@ -4535,11 +4637,13 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-//----------------------------------------------------------------------
-// Mostra il dialogo di verifica email
-//----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // Mostra il dialogo di verifica email
+  //----------------------------------------------------------------------
   Future<void> mostraVerificaEmailDialog(
-      BuildContext context, String emailPrecompilata) async {
+    BuildContext context,
+    String emailPrecompilata,
+  ) async {
     bool loading = false;
     String? errore;
 
@@ -4558,8 +4662,10 @@ class _HomePageState extends State<HomePage> {
               if (errore != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
-                  child:
-                      Text(errore!, style: const TextStyle(color: Colors.red)),
+                  child: Text(
+                    errore!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
                 ),
             ],
           ),
@@ -4585,7 +4691,8 @@ class _HomePageState extends State<HomePage> {
                       if (res.statusCode == 200) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                              content: Text(context.t.verifica_mail_erro1)),
+                            content: Text(context.t.verifica_mail_erro1),
+                          ),
                         );
                       } else {
                         setState(() => errore = context.t.verifica_mail_erro2);
@@ -4599,9 +4706,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-//--------------------------------------------------------------------
-// Controlla il permesso GPS
-//--------------------------------------------------------------------
+  //--------------------------------------------------------------------
+  // Controlla il permesso GPS
+  //--------------------------------------------------------------------
   Future<String> _permessoGps() async {
     // Se i servizi sono disattivi, consideriamo come "denied"
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -4632,9 +4739,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-//----------------------------------------------------------------------
-// Chiama /app_open.php con { permesso_gps: ... }
-//-----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // Chiama /app_open.php con { permesso_gps: ... }
+  //-----------------------------------------------------------------------
   Future<void> _callAppOpen() async {
     try {
       final body = json.encode({
@@ -4657,9 +4764,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-//----------------------------------------------------------------------
-// Chiama /app_close.php con { motivo: ... } (default 'exit_user')
-//----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // Chiama /app_close.php con { motivo: ... } (default 'exit_user')
+  //----------------------------------------------------------------------
   Future<void> _callAppClose([String motivo = 'exit_user']) async {
     try {
       final body = json.encode({
@@ -4701,8 +4808,10 @@ class _HomePageState extends State<HomePage> {
 
       if (res.statusCode == 401 && !_refreshingToken) {
         await handle401(); // <--- refresh token e gestisci eventuale retry
-        await callTrackingToggle(attivo,
-            nota: nota); // ricarica i dati dopo il refresh
+        await callTrackingToggle(
+          attivo,
+          nota: nota,
+        ); // ricarica i dati dopo il refresh
         return;
       }
     } catch (e) {
@@ -4724,8 +4833,9 @@ class _HomePageState extends State<HomePage> {
         onWillPop: () async => false, // niente back
         child: Dialog(
           insetPadding: const EdgeInsets.all(40),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Row(
@@ -4759,9 +4869,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-//-----------------------------------------------------------------------------
-// Restituisce un ID univoco per il dispositivo, lo memorizza in secure storage
-//-----------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------
+  // Restituisce un ID univoco per il dispositivo, lo memorizza in secure storage
+  //-----------------------------------------------------------------------------
   Future<String> getDeviceId() async {
     final cur = await _sec.read(key: 'device_id');
     if (cur != null && cur.isNotEmpty) return cur;
@@ -4781,9 +4891,9 @@ class _HomePageState extends State<HomePage> {
     countdownTimer?.cancel();
   }
 
-//----------------------------------------------------------------------
-// Riprendi il tracking dopo una pausa
-//----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // Riprendi il tracking dopo una pausa
+  //----------------------------------------------------------------------
   void riprendiTracking() {
     setState(() {
       trackingInPausa = false;
@@ -4792,9 +4902,9 @@ class _HomePageState extends State<HomePage> {
     riPrendiCountdown();
   }
 
-//----------------------------------------------------------------------
-// Ferma il tracking completamente
-//----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // Ferma il tracking completamente
+  //----------------------------------------------------------------------
   void stopTracking() {
     setState(() {
       trackingAttivo = false;
@@ -4807,9 +4917,9 @@ class _HomePageState extends State<HomePage> {
     ultimaPosizione = '';
   }
 
-//----------------------------------------------------------------------
-// Gestione del token 401 (non più valido): login anonimo e reload dati
-//----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+  // Gestione del token 401 (non più valido): login anonimo e reload dati
+  //----------------------------------------------------------------------
   Future<void> handle401() async {
     if (_refreshingToken) return;
     _refreshingToken = true;
@@ -4817,6 +4927,7 @@ class _HomePageState extends State<HomePage> {
     _refreshingToken = false;
     if (ok) {
       _jwtToken = await _storage.read(key: 'jwt_token');
+      GpsLogE.instance.setToken(_jwtToken);
 
       // qui puoi ripetere la richiesta che aveva dato 401
       //await _loadAll();
@@ -4837,6 +4948,173 @@ class _HomePageState extends State<HomePage> {
       token: token,
       baseUrl: apiBaseUrl,
       lang: Localizations.localeOf(context).languageCode,
+    );
+  }
+
+  //----------------------------------------------------------------------
+  // Build the complete home page layout (non-dashboard mode)
+  //----------------------------------------------------------------------
+  Widget _buildHomeComplete() {
+    return SingleChildScrollView(
+      controller: _scrollController,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 20),
+            //--------------------------------------------------------
+            // HEADER DASHBOARD
+            //--------------------------------------------------------
+            DashboardHeader(
+              consensoTrackingGps: consensoTrackingGps,
+              utenteId: utenteId,
+              nomeId: nomeId,
+              livelloUtente: livelloUtente,
+              giorniRimanenti: giorniRimanenti,
+              labelGiorni: _labelGiorni,
+              coloreGiorni: _coloreGiorni,
+              chipGiorni: ChipGiorni(
+                text: _labelGiorni(giorniRimanenti, livelloUtente),
+                color: _coloreGiorni(giorniRimanenti, livelloUtente),
+              ),
+              mostraLoginDialog: mostraLoginDialog,
+              dailyAnalysis: _dailyAnalysis,
+              livelli: livelli,
+            ),
+            SizedBox(height: 20),
+            //--------------------------------------------------------
+            // CARD TRACKING GPS
+            //--------------------------------------------------------
+            CardTrackingGps(
+              trackingAttivo: trackingAttivo,
+              trackingInPausa: trackingInPausa,
+              consensoTrackingGps: consensoTrackingGps,
+              countdown: countdown,
+              countdownLevel: countdownLevel,
+              ascoltoSeconds: ascoltoSeconds,
+              onTrackingChanged: _attivaTracking,
+              onPause: pausaTracking,
+              onStop: stopTracking,
+              onPlay: riprendiTracking,
+              ultimaPosizione: ultimaPosizione,
+              lastGpsTsUtc: lastGpsTsUtc,
+            ),
+            SizedBox(height: 20),
+            const HeroCarousel(),
+            SizedBox(height: 20),
+            CardMappaPosizione(
+              posizioneUtente: posizioneUtente,
+              zoom: _zoom,
+              onRefresh: _refreshPosizione,
+              onZoomIn: () => _zoomDelta(1),
+              onZoomOut: () => _zoomDelta(-1),
+              onMapCreated: (c) => _gctrl = c,
+            ),
+            SizedBox(height: 20),
+            CardReportGiornaliero(
+              riepilogo0: riepilogoLivello(0),
+              riepilogo1: riepilogoLivello(1),
+              riepilogo2: riepilogoLivello(2),
+              ultimaPosizione: ultimaPosizione,
+              features: features,
+              historyDaysMax: limitsHistoryDaysMax,
+              isAnonymous: utenteTemporaneo,
+              planName: livelloUtente,
+              date: DateTime.now(),
+              utenteId: utenteId,
+              jwtToken: _jwtToken.toString(),
+            ),
+            SizedBox(height: 20),
+            CardReportSettimanale(
+              riepilogo0: datiLivelliSett[0] ?? [],
+              riepilogo1: datiLivelliSett[1] ?? [],
+              riepilogo2: datiLivelliSett[2] ?? [],
+              ultimaPosizione: ultimaPosizione,
+              features: features,
+              historyDaysMax: limitsHistoryDaysMax,
+              isAnonymous: utenteTemporaneo,
+              planName: livelloUtente,
+              date: DateTime.now(),
+              utenteId: utenteId,
+              jwtToken: _jwtToken.toString(),
+              repeatRoutes: _repeatRoutes,
+              costiWeek: _costiWeek,
+            ),
+            SizedBox(height: 20),
+            if (datiGiornalieri == null) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 32),
+                child: Center(
+                  child: Text(
+                    context.t.chart_mes01,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.blueGrey[700],
+                    ),
+                  ),
+                ),
+              ),
+            ] else ...[
+              cardDistribuzioneLivelli(datiGiornalieri!.$1),
+              cardTimelineLivelliBar(datiPrefatti!.$2),
+            ],
+            SizedBox(height: 20),
+            cardLivelloConGrafico(
+              livello: 0,
+              titolo: '🛌 ${context.t.mov_inattivo}',
+              color: Colors.blueGrey[50]!,
+              datiSettimanali: datiSettimanali(datiLivelli[0]),
+            ),
+            cardLivelloConGrafico(
+              livello: 1,
+              titolo: '🚶 ${context.t.mov_leggero}',
+              color: Colors.blueGrey[50]!,
+              datiSettimanali: datiSettimanali(datiLivelli[1]),
+            ),
+            cardLivelloConGrafico(
+              livello: 2,
+              titolo: '🚗 ${context.t.mov_veloce}',
+              color: Colors.blueGrey[50]!,
+              datiSettimanali: datiSettimanali(datiLivelli[2]),
+            ),
+            SizedBox(height: 12),
+            Text(gpsErrore),
+            SizedBox(height: 12),
+            //---------------------------------------------------------
+            // --- SEZIONE dettagli GPS giornaliero
+            //-----------------------------------------------------------
+            CardDiarioGps(),
+            SizedBox(height: 20),
+
+            //---------------------------------------------------------
+            // --- SEZIONE NOTIFICHE
+            //-----------------------------------------------------------
+            CardNotifiche(
+              service: NotificationService(),
+              utenteId: int.tryParse(utenteId) ?? 0,
+              token: _jwtToken ?? '',
+              baseUrl: apiBaseUrl,
+            ),
+            SizedBox(height: 20),
+
+            //---------------------------------------------------------
+            // --- SEZIONE SCELTA STORICO
+            //-----------------------------------------------------------
+            CardSceltaStorico(pianoDescrizioneBuilder: _pianoDescrizione),
+            SizedBox(height: 20),
+
+            CardDedica(
+              title: context.t.dedica_title,
+              testo: context.t.dedica_testo,
+              assetPhoto1: 'assets/img/lova1.jpg',
+              assetPhoto2: 'assets/img/lova.jpg',
+            ),
+            SizedBox(height: 20),
+            AppFooter(),
+          ],
+        ),
+      ),
     );
   }
 
