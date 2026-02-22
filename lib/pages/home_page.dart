@@ -1466,9 +1466,11 @@ class _HomePageState extends State<HomePage> {
                     Text(
                       '⏳ ${context.t.info_mes03} ${(sessione['durata_sec'] / 60).round()} min',
                     ),
-                    Text(
-                        '📏 ${context.t.info_mes04} ${sessione['distanza_metri']} m'),
-                    Text('🛰️ ${context.t.info_mes05} ${sessione['fonte']}'),
+                    // Mostra distanza solo se non fermo (livello != 0)
+                    if (livello != 0)
+                      Text(
+                          '📏 ${context.t.info_mes04} ${sessione['distanza_metri']} m'),
+                    //Text('🛰️ ${context.t.info_mes05} ${sessione['fonte']}'),
                     //if (livello == 1)
                     //  Text(
                     //    '👣 ${context.t.info_mes06} ${((sessione['distanza_metri'] ?? 0) / 0.7).round()}',

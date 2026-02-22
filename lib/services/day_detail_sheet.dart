@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../lingua.dart';  
+import '../lingua.dart';
 
 /// Minimal interface dei dati giornalieri che ci servono nel foglio.
 /// Adatta i nomi se la tua TodayMetrics differisce.
@@ -116,7 +116,7 @@ class _DayDetailSheet extends StatelessWidget {
                   Navigator.pop(context);
                 },
                 icon: const Icon(Icons.map),
-                label: Text(context.t.botton_indietro), 
+                label: Text(context.t.botton_indietro),
               ),
             ),
           ],
@@ -273,8 +273,7 @@ class _SegmentsList extends StatelessWidget {
           color: cs.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(12),
         ),
-        child:
-            Text(context.t.card_percorso_5, style: t.textTheme.bodyMedium),
+        child: Text(context.t.card_percorso_5, style: t.textTheme.bodyMedium),
       );
     }
 
@@ -285,7 +284,9 @@ class _SegmentsList extends StatelessWidget {
       separatorBuilder: (_, __) => const SizedBox(height: 8),
       itemBuilder: (context, idx) {
         final l = levels[idx];
-        final label = l == 0 ? context.t.mov_inattivo : (l == 1 ? context.t.mov_leggero : context.t.mov_veloce);
+        final label = l == 0
+            ? context.t.mov_inattivo
+            : (l == 1 ? context.t.mov_leggero : context.t.mov_veloce);
         final items = segmentsByLevel[l]!;
         return Container(
           decoration: BoxDecoration(
@@ -303,15 +304,18 @@ class _SegmentsList extends StatelessWidget {
               final a = _hhmmFromServer(startStr);
               final b = _hhmmFromServer(endStr);
 
-              //final a = '${_hhmm('${s['data_ora_inizio']}')}';
-              //final b = '${_hhmm('${s['data_ora_fine']}')}';
-
               final dur = _fmtSec(s['durata_sec']);
               final dist = _fmtDist(s['distanza_metri']);
+
+              // Se fermo (l==0), non mostriamo dist porque è solo rumore GPS
+              final subtitle = l == 0
+                  ? '$a–$b  •  $dur' // Solo orario e durata
+                  : '$a–$b  •  $dur  •  $dist'; // Orario, durata E distanza
+
               return ListTile(
                 dense: true,
-                title: Text('$a–$b  •  $dur  •  $dist'),
-                subtitle: Text('${s['fonte'] ?? ''}'),
+                title: Text(subtitle),
+                //subtitle: Text('${s['fonte'] ?? ''}'),
               );
             }).toList(),
           ),

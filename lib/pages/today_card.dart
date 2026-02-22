@@ -76,8 +76,9 @@ class TodayCard extends StatelessWidget {
 
     String fmtKm(double meters) {
       if (meters < 1000) return '${meters.toStringAsFixed(0)} m';
-      return '${(meters/1000).toStringAsFixed(1)} km';
+      return '${(meters / 1000).toStringAsFixed(1)} km';
     }
+
     String fmtSedentary(int mins) {
       final h = mins ~/ 60, m = mins % 60;
       return h > 0 ? '${h} h ${m} min' : '${m} min';
@@ -98,26 +99,26 @@ class TodayCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Wrap(
-  spacing: 8,
-  runSpacing: 8,
-  children: [
-    _ChecklistChip(
-      label: t('check_location', {}),
-      icon: Icons.location_on,
-      onTap: onTapQualityFix, // 👈 apre il foglio di fix
-    ),
-    _ChecklistChip(
-      label: t('check_battery', {}),
-      icon: Icons.battery_saver,
-      onTap: onTapQualityFix,
-    ),
-    _ChecklistChip(
-      label: t('check_gps', {}),
-      icon: Icons.gps_fixed,
-      onTap: onTapQualityFix,
-    ),
-  ],
-),
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _ChecklistChip(
+                  label: t('check_location', {}),
+                  icon: Icons.location_on,
+                  onTap: onTapQualityFix, // 👈 apre il foglio di fix
+                ),
+                _ChecklistChip(
+                  label: t('check_battery', {}),
+                  icon: Icons.battery_saver,
+                  onTap: onTapQualityFix,
+                ),
+                _ChecklistChip(
+                  label: t('check_gps', {}),
+                  icon: Icons.gps_fixed,
+                  onTap: onTapQualityFix,
+                ),
+              ],
+            ),
           ],
         ),
       );
@@ -138,11 +139,16 @@ class TodayCard extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                kpi(t('kpi_active', {}), '${metrics.activeMinutes} min', Icons.access_time),
+                kpi(t('kpi_active', {}), '${metrics.activeMinutes} min',
+                    Icons.access_time),
                 const SizedBox(width: 12),
-                kpi(t('kpi_km', {}), fmtKm(metrics.distanceMeters), Icons.straighten),
-                const SizedBox(width: 12),
-                kpi(t('kpi_sedentary', {}), fmtSedentary(metrics.sedentaryMinutes), Icons.event_seat),
+                // Mostra KPI distanza solo se >= 50m (scarta rumore GPS)
+                if (metrics.distanceMeters >= 50)
+                  kpi(t('kpi_km', {}), fmtKm(metrics.distanceMeters),
+                      Icons.straighten),
+                if (metrics.distanceMeters >= 50) const SizedBox(width: 12),
+                kpi(t('kpi_sedentary', {}),
+                    fmtSedentary(metrics.sedentaryMinutes), Icons.event_seat),
               ],
             ),
             const SizedBox(height: 10),
@@ -200,7 +206,8 @@ class _CardShell extends StatelessWidget {
                 const SizedBox(width: 8),
                 if (badge != null)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: cs.tertiaryContainer,
                       borderRadius: BorderRadius.circular(8),

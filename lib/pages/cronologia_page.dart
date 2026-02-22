@@ -1008,32 +1008,26 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
                                                       ],
                                                     ),
                                                     SizedBox(height: 8),
-                                                    Row(
-                                                      children: [
-                                                        Icon(
-                                                          Icons.directions_walk,
-                                                          color:
-                                                              Colors.green[600],
-                                                          size: 18,
-                                                        ),
-                                                        SizedBox(width: 4),
-                                                        Text(
-                                                          '${context.t.info_mes04} ${(giorno['distanza_metri'] is num ? giorno['distanza_metri'] : double.tryParse(giorno['distanza_metri'] ?? '0') ?? 0).toStringAsFixed(1)} m',
-                                                        ),
-                                                        Spacer(),
-                                                        Icon(
-                                                          Icons.sensors,
-                                                          color: Colors
-                                                              .orange[600],
-                                                          size: 18,
-                                                        ),
-                                                        SizedBox(width: 4),
-                                                        Text(
-                                                          ' ${giorno['fonte'] ?? '-'}',
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    SizedBox(height: 8),
+                                                    // Mostra distanza solo se non fermo (livello != 0)
+                                                    if (livello != 0)
+                                                      Row(
+                                                        children: [
+                                                          Icon(
+                                                            Icons
+                                                                .directions_walk,
+                                                            color: Colors
+                                                                .green[600],
+                                                            size: 18,
+                                                          ),
+                                                          SizedBox(width: 4),
+                                                          Text(
+                                                            '${context.t.info_mes04} ${(giorno['distanza_metri'] is num ? giorno['distanza_metri'] : double.tryParse(giorno['distanza_metri'] ?? '0') ?? 0).toStringAsFixed(1)} m',
+                                                          ),
+                                                          Spacer(),
+                                                        ],
+                                                      ),
+                                                    if (livello != 0)
+                                                      SizedBox(height: 8),
                                                     Row(
                                                       children: [
                                                         Icon(

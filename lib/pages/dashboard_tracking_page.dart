@@ -91,15 +91,7 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
     final oldMinutes = oldWidget.livelli.map((e) => e['minuti']).toList();
     final newMinutes = widget.livelli.map((e) => e['minuti']).toList();
 
-    if (kDebugMode) {
-      print(
-          '[DEBUG didUpdateWidget] oldMinutes=$oldMinutes, newMinutes=$newMinutes');
-    }
-
     if (oldMinutes.toString() != newMinutes.toString()) {
-      if (kDebugMode) {
-        print('[DEBUG didUpdateWidget] Dati cambiati, aggiorno stats');
-      }
       setState(_buildStats);
     }
   }
@@ -112,18 +104,17 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
   }
 
   void _buildStats() {
+    final now = DateTime.now();
+    final currentMinuteOfDay = now.hour * 60 + now.minute;
+
     final fermoMin = _levelMinutes(0);
     final lentoMin = _levelMinutes(1);
     final veloceMin = _levelMinutes(2);
     final trackedMin = fermoMin + lentoMin + veloceMin;
 
-    // Debug: verifica i dati ricevuti
-    if (kDebugMode) {
-      print(
-          '[DEBUG DashboardTrackingPage] livelli=${widget.livelli}, fermoMin=$fermoMin, lentoMin=$lentoMin, veloceMin=$veloceMin');
-    }
-
-    final nonTracciatoMin = trackedMin >= 1440 ? 0 : (1440 - trackedMin);
+    final nonTracciatoMin = trackedMin >= currentMinuteOfDay
+        ? 0
+        : (currentMinuteOfDay - trackedMin);
     final totaleMin = trackedMin + nonTracciatoMin;
 
     double pct(int minuti) {
@@ -254,13 +245,13 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
               // ===== SEZIONE START/STOP =====
               _buildStartStopButton(),
 
-              const SizedBox(height: 18),
+              const SizedBox(height: 8),
               Divider(
                 color: Colors.white.withValues(alpha: 0.22),
                 height: 1,
               ),
 
-              const SizedBox(height: 28),
+              const SizedBox(height: 16),
 
               // ===== SEZIONE STATISTICHE OGGI =====
               Padding(
@@ -289,22 +280,14 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
 
               // Barra 24 ore visiva
               _build24hBar(),
+              const SizedBox(height: 20),
+
+              // Barra periodo tracciato (dal primo rilevamento ad ora)
+              _buildTrackedPeriodBar(),
               const SizedBox(height: 16),
 
               // Statistiche con cerchi colorati
               ..._buildStatsItems(context),
-
-              // Totale
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                child: Text(
-                  'Totale ${_totalPercentage().toStringAsFixed(2)}%',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w600,
-                      ),
-                ),
-              ),
             ],
           ),
         ),
@@ -448,9 +431,6 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
       {'color': const Color(0xFF4A4A4A), 'fraction': fraction(nonTracciatoMin)},
     ];
 
-    // Frazione barra riempita rispetto alle 24h
-    final fillRatio = currentMinuteOfDay / 1440.0;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -459,68 +439,21 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
           height: 20,
           decoration: BoxDecoration(
             color: const Color(0xFFF5F5F5),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(3),
             border: Border.all(color: const Color(0xFFD0D0D0), width: 1),
           ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final filledWidth = constraints.maxWidth * fillRatio;
-              final futureWidth = constraints.maxWidth - filledWidth;
-
-              return Stack(
-                children: [
-                  // Parte riempita fino all'ora corrente (colorata)
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(9),
-                    child: SizedBox(
-                      width: filledWidth,
-                      height: 20,
-                      child: Row(
-                        children: segments.map((seg) {
-                          final w = filledWidth * (seg['fraction'] as double);
-                          return Container(
-                            width: w,
-                            color: seg['color'] as Color,
-                          );
-                        }).toList(),
-                      ),
-                    ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(2),
+            child: Row(
+              children: segments.map((seg) {
+                return Expanded(
+                  flex: ((seg['fraction'] as double) * 1000).round(),
+                  child: Container(
+                    color: seg['color'] as Color,
                   ),
-                  // Parte futura (da ora corrente a 24h) - bianco con strisce
-                  if (futureWidth > 2)
-                    Positioned(
-                      left: filledWidth,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(9),
-                          bottomRight: Radius.circular(9),
-                        ),
-                        child: Container(
-                          width: futureWidth,
-                          height: 20,
-                          color: Colors.white,
-                          child: CustomPaint(
-                            painter: _DiagonalStripesPainter(),
-                          ),
-                        ),
-                      ),
-                    ),
-                  // Linea verticale indicatore ora corrente
-                  if (fillRatio > 0.02 && fillRatio < 0.98)
-                    Positioned(
-                      left: filledWidth - 1,
-                      child: Container(
-                        width: 2,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: Colors.black87,
-                          borderRadius: BorderRadius.circular(1),
-                        ),
-                      ),
-                    ),
-                ],
-              );
-            },
+                );
+              }).toList(),
+            ),
           ),
         ),
         const SizedBox(height: 6),
@@ -535,22 +468,89 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
                   color: Colors.black54,
                   fontWeight: FontWeight.w500),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.black45,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                '${currentHour}h',
-                style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600),
-              ),
+            Text(
+              '${currentHour}h${now.minute > 0 ? " ${now.minute}min" : ""}',
+              style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.black87,
+                  fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTrackedPeriodBar() {
+    final now = DateTime.now();
+    final fermoMin = _levelMinutes(0);
+    final lentoMin = _levelMinutes(1);
+    final veloceMin = _levelMinutes(2);
+    final totalTrackedMin = fermoMin + lentoMin + veloceMin;
+
+    // Se non ci sono dati tracciati, non mostrare nulla
+    if (totalTrackedMin == 0) {
+      return const SizedBox.shrink();
+    }
+
+    double fraction(int minutes) {
+      if (totalTrackedMin <= 0) return 0.0;
+      return minutes / totalTrackedMin;
+    }
+
+    final segments = [
+      {'color': const Color(0xFF4CAF50), 'fraction': fraction(fermoMin)},
+      {'color': const Color(0xFFFFC107), 'fraction': fraction(lentoMin)},
+      {'color': const Color(0xFFFF4444), 'fraction': fraction(veloceMin)},
+    ];
+
+    // Calcola ora di inizio tracking (approssimativa)
+    // Assumiamo che il tracking sia iniziato "totalTrackedMin" minuti fa
+    final startTime = now.subtract(Duration(minutes: totalTrackedMin));
+    final startHour = startTime.hour;
+    final startMinute = startTime.minute;
+    final endHour = now.hour;
+    final endMinute = now.minute;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Barra container con bordo
+        Container(
+          height: 20,
+          decoration: BoxDecoration(
+            color: const Color(0xFFF5F5F5),
+            borderRadius: BorderRadius.circular(3),
+            border: Border.all(color: const Color(0xFFD0D0D0), width: 1),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(2),
+            child: Row(
+              children: segments.map((seg) {
+                return Expanded(
+                  flex: ((seg['fraction'] as double) * 1000).round(),
+                  child: Container(
+                    color: seg['color'] as Color,
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+        const SizedBox(height: 6),
+        // Label ore (solo inizio e fine, senza ora corrente nel mezzo)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '${startHour.toString().padLeft(2, '0')}:${startMinute.toString().padLeft(2, '0')}',
+              style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.black54,
+                  fontWeight: FontWeight.w500),
             ),
             Text(
-              '24h',
+              '${endHour.toString().padLeft(2, '0')}:${endMinute.toString().padLeft(2, '0')}',
               style: TextStyle(
                   fontSize: 11,
                   color: Colors.black54,
