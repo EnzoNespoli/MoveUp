@@ -40,6 +40,9 @@ class GpsQueue {
   bool _isAuthPaused() =>
       _authPausedUntil != null && DateTime.now().isBefore(_authPausedUntil!);
 
+  // Debug flush log dettagliato (abilita/disabilita qui)
+  bool debugFlushLog = true;
+
   Future<void> ensureOpen() async {
     if (_box != null && _box!.isOpen) return;
     _box = await Hive.openBox<dynamic>(_boxName);
@@ -119,7 +122,25 @@ class GpsQueue {
     if (velocitaKmh != null && velocitaKmh.isFinite)
       point['velocita_kmh'] = velocitaKmh;
 
+    // Deduplica: non accodare se esiste già un punto identico (pending)
+    final key = '${lat}|${lon}|${accM}|${altM ?? 0}';
+    final keys = b.keys.toList();
+    for (final k in keys) {
+      final m = (b.get(k) as Map?)?.cast<String, dynamic>();
+      if (m == null) continue;
+      if (m['status'] != 'pending') continue;
+      final p = (m['point'] as Map?)?.cast<String, dynamic>();
+      if (p == null) continue;
+      final pKey =
+          '${p['latitudine']}|${p['longitudine']}|${p['precisione_m']}|${p['altitudine_m'] ?? 0}';
+      if (pKey == key) {
+        // Punto già presente, non accodare
+        return;
+      }
+    }
+    //-----------------------------------------------------------
     // record persistito
+    //------------------------------------------------------------
     final id =
         '${DateTime.now().microsecondsSinceEpoch}_${lat.toStringAsFixed(5)}_${lon.toStringAsFixed(5)}';
     final rec = <String, dynamic>{
@@ -132,11 +153,14 @@ class GpsQueue {
 
     await b.put(id, rec);
 
-    // Log UI
+    // Log UI SOLO se il punto è stato effettivamente accodato
     GpsLog.instance
         .logQueued(lat: lat, lon: lon, accM: accM, altM: altM ?? 0.0);
   }
 
+  //------------------------------------------------
+  // FLUSH
+  //------------------------------------------------
   Future<void> maybeFlush({bool force = false}) async {
     await ensureOpen();
     if (_inFlight) return;
@@ -155,11 +179,17 @@ class GpsQueue {
     await _flushOnce();
   }
 
+  //------------------------------------------------------------------
+  // Forza flush (es. prima di logout o chiusura app)
+  //------------------------------------------------------------------
   Future<void> flushNow() async {
     await ensureOpen();
     await _flushOnce();
   }
 
+  //------------------------------------------------------------------
+  // Debug/export
+  //------------------------------------------------------------------
   int _countPending() {
     final b = _box!;
     int c = 0;
@@ -171,6 +201,9 @@ class GpsQueue {
     return c;
   }
 
+  //------------------------------------------------------------------
+  // Prendi N record pending (per flush)
+  //------------------------------------------------------------------
   List<Map<String, dynamic>> _takePending(int n) {
     final b = _box!;
     final out = <Map<String, dynamic>>[];
@@ -185,6 +218,9 @@ class GpsQueue {
     return out;
   }
 
+  //-----------------------------------------------------------------
+  // Export completo (es. per debug o esportazione manuale)
+  //-----------------------------------------------------------------
   Future<void> _markSending(List<Map<String, dynamic>> recs) async {
     final b = _box!;
     final nowIso = DateTime.now().toUtc().toIso8601String();
@@ -195,6 +231,9 @@ class GpsQueue {
     }
   }
 
+  //-----------------------------------------------------------------
+  // Export completo (es. per debug o esportazione manuale)
+  //-----------------------------------------------------------------
   Future<void> _markPendingAgain(List<Map<String, dynamic>> recs,
       {String? err}) async {
     final b = _box!;
@@ -207,6 +246,9 @@ class GpsQueue {
     }
   }
 
+  //------------------------------------------------------------------
+  // delete sent records
+  //------------------------------------------------------------------
   Future<void> _deleteSent(List<Map<String, dynamic>> recs) async {
     final b = _box!;
     for (final r in recs) {
@@ -214,6 +256,9 @@ class GpsQueue {
     }
   }
 
+  //--------------------------------------------------
+  // Flush una tantum (es. forzato)
+  //--------------------------------------------------
   Future<void> _flushOnce() async {
     if (_inFlight) return;
     await ensureOpen();
@@ -226,11 +271,24 @@ class GpsQueue {
     try {
       await _markSending(pending);
 
+      // Deduplica: invia solo punti unici
+      final seen = <String>{};
       final points = pending
           .map((r) => (r['point'] as Map).cast<String, dynamic>())
-          .toList();
+          .where((p) {
+        final key =
+            '${p['latitudine']}|${p['longitudine']}|${p['precisione_m']}|${p['altitudine_m'] ?? 0}';
+        if (seen.contains(key)) return false;
+        seen.add(key);
+        return true;
+      }).toList();
 
       GpsLog.instance.logFlushed(points.length);
+
+      if (debugFlushLog) {
+        GpsLog.instance.logInfo('[DEBUG] Payload send: '
+            '${json.encode({'utente_id': utenteId, 'points': points})}');
+      }
 
       final uri = Uri.parse('$apiBaseUrl/posizioni_batch.php');
       final res = await http.post(
@@ -244,6 +302,11 @@ class GpsQueue {
           'points': points,
         }),
       );
+
+      if (debugFlushLog) {
+        GpsLog.instance.logInfo('[DEBUG] Server response: '
+          'status=${res.statusCode}, body=${res.body}');
+      }
 
       if (res.statusCode == 401 || res.statusCode == 403) {
         GpsLog.instance.logError('AUTH EXPIRED: HTTP ${res.statusCode}');
@@ -262,6 +325,9 @@ class GpsQueue {
         _authRequired = true;
         _authPausedUntil = DateTime.now().add(const Duration(minutes: 10));
         await _markPendingAgain(pending, err: 'auth required');
+        if (debugFlushLog) {
+          GpsLog.instance.logInfo('[DEBUG] Auth required, pausing 10 minutes');
+        }
         return;
       }
 
@@ -271,6 +337,10 @@ class GpsQueue {
         await _markPendingAgain(pending, err: err);
         _retryStep = ((_retryStep + 1).clamp(1, 6)).toInt();
         _nextRetryAt = DateTime.now().add(Duration(seconds: 15 * _retryStep));
+        if (debugFlushLog) {
+          GpsLog.instance.logInfo(
+              '[DEBUG] Retry/backoff: step=$_retryStep, next=$_nextRetryAt');
+        }
         return;
       }
 
@@ -285,6 +355,11 @@ class GpsQueue {
               ? (p['altitudine_m'] as num).toDouble()
               : 0.0;
           GpsLog.instance.logSaved(lat: lat, lon: lon, accM: acc, altM: alt);
+        }
+
+        if (debugFlushLog) {
+            GpsLog.instance.logInfo(
+              '[DEBUG] Flush completed successfully, points sent: ${points.length}');
         }
 
         await _deleteSent(pending);
@@ -304,15 +379,28 @@ class GpsQueue {
       GpsLog.instance.logError('Server success=false: $msg');
       await _markPendingAgain(pending, err: msg);
 
+      if (debugFlushLog) {
+        GpsLog.instance.logInfo('[DEBUG] Server success=false: $msg');
+      }
+
       _retryStep = ((_retryStep + 1).clamp(1, 6)).toInt();
       _nextRetryAt = DateTime.now().add(Duration(seconds: 15 * _retryStep));
+      if (debugFlushLog) {
+        GpsLog.instance.logInfo(
+            '[DEBUG] Retry/backoff: step=$_retryStep, next=$_nextRetryAt');
+      }
     } catch (e) {
-      final err = 'Eccezione flush: $e';
+      final err = 'Exception flush: $e';
       GpsLog.instance.logError(err);
       await _markPendingAgain(pending, err: err);
       _retryStep = ((_retryStep + 1).clamp(1, 6)).toInt();
       _nextRetryAt = DateTime.now().add(Duration(seconds: 15 * _retryStep));
       if (kDebugMode) debugPrint('GPS batch EX: $e');
+      if (debugFlushLog) {
+        GpsLog.instance.logInfo('[DEBUG] Exception flush: $e');
+        GpsLog.instance.logInfo(
+            '[DEBUG] Retry/backoff: step=$_retryStep, next=$_nextRetryAt');
+      }
     } finally {
       _inFlight = false;
     }

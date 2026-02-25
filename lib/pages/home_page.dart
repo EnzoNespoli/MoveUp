@@ -106,8 +106,12 @@ class _HomePageState extends State<HomePage> {
   DateTime? _lastTs;
   DateTime? lastGpsTsUtc;
 
+  DateTime? _lastStationaryEnqueueUtc;
+  DateTime? _lastMovingEnqueueUtc;
+
   bool _syncPaused = false;
   DateTime? _syncPausedUntil;
+  bool _bgRunning = false;
 
   bool get _isSyncPaused =>
       _syncPausedUntil != null && DateTime.now().isBefore(_syncPausedUntil!);
@@ -828,6 +832,19 @@ class _HomePageState extends State<HomePage> {
         ascoltoSeconds++;
       });
 
+      // --- LOG di errore se nessun dato inviato da troppo tempo ---
+      final f = (features ?? {}) as Map<String, dynamic>;
+      final stationaryEverySec =
+          (f['gps_stationary_every_sec'] as num?)?.toInt() ?? 120;
+      final maxSilenceSec = stationaryEverySec * 2;
+      final nowUtc = DateTime.now().toUtc();
+      if (_lastStationaryEnqueueUtc != null &&
+          nowUtc.difference(_lastStationaryEnqueueUtc!).inSeconds >
+              maxSilenceSec) {
+        GpsLog.instance.logError(
+            'No GPS data sent for more than ${maxSilenceSec ~/ 60} minutes (tracking active): possible malfunction.');
+      }
+
       if (countdown <= 0) {
         setState(() {
           countdown = countdownLevel;
@@ -953,27 +970,6 @@ class _HomePageState extends State<HomePage> {
           altM: altitudine.isNaN ? 0.0 : altitudine,
         );
       }
-
-//      if (precisione.isNaN || precisione > accMax) {
-//        GpsLog.instance.logError(
-//          'Accuracy filter failed: $precisione > $accMax',
-//        );
-
-      // su errore:
-//        GpsLogE.instance.add(GpsLogEntryE(
-//          ts: DateTime.now(),
-//          status: GpsLogStatusE.error,
-//          lat: pos.latitude,
-//          lon: pos.longitude,
-//          accM: precisione,
-//          altM: altitudine,
-//          msg: 'Accuracy filter failed: $precisione > $accMax',
-//          errorCode: 'HTTP_500',
-//        ));
-
-//        setState(() => gpsErrore = context.t.gps_err06);
-//        return;
-//      }
 
       // Filtro movimento minimo
       double deltaM = 0.0;
@@ -1140,61 +1136,158 @@ class _HomePageState extends State<HomePage> {
     return R * c;
   }
 
+  //------------------------------------------------------------------------
+  // Dedup veloce: evita di salvare più volte lo stesso punto in un breve intervallo
+  // (es. se il GPS spara più fix identici o quasi identici in pochi secondi)
+  //------------------------------------------------------------------------
+  final Map<String, DateTime> _recentKeys = {};
+  static const int _dedupWindowMs = 2000;
+
+  String _posKey(Position p) {
+    final ts = (p.timestamp ?? DateTime.now()).toUtc().toIso8601String();
+    return '$ts|${p.latitude.toStringAsFixed(6)}|${p.longitude.toStringAsFixed(6)}|${p.accuracy.toStringAsFixed(0)}';
+  }
+
+  bool _dedupHit(String key) {
+    final now = DateTime.now();
+    // pulizia veloce (non serve perfetta)
+    _recentKeys.removeWhere(
+        (_, t) => now.difference(t).inMilliseconds > _dedupWindowMs);
+
+    final prev = _recentKeys[key];
+    if (prev != null && now.difference(prev).inMilliseconds <= _dedupWindowMs) {
+      return true;
+    }
+    _recentKeys[key] = now;
+    return false;
+  }
+
   //-------------------------------------------------------------------------
   // Mette in coda i dati gps anche a telefono spento
   //-------------------------------------------------------------------------
   Future<bool> _enqueueFromPosition(Position pos,
       {bool updateUI = false}) async {
-    // --- parametri e filtri come già fai ---
+    // Log diagnostico: ogni fix GPS ricevuto
+    GpsLog.instance.logInfo(
+        'FIX ricevuto: lat=${pos.latitude}, lon=${pos.longitude}, acc=${pos.accuracy}, alt=${pos.altitude}, ts=${pos.timestamp?.toUtc().toIso8601String() ?? ''}');
+
+    final key = _posKey(pos);
+    if (_dedupHit(key)) {
+      // utile per capire: commenta se ti sporca log
+      // GpsLog.instance.logInfo('DEDUP hit');
+      return true;
+    }
+
     final f = (features ?? {}) as Map<String, dynamic>;
     final accMode = (f['gps_accuracy_mode'] as String?) ?? 'balanced';
+
+    // Soglia accuracy "normale" (come prima)
     final accMax =
         (f['gps_max_acc_m'] as num?)?.toDouble() ?? _accMaxFromPlan(accMode);
+
+    // Soglia accuracy "hard reject" (per evitare punti completamente sballati)
+    // Se non vuoi hard reject: metti un valore enorme tipo 2000.
+    final accHardReject =
+        (f['gps_acc_hard_reject_m'] as num?)?.toDouble() ?? 800.0;
+
+    // distanza per decidere fermo/movimento (NON per scartare)
     final minMoveM = (f['gps_min_distance_m'] as num?)?.toDouble() ?? 20.0;
 
-    final precisione = pos.accuracy;
-    final altitudine = pos.altitude;
+    // intervalli di salvataggio
+    final stationaryEverySec =
+        (f['gps_stationary_every_sec'] as num?)?.toInt() ?? 120;
+    final movingEverySec = (f['gps_moving_every_sec'] as num?)?.toInt() ?? 10;
+
     final nowUtc = DateTime.now().toUtc();
 
-    if (precisione.isNaN || precisione > accMax) {
-      // log/queue error come già fai...
+    // ---------- validazioni minime ----------
+    final precisione = pos.accuracy;
+    if (precisione.isNaN || !precisione.isFinite) return false;
+
+    // Hard reject solo se accuracy assurda (punto "in un altro posto")
+    if (precisione > accHardReject) {
+      print(
+          'GPS point rejected: accuracy ${precisione.toStringAsFixed(1)} m exceeds hard reject threshold of ${accHardReject.toStringAsFixed(1)} m');
       return false;
     }
 
+    // ---------- calcolo deltaM per fermo/movimento ----------
+    double deltaM = 999999.0;
     if (_lastLat != null && _lastLon != null) {
-      final deltaM = Geolocator.distanceBetween(
-          _lastLat!, _lastLon!, pos.latitude, pos.longitude);
-      if (deltaM < minMoveM) {
-        // log/queue error come già fai...
-        return false;
+      deltaM = Geolocator.distanceBetween(
+        _lastLat!,
+        _lastLon!,
+        pos.latitude,
+        pos.longitude,
+      );
+    }
+
+    final isStationary = deltaM < minMoveM;
+
+    // ---------- throttling (NON scarto per distanza) ----------
+    final stationaryEvery = Duration(seconds: stationaryEverySec);
+    final movingEvery = Duration(seconds: movingEverySec);
+
+    if (isStationary) {
+      if (_lastStationaryEnqueueUtc != null &&
+          nowUtc.difference(_lastStationaryEnqueueUtc!) < stationaryEvery) {
+        // Sono vivo ma non salvo ancora (evita buchi senza esplodere il DB)
+        _lastTs = nowUtc;
+        if (updateUI && mounted) {
+          setState(() {
+            gpsErrore = '';
+          });
+        }
+        print(
+            'GPS point throttled: stationary, delta ${deltaM.toStringAsFixed(1)} m');
+        return true;
+      }
+    } else {
+      if (_lastMovingEnqueueUtc != null &&
+          nowUtc.difference(_lastMovingEnqueueUtc!) < movingEvery) {
+        _lastTs = nowUtc;
+        if (updateUI && mounted) {
+          setState(() {
+            gpsErrore = '';
+          });
+        }
+        print(
+            'GPS point throttled: moving, delta ${deltaM.toStringAsFixed(1)} m');
+        return true;
       }
     }
 
-    // 1) velocità nativa m/s -> km/h
+    // ---------- speed km/h ----------
     double speedKmh = ((pos.speed) ?? 0) * 3.6;
 
-    // 2) fallback: calcola da delta se speed non c’è o è zero
+    // fallback calcolo speed da delta se speed assente/zero
     if ((speedKmh <= 0 || speedKmh.isNaN) &&
         _lastPos != null &&
         _lastTs != null) {
       final dt = nowUtc.difference(_lastTs!).inMilliseconds / 1000.0;
       if (dt > 0) {
-        final dist = _distM(_lastPos!.latitude, _lastPos!.longitude,
-            pos.latitude, pos.longitude);
+        final dist = _distM(
+          _lastPos!.latitude,
+          _lastPos!.longitude,
+          pos.latitude,
+          pos.longitude,
+        );
         // ignora micro-salti dentro l’accuracy
-        final acc = (pos.accuracy ?? 0);
+        final acc = (pos.accuracy);
         speedKmh = (dist > acc) ? (dist / dt) * 3.6 : 0.0;
       }
     }
 
+    // ---------- enqueue ----------
     await _ensureQueue();
     final q = gpsQueue;
     if (q == null) return false;
 
+    // timestamp preferibilmente quello del position
     final tsIso = (pos.timestamp ?? DateTime.now()).toUtc().toIso8601String();
 
-    // 🔹 ENQUEUE UNA SOLA VOLTA (nel tuo codice era doppio)
-    final ok_Q = await q.enqueue(
+    final altitudine = pos.altitude;
+    await q.enqueue(
       lat: pos.latitude,
       lon: pos.longitude,
       tsIso: tsIso,
@@ -1206,41 +1299,44 @@ class _HomePageState extends State<HomePage> {
       modalita: 'preciso',
     );
 
-    // if (!ok_Q) return false;
-
-    // batching: se vuoi flush immediato tienilo, altrimenti lascialo al tuo timer interno
+    // flush come fai già
     await q.maybeFlush();
 
-    // stato locale
+    // ---------- stato locale ----------
     _lastLat = pos.latitude;
     _lastLon = pos.longitude;
-
     _lastPos = pos;
     _lastTs = nowUtc;
 
-    setState(() {
-      lastGpsTsUtc = _lastTs; // UTC
-    });
+    if (isStationary) {
+      _lastStationaryEnqueueUtc = nowUtc;
+    } else {
+      _lastMovingEnqueueUtc = nowUtc;
+    }
 
-    if (updateUI && mounted) {
+    // ---------- UI ----------
+    if (mounted) {
       setState(() {
-        gpsErrore = '';
-        final latStr = pos.latitude.toStringAsFixed(5); // 5 dec ~ 1.1 m
-        final lonStr = pos.longitude.toStringAsFixed(5);
-        final altStr =
-            pos.altitude.isFinite ? pos.altitude.toStringAsFixed(1) : '—';
+        lastGpsTsUtc = _lastTs; // UTC
+        if (updateUI) {
+          gpsErrore = '';
+          final latStr = pos.latitude.toStringAsFixed(5);
+          final lonStr = pos.longitude.toStringAsFixed(5);
+          final altStr =
+              pos.altitude.isFinite ? pos.altitude.toStringAsFixed(1) : '—';
 
-        // accuracy can be very large initially (network fix). Format smartly:
-        String fmtAcc(double a) => (!a.isFinite)
-            ? '—'
-            : (a >= 1000)
-                ? '${(a / 1000).toStringAsFixed(1)} km'
-                : '${a.toStringAsFixed(1)} m';
+          String fmtAcc(double a) => (!a.isFinite)
+              ? '—'
+              : (a >= 1000)
+                  ? '${(a / 1000).toStringAsFixed(1)} km'
+                  : '${a.toStringAsFixed(1)} m';
 
-        ultimaPosizione =
-            '$latStr, $lonStr (±${fmtAcc(pos.accuracy ?? double.nan)}, alt. $altStr)';
+          ultimaPosizione =
+              '$latStr, $lonStr (±${fmtAcc(pos.accuracy)}, alt. $altStr)';
+        }
       });
     }
+
     return true;
   }
 
@@ -1250,7 +1346,12 @@ class _HomePageState extends State<HomePage> {
   //distanceFilter: (features?['gps_min_distance_m'] as num?)?.toInt() ?? 20,
   //-------------------------------------------------------------------------
   Future<void> avviaTrackingBackground() async {
-    // (qui i tuoi controlli permessi)
+    // (qui i tuoi controlli)
+    final f = (features ?? {}) as Map<String, dynamic>;
+    final iosDistM = (f['gps_ios_distance_filter_m'] as num?)?.toInt() ?? 0;
+
+    if (_bgRunning) return;
+    _bgRunning = true;
 
     // ✅ Costruisci le impostazioni in base alla piattaforma
     final locationSettings = kIsWeb
@@ -1261,8 +1362,7 @@ class _HomePageState extends State<HomePage> {
                 intervalDuration: Duration(
                     seconds:
                         (features?['gps_sample_sec'] as num?)?.toInt() ?? 10),
-                distanceFilter:
-                    (features?['gps_min_distance_m'] as num?)?.toInt() ?? 20,
+                distanceFilter: iosDistM,
                 foregroundNotificationConfig:
                     const ForegroundNotificationConfig(
                   notificationTitle: 'MoveUP is running',
@@ -1272,8 +1372,7 @@ class _HomePageState extends State<HomePage> {
               )
             : AppleSettings(
                 accuracy: LocationAccuracy.best,
-                distanceFilter:
-                    (features?['gps_min_distance_m'] as num?)?.toInt() ?? 20,
+                distanceFilter: iosDistM,
                 allowBackgroundLocationUpdates: true,
                 pauseLocationUpdatesAutomatically: false,
                 showBackgroundLocationIndicator: true, // SOLO in test
@@ -1288,6 +1387,7 @@ class _HomePageState extends State<HomePage> {
     }, onError: (e) {
       // log/feedback
     });
+    _bgSub?.onDone(() => _bgRunning = false);
   }
 
   //-------------------------------------------------------------------------
@@ -1296,6 +1396,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> fermaTrackingBackground() async {
     await _bgSub?.cancel();
     _bgSub = null;
+    _bgRunning = false;
     // flush finale della tua queue, se serve
     try {
       await gpsQueue?.maybeFlush();

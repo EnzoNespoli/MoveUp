@@ -2758,6 +2758,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'NOT TRACKED'**
   String get dash_non_tracciato;
+
+  /// No description provided for @feat_gps_moving_every_sec.
+  ///
+  /// In en, this message translates to:
+  /// **'Interval in movement (seconds)'**
+  String get feat_gps_moving_every_sec;
+
+  /// No description provided for @feat_gps_stationary_every_sec.
+  ///
+  /// In en, this message translates to:
+  /// **'Interval stationary (seconds)'**
+  String get feat_gps_stationary_every_sec;
+
+  /// No description provided for @feat_gps_ios_distance_filter_m.
+  ///
+  /// In en, this message translates to:
+  /// **'iOS distance filter (meters)'**
+  String get feat_gps_ios_distance_filter_m;
+
+  /// No description provided for @feat_gps_acc_hard_reject_m.
+  ///
+  /// In en, this message translates to:
+  /// **'Accurate rejection (meters)'**
+  String get feat_gps_acc_hard_reject_m;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

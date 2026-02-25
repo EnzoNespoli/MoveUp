@@ -3,6 +3,11 @@ import 'package:flutter/material.dart';
 import 'gps_log.dart';
 import 'package:intl/intl.dart'; // aggiungi intl ^0.19.x a pubspec
 import '../lingua.dart';
+import 'dart:io';
+
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:flutter/services.dart';
 
 class CardDiarioGps extends StatelessWidget {
   const CardDiarioGps({super.key});
@@ -21,6 +26,8 @@ class CardDiarioGps extends StatelessWidget {
           return Icons.check_circle;
         case GpsLogStatus.error:
           return Icons.error_outline;
+        case GpsLogStatus.info:
+          return Icons.info_outline;
       }
     }
 
@@ -34,6 +41,8 @@ class CardDiarioGps extends StatelessWidget {
           return Colors.green;
         case GpsLogStatus.error:
           return Colors.red;
+        case GpsLogStatus.info:
+          return Colors.orange;
       }
     }
 
@@ -61,10 +70,49 @@ class CardDiarioGps extends StatelessWidget {
       child: ExpansionTile(
         initiallyExpanded: false,
         title: Text(context.t.gps_err19),
-        trailing: IconButton(
-          tooltip: 'Clear log',
-          icon: const Icon(Icons.delete_sweep),
-          onPressed: () => GpsLog.instance.clear(),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              tooltip: 'Copy log',
+              icon: const Icon(Icons.copy),
+              onPressed: () async {
+                final text =
+                    GpsLog.instance.exportText(maxLines: 2000); // metti limite
+                await Clipboard.setData(ClipboardData(text: text));
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Log copiato negli appunti')),
+                  );
+                }
+              },
+            ),
+            IconButton(
+              tooltip: 'Share log',
+              icon: const Icon(Icons.ios_share),
+              onPressed: () async {
+                final text = GpsLog.instance.exportText(maxLines: 3000);
+
+                final dir = await getTemporaryDirectory();
+                final ts = DateTime.now()
+                    .toUtc()
+                    .toIso8601String()
+                    .replaceAll(':', '-');
+                final file = File('${dir.path}/moveup_gpslog_$ts.txt');
+                await file.writeAsString(text, flush: true);
+
+                await Share.shareXFiles(
+                  [XFile(file.path)],
+                  text: 'MoveUP GPS log (UTC)',
+                );
+              },
+            ),
+            IconButton(
+              tooltip: 'Clear log',
+              icon: const Icon(Icons.delete_sweep),
+              onPressed: () => GpsLog.instance.clear(),
+            ),
+          ],
         ),
         children: [
           // altezza fissa per scrollare dentro la card

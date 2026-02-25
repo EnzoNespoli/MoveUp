@@ -436,6 +436,17 @@ class FeatureList extends StatelessWidget {
         'ai_enabled': context.t.feat_ai_enabled,
         'ai_daily_limit': context.t.feat_ai_daily_limit,
         'ai_scope': context.t.feat_ai_scope,
+        // Nuove chiavi GPS
+        'gps_sample_sec': context.t.feat_gps_sample_sec,
+        'gps_min_distance_m': context.t.feat_gps_min_distance_m,
+        'gps_upload_sec': context.t.feat_gps_upload_sec,
+        'gps_background': context.t.feat_gps_background,
+        'gps_max_acc_m': context.t.feat_gps_max_acc_m,
+        'gps_accuracy_mode': context.t.feat_gps_accuracy_mode,
+        'gps_moving_every_sec': context.t.feat_gps_moving_every_sec,
+        'gps_stationary_every_sec': context.t.feat_gps_stationary_every_sec,
+        'gps_ios_distance_filter_m': context.t.feat_gps_ios_distance_filter_m,
+        'gps_acc_hard_reject_m': context.t.feat_gps_acc_hard_reject_m,
       };
 
   @override

@@ -502,7 +502,14 @@
   "dash_fermo": "STILLSTAND",
   "dash_lento": "LANGSAM",
   "dash_veloce": "SCHNELL",
-  "dash_non_tracciato": "NICHT AUFGEZEICHNET"
+  "dash_non_tracciato": "NICHT AUFGEZEICHNET",
+
+  "feat_gps_moving_every_sec": "Intervall in Bewegung (Sekunden)",
+  "feat_gps_stationary_every_sec": "Intervall stationär (Sekunden)",
+  "feat_gps_ios_distance_filter_m": "iOS-Distanzfilter (Meter)",
+  "feat_gps_acc_hard_reject_m": "Genauer Ausschluss (Meter)"
+
+
 
 
 

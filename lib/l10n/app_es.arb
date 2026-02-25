@@ -502,6 +502,15 @@
 "dash_fermo": "PARADO",
 "dash_lento": "LENTO",
 "dash_veloce": "RÁPIDO",
-"dash_non_tracciato": "NO REGISTRADO"
+"dash_non_tracciato": "NO REGISTRADO",
+
+  "feat_gps_moving_every_sec": "Intervalle en mouvement (secondes)",
+  "feat_gps_stationary_every_sec": "Intervalle immobile (secondes)",
+  "feat_gps_ios_distance_filter_m": "Filtre de distance iOS (mètres)",
+  "feat_gps_acc_hard_reject_m": "Rejet précis (mètres)"
+
+
+
+
 
 }

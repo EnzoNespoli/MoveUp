@@ -500,11 +500,20 @@
 "dash_fermo":"FERMO",
 "dash_lento":"LENTO",
 "dash_veloce":"VELOCE",
-"dash_non_tracciato":"NON TRACCIATO"
+"dash_non_tracciato":"NON TRACCIATO",
 
+"feat_gps_moving_every_sec": "Intervallo in movimento (secondi)",
+"feat_gps_stationary_every_sec": "Intervallo fermo (secondi)",
+"feat_gps_ios_distance_filter_m": "Filtro distanza iOS (metri)",
+"feat_gps_acc_hard_reject_m": "Scarto accurato (metri)"
 
 
 
 
 
 }
+
+
+
+
+

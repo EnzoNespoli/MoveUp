@@ -169,6 +169,34 @@ class FunzioniAttiveForm extends StatelessWidget {
                   value:
                       '${f['gps_upload_sec']} ${context.t.unit_seconds}', // "180 secondi"
                 ),
+              if (f['gps_moving_every_sec'] != null)
+                _kvTile(
+                  icon: Icons.directions_run,
+                  title: context.t.feat_gps_moving_every_sec,
+                  value:
+                      '${f['gps_moving_every_sec']} ${context.t.unit_seconds}',
+                ),
+              if (f['gps_stationary_every_sec'] != null)
+                _kvTile(
+                  icon: Icons.self_improvement,
+                  title: context.t.feat_gps_stationary_every_sec,
+                  value:
+                      '${f['gps_stationary_every_sec']} ${context.t.unit_seconds}',
+                ),
+              if (f['gps_ios_distance_filter_m'] != null)
+                _kvTile(
+                  icon: Icons.social_distance,
+                  title: context.t.feat_gps_ios_distance_filter_m,
+                  value:
+                      '${f['gps_ios_distance_filter_m']} ${context.t.unit_meters}',
+                ),
+              if (f['gps_acc_hard_reject_m'] != null)
+                _kvTile(
+                  icon: Icons.cancel,
+                  title: context.t.feat_gps_acc_hard_reject_m,
+                  value:
+                      '${f['gps_acc_hard_reject_m']} ${context.t.unit_meters}',
+                ),
               if (f['gps_background'] != null)
                 ListTile(
                   dense: true,

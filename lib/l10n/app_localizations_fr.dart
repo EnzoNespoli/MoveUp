@@ -1358,4 +1358,16 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get dash_non_tracciato => 'NON ENREGISTRÉ';
+
+  @override
+  String get feat_gps_moving_every_sec => 'Intervalle en mouvement (secondes)';
+
+  @override
+  String get feat_gps_stationary_every_sec => 'Intervalle immobile (secondes)';
+
+  @override
+  String get feat_gps_ios_distance_filter_m => 'Filtre de distance iOS (mètres)';
+
+  @override
+  String get feat_gps_acc_hard_reject_m => 'Rejet précis (mètres)';
 }

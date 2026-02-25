@@ -501,7 +501,12 @@
 "dash_fermo": "STILL",
 "dash_lento": "SLOW",
 "dash_veloce": "FAST",
-"dash_non_tracciato": "NOT TRACKED"
+"dash_non_tracciato": "NOT TRACKED",
+
+  "feat_gps_moving_every_sec": "Interval in movement (seconds)",
+  "feat_gps_stationary_every_sec": "Interval stationary (seconds)",
+  "feat_gps_ios_distance_filter_m": "iOS distance filter (meters)",
+  "feat_gps_acc_hard_reject_m": "Accurate rejection (meters)"
 
 
 
