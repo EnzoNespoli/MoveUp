@@ -1256,7 +1256,7 @@ abstract class AppLocalizations {
   /// No description provided for @storico_03.
   ///
   /// In en, this message translates to:
-  /// **'Use the app without signing up.\nYour location can also be collected in the background to calculate, in real time, distance traveled, time in movement and pause moments.\nData stays only on your device, is valid for the current day, and is deleted automatically every day.\nFeatures: live tracking and daily summary.'**
+  /// **'Use the app without registering.\nMoveUP can detect your position to record movement time, distance travelled and moments of pause.\nData stays only on your device and is automatically deleted after 10 days.\nFeatures: position recording and daily summary.\nNote: the HOME section is not available in this mode.'**
   String get storico_03;
 
   /// No description provided for @storico_04.
@@ -1268,7 +1268,7 @@ abstract class AppLocalizations {
   /// No description provided for @storico_05.
   ///
   /// In en, this message translates to:
-  /// **'Free account with 7-day history.\nFeatures: live and background tracking, cloud backup, sync across devices, notifications.'**
+  /// **'Free account with a full 30-day trial.\nFeatures: real-time and background position recording, cloud backup, synchronization across multiple devices and notifications.\nAfter 30 days the account remains active but history returns to 10 days.\nNote: the HOME section is not available without an active plan.'**
   String get storico_05;
 
   /// No description provided for @storico_06.
@@ -1280,7 +1280,7 @@ abstract class AppLocalizations {
   /// No description provided for @storico_07.
   ///
   /// In en, this message translates to:
-  /// **'30-day history.\nFeatures: advanced daily timeline, per-level metrics (still/slow/fast), repeated places and routes.'**
+  /// **'30-day history.\nFeatures: full daily timeline, level metrics (still/slow/fast), recurring places and routes.\nFull access to the HOME section.'**
   String get storico_07;
 
   /// No description provided for @storico_08.
@@ -1292,7 +1292,7 @@ abstract class AppLocalizations {
   /// No description provided for @storico_09.
   ///
   /// In en, this message translates to:
-  /// **'6-month history.\nFeatures: everything in Basic + analysis of recurring routes/places with weekly/monthly summaries.'**
+  /// **'6-month history.\nFeatures: everything included in Basic plus analysis of recurring routes and places with weekly and monthly summaries.\nFull access to the HOME section.'**
   String get storico_09;
 
   /// No description provided for @storico_10.
@@ -1304,7 +1304,7 @@ abstract class AppLocalizations {
   /// No description provided for @storico_11.
   ///
   /// In en, this message translates to:
-  /// **'1-year history.\nFeatures: advanced reports, detailed filters, priority support, no ads.'**
+  /// **'1-year history.\nFeatures: advanced reports, detailed filters and full access to the HOME section.'**
   String get storico_11;
 
   /// No description provided for @storico_12.
@@ -1316,7 +1316,7 @@ abstract class AppLocalizations {
   /// No description provided for @storico_13.
   ///
   /// In en, this message translates to:
-  /// **'The app may collect your location in the background to calculate your trips, distance traveled and time in movement.\nYou can change or withdraw consent at any time.\nWithout tracking consent we do not store locations.\nIf you use the app in anonymous mode (no registration), data stays only on the device and is automatically deleted at the end of the day: we do not keep history of previous days and we do not link locations to a personal profile.'**
+  /// **'MoveUP may detect your position in the background to record your movements, travelled distance and time in motion.\nYou can change or revoke permissions at any time.\nWithout location permission the app does not record data.\nIf you use the app in anonymous mode, data remains only on the device and is automatically deleted when the available period expires.'**
   String get storico_13;
 
   /// No description provided for @storico_14.
@@ -2570,25 +2570,25 @@ abstract class AppLocalizations {
   /// No description provided for @help_q1_title.
   ///
   /// In en, this message translates to:
-  /// **'Is MoveUP still recording me?'**
+  /// **'Is MoveUP tracking me right now?'**
   String get help_q1_title;
 
   /// No description provided for @help_q2_title.
   ///
   /// In en, this message translates to:
-  /// **'Does it work even if the app is closed or the phone is locked?'**
+  /// **'Does MoveUP work if the app is closed or the phone is locked?'**
   String get help_q2_title;
 
   /// No description provided for @help_q3_title.
   ///
   /// In en, this message translates to:
-  /// **'Why do I need to allow location access \"Always\"?'**
+  /// **'Why do I need to allow location \"Always\"?'**
   String get help_q3_title;
 
   /// No description provided for @help_q4_title.
   ///
   /// In en, this message translates to:
-  /// **'Does it consume a lot of battery?'**
+  /// **'Does MoveUP consume a lot of battery?'**
   String get help_q4_title;
 
   /// No description provided for @help_q5_title.
@@ -2600,19 +2600,19 @@ abstract class AppLocalizations {
   /// No description provided for @help_q6_title.
   ///
   /// In en, this message translates to:
-  /// **'Does MoveUP record me even when I am not moving?'**
+  /// **'Does MoveUP track even when I am not moving?'**
   String get help_q6_title;
 
   /// No description provided for @help_q7_title.
   ///
   /// In en, this message translates to:
-  /// **'Why do I see fewer data today compared to yesterday?'**
+  /// **'Why do I see fewer data today compared to other days?'**
   String get help_q7_title;
 
   /// No description provided for @help_q8_title.
   ///
   /// In en, this message translates to:
-  /// **'Can I stop or pause location recording?'**
+  /// **'Can I stop or pause the tracking?'**
   String get help_q8_title;
 
   /// No description provided for @help_q9_title.
@@ -2624,67 +2624,67 @@ abstract class AppLocalizations {
   /// No description provided for @help_q10_title.
   ///
   /// In en, this message translates to:
-  /// **'What happens if I uninstall the app?'**
+  /// **'What happens if I uninstall MoveUP?'**
   String get help_q10_title;
 
   /// No description provided for @help_q1_body.
   ///
   /// In en, this message translates to:
-  /// **'Yes. If you see the status LIVE or Listening, MoveUP is tracking your movements even with the screen turned off.'**
+  /// **'If you see the LIVE or Listening status, MoveUP is monitoring your movement. The app can continue working even with the screen turned off.'**
   String get help_q1_body;
 
   /// No description provided for @help_q2_body.
   ///
   /// In en, this message translates to:
-  /// **'Yes. MoveUP can continue working even when the screen is off, if you have given consent to recording your location.'**
+  /// **'Yes. MoveUP can continue tracking movement even when the app is not open, if you have granted location permission.'**
   String get help_q2_body;
 
   /// No description provided for @help_q3_body.
   ///
   /// In en, this message translates to:
-  /// **'To allow MoveUP to work correctly even when you are not actively using the app, for example with the screen turned off.'**
+  /// **'The \"Always\" permission allows MoveUP to work correctly even when you are not actively using the app, for example when the screen is off or when using other apps.'**
   String get help_q3_body;
 
   /// No description provided for @help_q4_body.
   ///
   /// In en, this message translates to:
-  /// **'MoveUP uses GPS intelligently. Battery consumption depends on how much you move, but it is optimized for daily use.'**
+  /// **'MoveUP uses GPS only when necessary and in an optimized way. Battery consumption mainly depends on how much you move during the day.'**
   String get help_q4_body;
 
   /// No description provided for @help_q5_body.
   ///
   /// In en, this message translates to:
-  /// **'WAITING means that MoveUP is active but is waiting for a new movement or a valid GPS signal.'**
+  /// **'\"WAITING\" means that MoveUP is active but has not detected a new movement yet or is waiting for a stable GPS signal.'**
   String get help_q5_body;
 
   /// No description provided for @help_q6_body.
   ///
   /// In en, this message translates to:
-  /// **'Yes. Periods of inactivity are also important to correctly analyze your day.'**
+  /// **'Yes. Periods of inactivity are also recorded. This helps MoveUP correctly understand how your day evolves.'**
   String get help_q6_body;
 
   /// No description provided for @help_q7_body.
   ///
   /// In en, this message translates to:
-  /// **'This is normal. It depends on how much you moved, GPS signal quality, and any pauses in recording.'**
+  /// **'This is normal. Data depend on your real movement during the day and the quality of the available GPS signal.'**
   String get help_q7_body;
 
   /// No description provided for @help_q8_body.
   ///
   /// In en, this message translates to:
-  /// **'Yes. You can pause or stop recording at any time from the main screen.'**
+  /// **'Yes. You can stop or pause tracking at any time from the main screen of the app.'**
   String get help_q8_body;
 
   /// No description provided for @help_q9_body.
   ///
   /// In en, this message translates to:
-  /// **'Yes. Your movement data are personal and are used only for the app’s features.'**
+  /// **'Yes. Your movement data are personal and are used only for the features of the app.'**
   String get help_q9_body;
 
   /// No description provided for @help_q10_body.
   ///
   /// In en, this message translates to:
-  /// **'Recording stops immediately. You can reinstall MoveUP at any time.'**
+  /// **'If you uninstall MoveUP, tracking stops immediately. You can reinstall the app at any time.'**
   String get help_q10_body;
 
   /// No description provided for @dash_dettaglio.
@@ -2708,25 +2708,25 @@ abstract class AppLocalizations {
   /// No description provided for @dash_aggiorna.
   ///
   /// In en, this message translates to:
-  /// **'Update data'**
+  /// **'Refresh data'**
   String get dash_aggiorna;
 
   /// No description provided for @dash_oggi.
   ///
   /// In en, this message translates to:
-  /// **'TODAY'**
+  /// **'Today'**
   String get dash_oggi;
 
   /// No description provided for @dash_registrazione.
   ///
   /// In en, this message translates to:
-  /// **'RECORDING'**
+  /// **'Discover what your day looks like.'**
   String get dash_registrazione;
 
   /// No description provided for @dash_spento.
   ///
   /// In en, this message translates to:
-  /// **'OFF'**
+  /// **'MoveUP is running.'**
   String get dash_spento;
 
   /// No description provided for @dash_benvenuto.
@@ -2738,7 +2738,7 @@ abstract class AppLocalizations {
   /// No description provided for @dash_fermo.
   ///
   /// In en, this message translates to:
-  /// **'STILL'**
+  /// **'STOPPED'**
   String get dash_fermo;
 
   /// No description provided for @dash_lento.
@@ -2758,6 +2758,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'NOT TRACKED'**
   String get dash_non_tracciato;
+
+  /// No description provided for @dash_prova_attiva.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial active'**
+  String get dash_prova_attiva;
+
+  /// No description provided for @dash_move_pronto.
+  ///
+  /// In en, this message translates to:
+  /// **'MoveUP is ready'**
+  String get dash_move_pronto;
+
+  /// No description provided for @dash_prova_terminata.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial ended • Register to continue'**
+  String get dash_prova_terminata;
+
+  /// No description provided for @dash_prova_terminata2.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial ended • Buy to continue'**
+  String get dash_prova_terminata2;
+
+  /// No description provided for @dash_modalita_ospite.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest mode • 1 day remaining'**
+  String get dash_modalita_ospite;
+
+  /// No description provided for @dash_modalita.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest mode •'**
+  String get dash_modalita;
+
+  /// No description provided for @dash_giorni_rimasti.
+  ///
+  /// In en, this message translates to:
+  /// **'days remaining'**
+  String get dash_giorni_rimasti;
+
+  /// No description provided for @dash_prova_completa.
+  ///
+  /// In en, this message translates to:
+  /// **'Full trial • 1 day remaining'**
+  String get dash_prova_completa;
+
+  /// No description provided for @dash_prova.
+  ///
+  /// In en, this message translates to:
+  /// **'Full trial •'**
+  String get dash_prova;
+
+  /// No description provided for @dash_fine.
+  ///
+  /// In en, this message translates to:
+  /// **'STOP'**
+  String get dash_fine;
+
+  /// No description provided for @dash_inizia.
+  ///
+  /// In en, this message translates to:
+  /// **'START'**
+  String get dash_inizia;
+
+  /// No description provided for @dash_accedi.
+  ///
+  /// In en, this message translates to:
+  /// **'LOGIN'**
+  String get dash_accedi;
+
+  /// No description provided for @dash_acquista_piano.
+  ///
+  /// In en, this message translates to:
+  /// **'BUY PLAN'**
+  String get dash_acquista_piano;
+
+  /// No description provided for @dash_home.
+  ///
+  /// In en, this message translates to:
+  /// **'HOME'**
+  String get dash_home;
+
+  /// No description provided for @dash_tempo_movimento.
+  ///
+  /// In en, this message translates to:
+  /// **'Movement time'**
+  String get dash_tempo_movimento;
+
+  /// No description provided for @dash_pausa_fermo.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause / Stop'**
+  String get dash_pausa_fermo;
+
+  /// No description provided for @dash_riepilogo.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days summary'**
+  String get dash_riepilogo;
+
+  /// No description provided for @dash_movimento_lento.
+  ///
+  /// In en, this message translates to:
+  /// **'Slow movement'**
+  String get dash_movimento_lento;
+
+  /// No description provided for @dash_spostamento_veloce.
+  ///
+  /// In en, this message translates to:
+  /// **'Fast movement'**
+  String get dash_spostamento_veloce;
+
+  /// No description provided for @dash_indietro.
+  ///
+  /// In en, this message translates to:
+  /// **'BACK'**
+  String get dash_indietro;
 
   /// No description provided for @feat_gps_moving_every_sec.
   ///

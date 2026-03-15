@@ -18,6 +18,9 @@ import 'dart:io' show Platform;
 import 'bottom_navigationbar.dart';
 import 'gps_log.dart';
 import 'card_notifiche.dart';
+import 'abbonamenti_page.dart';
+
+import '../models/home_message_status.dart';
 
 import '../services/gps_log_entry.dart';
 import '../services/app_header_bar.dart';
@@ -82,9 +85,14 @@ class _HomePageState extends State<HomePage> {
   Timer? countdownTimer;
   String utenteId = '';
   String nomeId = '';
+  String utenteCreatedAt = '';
   String debugUtente = '';
   String ultimaPosizione = '';
   String gpsErrore = '';
+  String homeMessage = '';
+  bool provaScaduta = false;
+  HomeMessageStatus homeStatus = HomeMessageStatus.ready;
+  int remainingDays = 0;
 
   List<Map<String, dynamic>> livelli = [
     {'durata': '--', 'trend': '--', 'minuti': 0},
@@ -184,7 +192,12 @@ class _HomePageState extends State<HomePage> {
       enabled: true, // metti false se vuoi spegnere la telemetria in prod
     );
 
-    _checkOnboarding();
+    //----------------------------------------------
+    // tolto carosel
+    //----------------------------------------------
+    //_checkOnboarding();
+    //-----------------------------------------------
+
     _getVersion();
     _getToken();
 
@@ -372,6 +385,14 @@ class _HomePageState extends State<HomePage> {
     try {
       await _caricaUtente(); // carica o crea utente
 
+      HomeMessageStatus homeStatus = _buildHomeStatus();
+      int remainingDays = _getRemainingDays();
+
+      bool provaScaduta = homeStatus == HomeMessageStatus.guestExpired ||
+          homeStatus == HomeMessageStatus.trialExpired;
+
+      homeMessage = _buildHomeMessage();
+
       // 1) PRIMA ricalcola (una sola volta)
       await _ricalcolaEaggiornaAttivita('loadAll');
       _lastRecalcAt = DateTime.now(); // così magariRecalc non lo rifà subito
@@ -475,11 +496,12 @@ class _HomePageState extends State<HomePage> {
     String? nomeLogin = prefs.getString("nomeIdLogin");
 
     if (idLogin != null && idLogin.isNotEmpty) {
-      final ok = await verificaEsistenzaUtente(idLogin);
-      if (ok) {
+      final datiUtente = await leggiUtente(idLogin);
+      if (datiUtente != null) {
         setState(() {
           utenteId = idLogin;
-          nomeId = nomeLogin ?? '';
+          nomeId = datiUtente['nome']?.toString() ?? (nomeLogin ?? '');
+          utenteCreatedAt = datiUtente['created_at']?.toString() ?? '';
           utenteTemporaneo = false;
           debugUtente = "Nome: $nomeId";
         });
@@ -497,11 +519,12 @@ class _HomePageState extends State<HomePage> {
     String? nomeAnonimo = prefs.getString("nomeIdAnonimo");
 
     if (idAnonimo != null && idAnonimo.isNotEmpty) {
-      final ok = await verificaEsistenzaUtente(idAnonimo);
-      if (ok) {
+      final datiUtente = await leggiUtente(idAnonimo);
+      if (datiUtente != null) {
         setState(() {
           utenteId = idAnonimo;
-          nomeId = nomeAnonimo ?? '';
+          nomeId = datiUtente['nome']?.toString() ?? (nomeAnonimo ?? '');
+          utenteCreatedAt = datiUtente['created_at']?.toString() ?? '';
           utenteTemporaneo = true;
           debugUtente = "Nome: $nomeId";
         });
@@ -546,6 +569,35 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  //------------------------------------------------------------------
+  // Export testo semplice (es. per debug o esportazione manuale)
+  //------------------------------------------------------------------
+  Future<Map<String, dynamic>?> leggiUtente(String utenteId) async {
+    try {
+      final res = await http.get(
+        Uri.parse("$apiBaseUrl/utenti_read.php?utente_id=$utenteId"),
+        headers: _jwtToken != null ? _authHeaders() : null,
+      );
+
+      if (res.statusCode == 401 && !_refreshingToken) {
+        await handle401();
+        return leggiUtente(utenteId);
+      }
+
+      if (res.statusCode != 200) return null;
+
+      final body = json.decode(res.body);
+
+      if (body['success'] == true && body['utente'] is Map<String, dynamic>) {
+        return Map<String, dynamic>.from(body['utente']);
+      }
+
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
   //----------------------------------------------------------------
   // inizializza utente generico
   //----------------------------------------------------------------
@@ -570,6 +622,8 @@ class _HomePageState extends State<HomePage> {
           setState(() {
             utenteId = data['utente_id'].toString();
             nomeId = data['nome']?.toString() ?? 'Error User';
+            utenteCreatedAt = data['created_at']?.toString() ??
+                DateTime.now().toIso8601String();
             debugUtente = "Nome: $nomeId";
           });
           // ...dopo aver ottenuto utenteId e nomeId...
@@ -591,6 +645,114 @@ class _HomePageState extends State<HomePage> {
     } else {
       //
     }
+  }
+
+  //------------------------------------------------------------------
+  // Export testo semplice (es. per debug o esportazione manuale)
+  //------------------------------------------------------------------
+  String _buildHomeMessage() {
+    final status = _buildHomeStatus();
+    final remainingDays = _getRemainingDays();
+
+    switch (status) {
+      case HomeMessageStatus.guestActive:
+        if (remainingDays == 1) {
+          return context.t.dash_modalita_ospite;
+        }
+        return '${context.t.dash_modalita} $remainingDays ${context.t.dash_giorni_rimasti}';
+
+      case HomeMessageStatus.trialActive:
+        if (remainingDays == 1) {
+          return context.t.dash_prova_completa;
+        }
+        return '${context.t.dash_prova} $remainingDays ${context.t.dash_giorni_rimasti}';
+
+      case HomeMessageStatus.guestExpired:
+        return context.t.dash_prova_terminata;
+
+      case HomeMessageStatus.trialExpired:
+        return context.t.dash_prova_terminata2;
+
+      case HomeMessageStatus.ready:
+        return context.t.dash_move_pronto;
+    }
+  }
+
+//------------------------------------------------------------------------
+// determina lo stato attuale per costruire il messaggio
+//------------------------------------------------------------------------
+  HomeMessageStatus _buildHomeStatus() {
+    final String? raw = utenteCreatedAt;
+
+    if (raw == null || raw.trim().isEmpty) {
+      return utenteTemporaneo
+          ? HomeMessageStatus.guestActive
+          : HomeMessageStatus.ready;
+    }
+
+    final parsed = DateTime.tryParse(raw.replaceFirst(' ', 'T'));
+    if (parsed == null) {
+      return utenteTemporaneo
+          ? HomeMessageStatus.guestActive
+          : HomeMessageStatus.ready;
+    }
+
+    final remainingDays = _getRemainingDays();
+
+    if (utenteTemporaneo) {
+      return remainingDays <= 0
+          ? HomeMessageStatus.guestExpired
+          : HomeMessageStatus.guestActive;
+    } else {
+      return remainingDays <= 0
+          ? HomeMessageStatus.trialExpired
+          : HomeMessageStatus.trialActive;
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  // costruisce il messaggio di errore o info sulla prova
+  //-------------------------------------------------------------------------
+  int _getRemainingDays() {
+    final String? raw = utenteCreatedAt;
+
+    if (raw == null || raw.trim().isEmpty) {
+      return utenteTemporaneo ? 10 : 30;
+    }
+
+    final parsed = DateTime.tryParse(raw.replaceFirst(' ', 'T'));
+    if (parsed == null) {
+      return utenteTemporaneo ? 10 : 30;
+    }
+
+    final now = DateTime.now();
+    final totalDays = utenteTemporaneo ? 10 : 30;
+    final elapsedDays = now.difference(parsed).inDays;
+
+    return totalDays - elapsedDays;
+  }
+
+  //-------------------------------------------------------------------------
+  // verifica se la prova è scaduta
+  //-------------------------------------------------------------------------
+  bool _isProvaScaduta() {
+    final String? raw = utenteCreatedAt;
+
+    if (raw == null || raw.trim().isEmpty) {
+      return false;
+    }
+
+    final parsed = DateTime.tryParse(raw.replaceFirst(' ', 'T'));
+    if (parsed == null) {
+      return false;
+    }
+
+    final now = DateTime.now();
+    final totalDays = utenteTemporaneo ? 10 : 30;
+    final elapsedDays = now.difference(parsed).inDays;
+    final remainingDays = totalDays - elapsedDays;
+
+    return remainingDays <= 0;
   }
 
   //-------------------------------------------------------------------------
@@ -633,7 +795,7 @@ class _HomePageState extends State<HomePage> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove("utenteIdLogin");
     await prefs.remove("nomeIdLogin");
-    //await _storage.delete(key: 'jwt_token');
+
     loading = true;
     utenteTemporaneo = true;
     stopCountdown();
@@ -643,9 +805,12 @@ class _HomePageState extends State<HomePage> {
     await _loadAll();
     await onLogoutFlow();
 
+    _openDashboard();
+
     setState(() {
       consensoTrackingGps = true;
       _lastLat = _lastLon = null;
+      utenteTemporaneo = true;
     });
   }
 
@@ -913,7 +1078,7 @@ class _HomePageState extends State<HomePage> {
       }
 
       if (permission == LocationPermission.unableToDetermine) {
-        setState(() => gpsErrore = "Impossibile determinare i permessi GPS");
+        setState(() => gpsErrore = "Unable to determine GPS permissions");
         return;
       }
 
@@ -1683,23 +1848,58 @@ class _HomePageState extends State<HomePage> {
   }
 
   //-------------------------------------------------------------------------
+  // Funzioni per aprire/chiudere la modalità dashboard
+  //-------------------------------------------------------------------------
+  void _openDashboardMode() {
+    setState(() {
+      showDashboardMode = true;
+    });
+  }
+
+//-------------------------------------------------------------------------
+// Chiude la modalità dashboard e torna alla home
+//-------------------------------------------------------------------------
+  void _closeDashboardMode() {
+    setState(() {
+      showDashboardMode = false;
+    });
+  }
+
+  void _openDashboard() {
+    setState(() {
+      showDashboardMode = true;
+    });
+  }
+
+  void _openSubscriptionsPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AbbonamentiPage(
+          utenteId: utenteId,
+          nomeId: nomeId,
+        ),
+      ),
+    );
+  }
+
+  //-------------------------------------------------------------------------
   // Costruisce l'interfaccia della pagina
   //-------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
+    final HomeMessageStatus homeStatus = _buildHomeStatus();
+    final int remainingDays = _getRemainingDays();
+    final String homeMessage = _buildHomeMessage();
+    final bool provaScaduta = _isProvaScaduta();
+
     return Stack(
       children: [
         Scaffold(
           appBar: AppHeaderBar(
             showBack: false,
             onChangeLocale: widget.onChangeLocale, // <-- QUI
-            onDashboardTap: showDashboardMode
-                ? null
-                : () {
-                    setState(() {
-                      showDashboardMode = true;
-                    });
-                  },
+            onDashboardTap: showDashboardMode ? null : _openDashboardMode,
             banner: Container(
               margin: EdgeInsets.only(bottom: 4),
               padding: EdgeInsets.all(8),
@@ -1726,16 +1926,19 @@ class _HomePageState extends State<HomePage> {
                   livelli: livelli,
                   utenteId: utenteId,
                   nomeId: nomeId,
-                  onToggleDashboard: () {
-                    setState(() {
-                      showDashboardMode = false;
-                    });
-                  },
+                  utenteTemporaneo: utenteTemporaneo,
+                  homeMessage: homeMessage,
+                  homeStatus: homeStatus,
+                  remainingDays: remainingDays,
+                  provaScaduta: provaScaduta,
+                  onToggleDashboard: _closeDashboardMode,
+                  onOpenSubscriptions: _openSubscriptionsPage,
                   onOpenProfile: _openProfileFromDashboard,
                   onTrackingToggle: _attivaTracking,
                   onRefreshStats: () {
                     _ricalcolaEaggiornaAttivita('dashboard_refresh_button');
                   },
+                  datiLivelliSett: datiLivelliSett,
                 )
               : SingleChildScrollView(
                   controller: _scrollController,
@@ -1754,6 +1957,8 @@ class _HomePageState extends State<HomePage> {
                           nomeId: nomeId,
                           livelloUtente: livelloUtente,
                           giorniRimanenti: giorniRimanenti,
+                          homeStatus: homeStatus,
+                          remainingDays: remainingDays,
                           labelGiorni: _labelGiorni,
                           coloreGiorni: _coloreGiorni,
                           chipGiorni: ChipGiorni(
@@ -1788,8 +1993,8 @@ class _HomePageState extends State<HomePage> {
                         //---------------------------------------------
                         // CAROSELLO IMMAGINI inizio
                         //---------------------------------------------
-                        const HeroCarousel(),
-                        SizedBox(height: 20),
+                        //const HeroCarousel(),
+                        //SizedBox(height: 20),
                         //----------------------------------------------
                         // mappa posizione
                         //-----------------------------------------------
@@ -1959,6 +2164,7 @@ class _HomePageState extends State<HomePage> {
                   leggiConsensi: leggiConsensi,
                   mostraLoginDialog: mostraLoginDialog,
                   eseguiLogout: _eseguiLogout,
+                  onReturnDashboard: _openDashboardMode,
                 ),
         ),
         // overlay full-screen di attesa

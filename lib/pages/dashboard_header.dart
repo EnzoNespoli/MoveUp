@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../lingua.dart';
 import '../class/daily_analysis.dart'; // importa il modello
+import '../models/home_message_status.dart';
 
 class DashboardHeader extends StatelessWidget {
   final bool consensoTrackingGps;
@@ -8,6 +9,8 @@ class DashboardHeader extends StatelessWidget {
   final String utenteId;
   final String livelloUtente;
   final int giorniRimanenti;
+  final HomeMessageStatus homeStatus;
+  final int remainingDays;
   final String Function(int?, String) labelGiorni;
   final Color Function(int?, String) coloreGiorni;
   final Widget chipGiorni;
@@ -22,6 +25,8 @@ class DashboardHeader extends StatelessWidget {
     required this.utenteId,
     required this.livelloUtente,
     required this.giorniRimanenti,
+    required this.homeStatus,
+    required this.remainingDays,
     required this.labelGiorni,
     required this.coloreGiorni,
     required this.chipGiorni,
@@ -153,61 +158,6 @@ class DashboardHeader extends StatelessWidget {
 
         const SizedBox(height: 12),
 
-        // riga slogan
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(Icons.directions_walk, size: 22, color: Colors.blue[500]),
-            const SizedBox(width: 2),
-            Icon(Icons.trending_up, size: 18, color: Colors.blue[300]),
-            const SizedBox(width: 8),
-
-            // Testo a due righe
-            // Testo a due righe
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // riga 1: resta su 1 riga con ellissi
-                  Text(
-                    context.t.info_mes07, // "Capisci come ti muovi"
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.orange[700],
-                          height: 1.1,
-                        ),
-                  ),
-
-                  const SizedBox(height: 2),
-
-                  // riga 2: può andare a capo (2 righe max)
-                  if (context.t.info_mes08.isNotEmpty)
-                    Text(
-                      context
-                          .t.info_mes08, // "Scopri come impieghi il tuo tempo"
-                      softWrap: true,
-                      maxLines: 2, // ⬅️ qui la differenza
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.start,
-                      style:
-                          Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.black54,
-                                height: 1.15,
-                              ),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 8),
-
         // riga utente
         Row(
           children: [
@@ -243,40 +193,48 @@ class DashboardHeader extends StatelessWidget {
           ],
         ),
 
-        if (livelloUtente == 'Free')
-          Padding(
-            padding: const EdgeInsets.only(top: 8, left: 30),
-            child: InkWell(
-              onTap: () {
-                mostraLoginDialog(context);
-              },
-              borderRadius: BorderRadius.circular(6),
-              child: Text(
-                context.t
-                    .dashboard_msg, // "Vai su Profilo e registrati. Avrai la tua settimana tipo"
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.w600,
+        const SizedBox(height: 10),
+
+        Container(
+          width: double.infinity,
+          margin: const EdgeInsets.only(left: 30),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.65),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.black12),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x14000000),
+                blurRadius: 8,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(top: 1),
+                child: Icon(
+                  Icons.info_outline,
+                  size: 20,
+                  color: Colors.black54,
                 ),
               ),
-            ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  _buildHomeMessage(context),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w600,
+                        height: 1.30,
+                      ),
+                ),
+              ),
+            ],
           ),
-
-        const SizedBox(height: 8),
-
-        // riga piano
-        Row(
-          children: [
-            Icon(Icons.workspace_premium, color: Colors.amber[700]),
-            const SizedBox(width: 8),
-            Text(
-              '${context.t.dashboard_piano} $livelloUtente',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(width: 12),
-            chipGiorni,
-          ],
         ),
 
         // 👇 STATISTICHE GIORNALIERE DAI LIVELLI
@@ -366,6 +324,31 @@ class DashboardHeader extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  String _buildHomeMessage(BuildContext context) {
+    switch (homeStatus) {
+      case HomeMessageStatus.guestActive:
+        if (remainingDays == 1) {
+          return context.t.dash_modalita_ospite;
+        }
+        return '${context.t.dash_modalita} $remainingDays ${context.t.dash_giorni_rimasti}';
+
+      case HomeMessageStatus.trialActive:
+        if (remainingDays == 1) {
+          return context.t.dash_prova_completa;
+        }
+        return '${context.t.dash_prova} $remainingDays ${context.t.dash_giorni_rimasti}';
+
+      case HomeMessageStatus.guestExpired:
+        return context.t.dash_prova_terminata;
+
+      case HomeMessageStatus.trialExpired:
+        return context.t.dash_prova_terminata;
+
+      case HomeMessageStatus.ready:
+        return context.t.dash_move_pronto;
+    }
   }
 }
 

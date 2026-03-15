@@ -67,7 +67,7 @@ class _AppFooterState extends State<AppFooter> {
               ),
               Expanded(
                 child: Text(
-                  '$dt_email | $dt_telefono',
+                  '$dt_email ',
                   style: TextStyle(fontSize: 12, color: Colors.grey[700]),
                   textAlign: TextAlign.right,
                 ),

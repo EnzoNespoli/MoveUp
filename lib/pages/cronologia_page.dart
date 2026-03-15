@@ -303,6 +303,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
               .toString()
               .compareTo((b['data_ora_inizio'] ?? '').toString()));
         }
+        if (!mounted) return;
         setState(() {
           datiLivelli[livello] = List<dynamic>.from(dettagliCur);
         });
@@ -317,6 +318,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
         }
         return;
       } else {
+        if (!mounted) return;
         setState(() {
           datiLivelli[livello] = [];
         });
@@ -338,6 +340,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
               .toString()
               .compareTo((b['data_ora_inizio'] ?? '').toString()));
         }
+        if (!mounted) return;
         setState(() {
           datiLivelliPrevSett[livello] = List<dynamic>.from(dettagliPrev);
         });
@@ -350,12 +353,14 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
           Navigator.of(context).pushReplacementNamed('/login');
         }
       } else {
+        if (!mounted) return;
         setState(() {
           datiLivelliPrevSett[livello] = [];
         });
       }
     } catch (e) {
       // best-effort fallback
+      if (!mounted) return;
       setState(() {
         datiLivelli[livello] = datiLivelli[livello] ?? [];
         datiLivelliPrevSett[livello] = datiLivelliPrevSett[livello] ?? [];
@@ -1498,6 +1503,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
   // carica i dati di oggi
   //-----------------------------------------------------------
   Future<void> caricaOggi() async {
+    if (!mounted) return;
     setState(() => loadingOggi = true);
 
     // 1) carica i 3 livelli in parallelo
@@ -1507,6 +1513,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
       caricaDettagliLivello(2),
     ]);
 
+    if (!mounted) return;
     // 2) calcola i riepiloghi
     final r0 = riepilogoLivello(0);
     final r1 = riepilogoLivello(1);
@@ -1537,7 +1544,7 @@ class _CronologiaPageState extends State<CronologiaPage> with SafeState {
       yesterdayActiveMinutes:
           yesterdayMin, // metti i minuti attivi di ieri, se li hai
     );
-
+    if (!mounted) return;
     setState(() => loadingOggi = false);
   }
 

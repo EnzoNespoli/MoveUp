@@ -595,43 +595,43 @@ class AppLocalizationsFr extends AppLocalizations {
   String get rep_week_insight_07 => 'L’analyse de MoveUP apparaîtra ici.';
 
   @override
-  String get storico_01 => 'Choisissez la durée d’historique à conserver. Le reste grandit avec vous.';
+  String get storico_01 => 'Choisissez la durée d’historique que vous souhaitez conserver. Le reste évolue avec vous.';
 
   @override
   String get storico_02 => 'Free (Anonyme)';
 
   @override
-  String get storico_03 => 'Utilise l’app sans t’inscrire.\nTa position peut aussi être relevée en arrière-plan pour calculer en temps réel la distance parcourue, le temps en mouvement et les moments d’arrêt.\nLes données restent uniquement sur ton appareil, ne valent que pour la journée en cours et sont supprimées automatiquement chaque jour.\nFonctions : suivi en direct et récapitulatif de la journée.';
+  String get storico_03 => 'Utilisez l’application sans vous inscrire.\nMoveUP peut détecter votre position pour enregistrer le temps en mouvement, la distance parcourue et les moments de pause.\nLes données restent uniquement sur votre appareil et sont supprimées automatiquement après 10 jours.\nFonctions : enregistrement de la position et résumé quotidien.\nRemarque : la section HOME n’est pas disponible dans ce mode.';
 
   @override
-  String get storico_04 => 'Start (Enregistré)';
+  String get storico_04 => 'Start (Inscrit)';
 
   @override
-  String get storico_05 => 'Compte gratuit avec 7 jours d’historique.\nFonctions : suivi en direct et en arrière-plan, sauvegarde cloud, synchronisation multi-appareils, notifications.';
+  String get storico_05 => 'Compte gratuit avec un essai complet de 30 jours.\nFonctions : enregistrement de la position en temps réel et en arrière-plan, sauvegarde cloud, synchronisation sur plusieurs appareils et notifications.\nAprès 30 jours, le compte reste actif mais l’historique revient à 10 jours.\nRemarque : la section HOME n’est pas disponible sans plan actif.';
 
   @override
   String get storico_06 => 'Basic — 30 jours (Payant)';
 
   @override
-  String get storico_07 => 'Historique de 30 jours.\nFonctions : chronologie quotidienne avancée, métriques par niveau (immobile/lent/rapide), lieux et itinéraires récurrents.';
+  String get storico_07 => 'Historique de 30 jours.\nFonctions : chronologie journalière complète, métriques par niveau (immobile/lent/rapide), lieux et trajets récurrents.\nAccès complet à la section HOME.';
 
   @override
   String get storico_08 => 'Plus — 180 jours (Payant)';
 
   @override
-  String get storico_09 => 'Historique de 6 mois.\nFonctions : tout ce qui est dans Basic + analyse des trajets/lieux récurrents avec récapitulatifs hebdomadaires/mensuels.';
+  String get storico_09 => 'Historique de 6 mois.\nFonctions : tout ce qui est inclus dans Basic plus analyse des trajets et lieux récurrents avec résumés hebdomadaires et mensuels.\nAccès complet à la section HOME.';
 
   @override
   String get storico_10 => 'Pro — 365 jours (Payant)';
 
   @override
-  String get storico_11 => 'Historique d’un an.\nFonctions : rapports avancés, filtres détaillés, support prioritaire, sans publicité.';
+  String get storico_11 => 'Historique d’un an.\nFonctions : rapports avancés, filtres détaillés et accès complet à la section HOME.';
 
   @override
   String get storico_12 => 'Note de confidentialité :';
 
   @override
-  String get storico_13 => 'L’app relève ta position également en arrière-plan pour calculer tes déplacements, la distance parcourue et le temps en mouvement.\nTu peux modifier ou retirer tes consentements à tout moment.\nSans consentement au suivi, nous n’enregistrons pas ta position.\nSi tu utilises l’app en mode anonyme (sans inscription), les données restent uniquement sur l’appareil et sont supprimées automatiquement en fin de journée : nous ne gardons pas d’historique des jours précédents et nous n’associons pas les positions à un profil personnel.';
+  String get storico_13 => 'MoveUP peut détecter votre position également en arrière-plan pour enregistrer vos déplacements, la distance parcourue et le temps en mouvement.\nVous pouvez modifier ou révoquer les autorisations à tout moment.\nSans autorisation de localisation, l’application n’enregistre aucune donnée.\nSi vous utilisez l’application en mode anonyme, les données restent uniquement sur l’appareil et sont supprimées automatiquement à la fin de la période disponible.';
 
   @override
   String get storico_14 => '⏳ Chargement des données…';
@@ -1264,64 +1264,64 @@ class AppLocalizationsFr extends AppLocalizations {
   String get help_subtitle => 'Questions fréquentes sur MoveUP';
 
   @override
-  String get help_q1_title => 'Est-ce que MoveUP m\'enregistre encore ?';
+  String get help_q1_title => 'MoveUP enregistre-t-il mes mouvements maintenant ?';
 
   @override
-  String get help_q2_title => 'Fonctionne-t-il même si l’application est fermée ou le téléphone verrouillé ?';
+  String get help_q2_title => 'MoveUP fonctionne-t-il si l\'application est fermée ou le téléphone verrouillé ?';
 
   @override
   String get help_q3_title => 'Pourquoi dois-je autoriser la localisation \"Toujours\" ?';
 
   @override
-  String get help_q4_title => 'Consomme-t-il beaucoup de batterie ?';
+  String get help_q4_title => 'MoveUP consomme-t-il beaucoup de batterie ?';
 
   @override
   String get help_q5_title => 'Pourquoi vois-je parfois \"EN ATTENTE\" ?';
 
   @override
-  String get help_q6_title => 'Est-ce que MoveUP m\'enregistre même lorsque je suis immobile ?';
+  String get help_q6_title => 'MoveUP enregistre-t-il aussi lorsque je suis immobile ?';
 
   @override
-  String get help_q7_title => 'Pourquoi ai-je moins de données aujourd’hui qu’hier ?';
+  String get help_q7_title => 'Pourquoi vois-je moins de données aujourd\'hui que les autres jours ?';
 
   @override
-  String get help_q8_title => 'Puis-je arrêter ou mettre en pause l\'enregistrement de la position ?';
+  String get help_q8_title => 'Puis-je arrêter ou mettre en pause l\'enregistrement ?';
 
   @override
   String get help_q9_title => 'Mes données sont-elles privées ?';
 
   @override
-  String get help_q10_title => 'Que se passe-t-il si je désinstalle l’application ?';
+  String get help_q10_title => 'Que se passe-t-il si je désinstalle MoveUP ?';
 
   @override
-  String get help_q1_body => 'Oui. Si vous voyez l’état LIVE ou En écoute, MoveUP enregistre vos déplacements même lorsque l’écran est éteint.';
+  String get help_q1_body => 'Si vous voyez l\'état LIVE ou À l\'écoute, MoveUP surveille vos mouvements. L\'application peut continuer à fonctionner même avec l\'écran éteint.';
 
   @override
-  String get help_q2_body => 'Oui. MoveUP peut continuer à fonctionner même avec l’écran éteint, si vous avez donné votre consentement pour l’enregistrement de votre position.';
+  String get help_q2_body => 'Oui. MoveUP peut continuer à enregistrer les mouvements même lorsque l\'application n\'est pas ouverte, si vous avez autorisé l\'accès à la position.';
 
   @override
-  String get help_q3_body => 'Pour permettre à MoveUP de fonctionner correctement même lorsque vous n’utilisez pas activement l’application, par exemple avec l’écran éteint.';
+  String get help_q3_body => 'L\'autorisation \"Toujours\" permet à MoveUP de fonctionner correctement même lorsque vous n\'utilisez pas activement l\'application.';
 
   @override
-  String get help_q4_body => 'MoveUP utilise le GPS de manière intelligente. La consommation dépend de vos déplacements, mais elle est optimisée pour un usage quotidien.';
+  String get help_q4_body => 'MoveUP utilise le GPS uniquement lorsque cela est nécessaire et de manière optimisée. La consommation dépend surtout de vos déplacements pendant la journée.';
 
   @override
-  String get help_q5_body => 'EN ATTENTE signifie que MoveUP est actif mais attend un nouveau mouvement ou un signal GPS valide.';
+  String get help_q5_body => '\"EN ATTENTE\" signifie que MoveUP est actif mais n\'a pas encore détecté de nouveau mouvement ou attend un signal GPS stable.';
 
   @override
-  String get help_q6_body => 'Oui. Les périodes d’inactivité sont également importantes pour analyser correctement votre journée.';
+  String get help_q6_body => 'Oui. Les périodes d\'inactivité sont également enregistrées afin de comprendre correctement le déroulement de votre journée.';
 
   @override
-  String get help_q7_body => 'C’est normal. Cela dépend de vos déplacements, de la qualité du signal GPS et des éventuelles pauses dans l’enregistrement.';
+  String get help_q7_body => 'C\'est normal. Les données dépendent de vos mouvements réels et de la qualité du signal GPS.';
 
   @override
-  String get help_q8_body => 'Oui. Vous pouvez mettre en pause ou arrêter l\'enregistrement à tout moment depuis l’écran principal.';
+  String get help_q8_body => 'Oui. Vous pouvez arrêter ou mettre en pause l\'enregistrement à tout moment depuis l\'écran principal.';
 
   @override
-  String get help_q9_body => 'Oui. Vos données de déplacement sont personnelles et utilisées uniquement pour les fonctionnalités de l\'application.';
+  String get help_q9_body => 'Oui. Vos données de mouvement sont personnelles et utilisées uniquement pour les fonctionnalités de l\'application.';
 
   @override
-  String get help_q10_body => 'L\'enregistrement s\'arrête immédiatement. Vous pouvez réinstaller MoveUP à tout moment.';
+  String get help_q10_body => 'Si vous désinstallez MoveUP, l\'enregistrement s\'arrête immédiatement. Vous pouvez réinstaller l\'application à tout moment.';
 
   @override
   String get dash_dettaglio => 'DÉTAILS';
@@ -1333,22 +1333,22 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dash_totale => 'Total';
 
   @override
-  String get dash_aggiorna => 'Mettre à jour les données';
+  String get dash_aggiorna => 'Actualiser les données';
 
   @override
-  String get dash_oggi => 'AUJOURD\'HUI';
+  String get dash_oggi => 'Aujourd\'hui';
 
   @override
-  String get dash_registrazione => 'ENREGISTREMENT';
+  String get dash_registrazione => 'Découvrez à quoi ressemble votre journée.';
 
   @override
-  String get dash_spento => 'ARRÊTÉ';
+  String get dash_spento => 'MoveUP est en fonctionnement.';
 
   @override
   String get dash_benvenuto => 'Bienvenue';
 
   @override
-  String get dash_fermo => 'IMMOBILE';
+  String get dash_fermo => 'ARRÊT';
 
   @override
   String get dash_lento => 'LENT';
@@ -1357,7 +1357,67 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dash_veloce => 'RAPIDE';
 
   @override
-  String get dash_non_tracciato => 'NON ENREGISTRÉ';
+  String get dash_non_tracciato => 'NON SUIVI';
+
+  @override
+  String get dash_prova_attiva => 'Essai actif';
+
+  @override
+  String get dash_move_pronto => 'MoveUP est prêt';
+
+  @override
+  String get dash_prova_terminata => 'Essai terminé • Inscrivez-vous pour continuer';
+
+  @override
+  String get dash_prova_terminata2 => 'Essai terminé • Achetez pour continuer';
+
+  @override
+  String get dash_modalita_ospite => 'Mode invité • 1 jour restant';
+
+  @override
+  String get dash_modalita => 'Mode invité •';
+
+  @override
+  String get dash_giorni_rimasti => 'jours restants';
+
+  @override
+  String get dash_prova_completa => 'Essai complet • 1 jour restant';
+
+  @override
+  String get dash_prova => 'Essai complet •';
+
+  @override
+  String get dash_fine => 'ARRÊTER';
+
+  @override
+  String get dash_inizia => 'DÉMARRER';
+
+  @override
+  String get dash_accedi => 'ACCÉDER';
+
+  @override
+  String get dash_acquista_piano => 'ACHETER LE PLAN';
+
+  @override
+  String get dash_home => 'ACCUEIL';
+
+  @override
+  String get dash_tempo_movimento => 'Temps en mouvement';
+
+  @override
+  String get dash_pausa_fermo => 'Pause / Arrêt';
+
+  @override
+  String get dash_riepilogo => 'Résumé des 7 derniers jours';
+
+  @override
+  String get dash_movimento_lento => 'Mouvement lent';
+
+  @override
+  String get dash_spostamento_veloce => 'Déplacement rapide';
+
+  @override
+  String get dash_indietro => 'RETOUR';
 
   @override
   String get feat_gps_moving_every_sec => 'Intervalle en mouvement (secondes)';

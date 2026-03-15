@@ -8,7 +8,7 @@ class BottomNavBar extends StatelessWidget {
   // NEW (opzionali)
   final int? currentIndex;
   final ValueChanged<int>? onItemSelected;
-
+  final VoidCallback? onReturnDashboard;
   // tuoi parametri originali restano
   final bool utenteTemporaneo;
   final String utenteId;
@@ -21,6 +21,7 @@ class BottomNavBar extends StatelessWidget {
     Key? key,
     this.currentIndex, // NEW
     this.onItemSelected, // NEW
+    this.onReturnDashboard,
     required this.utenteTemporaneo,
     required this.utenteId,
     required this.nomeId,
@@ -74,9 +75,9 @@ class BottomNavBar extends StatelessWidget {
           tooltip: context.t.bottom_cronologia_tt,
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: lblPro(),
-          tooltip: context.t.bottom_profilo_tt,
+          icon: Icon(Icons.dashboard),
+          label: "Dashboard",
+          tooltip: "Dashboard",
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.workspace_premium),
@@ -118,26 +119,8 @@ class BottomNavBar extends StatelessWidget {
                     CronologiaPage(utenteId: utenteId, nomeId: nomeId)),
           );
         } else if (index == 2) {
-          if (utenteTemporaneo) {
-            mostraLoginDialog(context);
-          } else {
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: Text(context.t.bottom_profilo),
-                content: Text(
-                    '${context.t.bottom_nome} ${nomeId.isNotEmpty ? nomeId : context.t.bottom_err02}'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      eseguiLogout();
-                    },
-                    child: Text(context.t.bottom_logout),
-                  ),
-                ],
-              ),
-            );
+          if (onReturnDashboard != null) {
+            onReturnDashboard!();
           }
         } else if (index == 3) {
           if (utenteTemporaneo) {
