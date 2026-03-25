@@ -522,7 +522,7 @@
 "dash_spostamento_veloce":"Spostamento veloce",
 "dash_indietro":"INDIETRO",
 
-
+"dash_link": "Scopri il ritmo reale della tua giornata", 
 
 "feat_gps_moving_every_sec": "Intervallo in movimento (secondi)",
 "feat_gps_stationary_every_sec": "Intervallo fermo (secondi)",

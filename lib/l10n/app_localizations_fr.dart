@@ -1420,6 +1420,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dash_indietro => 'RETOUR';
 
   @override
+  String get dash_link => 'Découvrez le rythme réel de votre journée';
+
+  @override
   String get feat_gps_moving_every_sec => 'Intervalle en mouvement (secondes)';
 
   @override

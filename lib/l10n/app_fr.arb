@@ -524,6 +524,8 @@
 "dash_spostamento_veloce":"Déplacement rapide",
 "dash_indietro":"RETOUR",
 
+"dash_link": "Découvrez le rythme réel de votre journée", 
+
   "feat_gps_moving_every_sec": "Intervalle en mouvement (secondes)",
   "feat_gps_stationary_every_sec": "Intervalle immobile (secondes)",
   "feat_gps_ios_distance_filter_m": "Filtre de distance iOS (mètres)",

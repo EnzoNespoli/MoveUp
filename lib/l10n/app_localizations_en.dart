@@ -1420,6 +1420,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dash_indietro => 'BACK';
 
   @override
+  String get dash_link => 'Discover the real rhythm of your day';
+
+  @override
   String get feat_gps_moving_every_sec => 'Interval in movement (seconds)';
 
   @override

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../services/app_header.dart';
 import '../services/app_footer.dart';
 import '../lingua.dart';
@@ -232,7 +233,7 @@ class _DashboardSummaryPageState extends State<DashboardSummaryPage> {
                     child: OutlinedButton(
                       onPressed: () {
                         if (provaScaduta) {
-                          // TODO: qui in futuro apriremo la pagina acquisto piano
+                          // TODO: qui apriamo la pagina acquisto piano
                           widget.onOpenSubscriptions();
                         } else {
                           widget.onToggleDashboard();
@@ -293,6 +294,46 @@ class _DashboardSummaryPageState extends State<DashboardSummaryPage> {
               ],
             ),
           ),
+          if (!widget.utenteTemporaneo) ...[
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: GestureDetector(
+                onTap: () async {
+                  final url = Uri.parse('https://mytrak.app/foryou/');
+                  if (await canLaunchUrl(url)) {
+                    await launchUrl(url, mode: LaunchMode.externalApplication);
+                  }
+                },
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 16, horizontal: 18),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.7),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0x14000000)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.insights, color: Colors.orange),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          "FOR YOU\n${context.t.dash_link}",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                            height: 1.2,
+                          ),
+                        ),
+                      ),
+                      const Icon(Icons.arrow_forward_ios, size: 16),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: 16),
           AppFooter(),
           const SizedBox(height: 8),

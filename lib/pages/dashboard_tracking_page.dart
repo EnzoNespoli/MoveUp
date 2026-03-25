@@ -274,174 +274,189 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _moveBg,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(top: 2),
-                      child:
-                          Icon(Icons.person, color: Colors.black54, size: 20),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            context.t.welcomeUser(_displayUserLabel()),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  color: Colors.black87,
-                                  fontWeight: FontWeight.w700,
-                                ),
+      body: Stack(
+        children: [
+          // SOLO SFONDO
+          Positioned.fill(
+            child: Image.asset(
+              'assets/img/dash_start.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+
+          // VELO LEGGERO SOPRA L'IMMAGINE
+          Positioned.fill(
+            child: Container(
+              color: Colors.white.withOpacity(0.30),
+            ),
+          ),
+
+          // CONTENUTO ORIGINALE
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(top: 2),
+                          child: Icon(
+                            Icons.person,
+                            color: Colors.black54,
+                            size: 20,
                           ),
-                          const SizedBox(height: 2),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.t.welcomeUser(_displayUserLabel()),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                              ),
+                              const SizedBox(height: 2),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (_buildHomeMessage().trim().isNotEmpty)
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(bottom: 14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.25),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x14000000),
+                            blurRadius: 8,
+                            offset: Offset(0, 3),
+                          ),
                         ],
                       ),
-                    ),
-                  ],
-                ),
-              ),
-
-              //---------------------------------------------------
-              if (_buildHomeMessage().trim().isNotEmpty)
-                Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.only(bottom: 14),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.65),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.black12),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x14000000),
-                        blurRadius: 8,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(top: 1),
-                        child: Icon(
-                          Icons.info_outline,
-                          size: 20,
-                          color: Colors.black54,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          _buildHomeMessage(),
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(top: 1),
+                            child: Icon(
+                              Icons.info_outline,
+                              size: 20,
+                              color: Colors.black54,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              _buildHomeMessage(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
                                     color: Colors.black87,
                                     fontWeight: FontWeight.w600,
                                     height: 1.30,
                                   ),
-                        ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Row(
+                      children: [
+                        Text(
+                          context.t.dash_oggi,
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: Colors.black54,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          _todayLabel(),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Colors.black45,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          onPressed: widget.onRefreshStats,
+                          icon: const Icon(Icons.refresh, size: 20),
+                          color: Colors.black54,
+                          tooltip: context.t.dash_aggiorna,
+                          padding: const EdgeInsets.all(4),
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-
-              // ===== SEZIONE OGGI =====
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Row(
-                  children: [
-                    Text(
-                      context.t.dash_oggi,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Colors.black54,
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      _todayLabel(),
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.black45,
-                            fontWeight: FontWeight.w500,
-                          ),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      onPressed: widget.onRefreshStats,
-                      icon: const Icon(Icons.refresh, size: 20),
-                      color: Colors.black54,
-                      tooltip: context.t.dash_aggiorna,
-                      padding: const EdgeInsets.all(4),
-                      constraints: const BoxConstraints(),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Barra 24 ore visiva
-              _build24hBar(),
-              const SizedBox(height: 20),
-
-              // Barra periodo tracciato (dal primo rilevamento ad ora)
-              _buildTrackedPeriodBar(),
-              const SizedBox(height: 16),
-
-              // ===== SEZIONE START/STOP =====
-              _buildStartStopButton(),
-
-              const SizedBox(height: 8),
-              Divider(
-                color: Colors.white.withValues(alpha: 0.22),
-                height: 1,
-              ),
-
-              const SizedBox(height: 16),
-
-              // Statistiche con cerchi colorati
-              ..._buildStatsItems(context),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Container(
-          color: _moveBg,
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child:
-                        _buildOutlineButton(context.t.dash_dettaglio, context),
+                  //_build24hBar(),
+                  //const SizedBox(height: 20),
+                  _buildTrackedPeriodBar(),
+                  const SizedBox(height: 16),
+                  _buildStartStopButton(),
+                  const SizedBox(height: 8),
+                  Divider(
+                    color: Colors.white.withOpacity(0.22),
+                    height: 1,
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildOutlineButton(context.t.dash_accedi, context),
+                  const SizedBox(height: 12),
+                  ..._buildStatsItems(context),
+                  const SizedBox(height: 12),
+                  //const SizedBox(height: 60),
+                  Positioned(
+                    left: 20,
+                    right: 20,
+                    bottom: 10,
+                    child: SafeArea(
+                      top: false,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _buildOutlineButton(
+                              context.t.dash_dettaglio,
+                              context,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: _buildOutlineButton(
+                              context.t.dash_accedi,
+                              context,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
-              //const SizedBox(height: 12),
-              //const AppFooter(),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -494,7 +509,7 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
 
     final Color baseColor = isBlocked
         ? const Color(0xFFBDBDBD)
-        : (isActive ? const Color(0xFFFF5252) : const Color(0xFF4CAF50));
+        : (isActive ? const Color(0xFFF4511E) : const Color(0xFFFF7A00));
 
     final String topMessage = isBlocked
         ? (guestExpired
@@ -551,14 +566,14 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
                           ]
                         : (isActive
                             ? const [
-                                Color(0xFFFF7B7B),
-                                Color(0xFFFF5A5A),
-                                Color(0xFFE64848),
+                                Color(0xFFFF8A65),
+                                Color(0xFFF4511E),
+                                Color(0xFFD84315),
                               ]
                             : const [
-                                Color(0xFF7BE07F),
-                                Color(0xFF53C758),
-                                Color(0xFF37A93D),
+                                Color(0xFFFF7A00),
+                                Color(0xFFFFA000),
+                                Color(0xFFFFC107),
                               ]),
                   ),
                 ),

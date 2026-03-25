@@ -2879,6 +2879,12 @@ abstract class AppLocalizations {
   /// **'BACK'**
   String get dash_indietro;
 
+  /// No description provided for @dash_link.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover the real rhythm of your day'**
+  String get dash_link;
+
   /// No description provided for @feat_gps_moving_every_sec.
   ///
   /// In en, this message translates to:
