@@ -276,22 +276,17 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
       backgroundColor: _moveBg,
       body: Stack(
         children: [
-          // SOLO SFONDO
           Positioned.fill(
             child: Image.asset(
               'assets/img/dash_start.png',
               fit: BoxFit.cover,
             ),
           ),
-
-          // VELO LEGGERO SOPRA L'IMMAGINE
           Positioned.fill(
             child: Container(
-              color: Colors.white.withOpacity(0.30),
+              color: Colors.white.withOpacity(0.35),
             ),
           ),
-
-          // CONTENUTO ORIGINALE
           SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
@@ -333,6 +328,7 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
                       ],
                     ),
                   ),
+
                   if (_buildHomeMessage().trim().isNotEmpty)
                     Container(
                       width: double.infinity,
@@ -380,6 +376,7 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
                         ],
                       ),
                     ),
+
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16),
                     child: Row(
@@ -413,8 +410,7 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
                       ],
                     ),
                   ),
-                  //_build24hBar(),
-                  //const SizedBox(height: 20),
+
                   _buildTrackedPeriodBar(),
                   const SizedBox(height: 16),
                   _buildStartStopButton(),
@@ -425,38 +421,32 @@ class _DashboardTrackingPageState extends State<DashboardTrackingPage> {
                   ),
                   const SizedBox(height: 12),
                   ..._buildStatsItems(context),
-                  const SizedBox(height: 12),
-                  //const SizedBox(height: 60),
-                  Positioned(
-                    left: 20,
-                    right: 20,
-                    bottom: 10,
-                    child: SafeArea(
-                      top: false,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: _buildOutlineButton(
-                              context.t.dash_dettaglio,
-                              context,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildOutlineButton(
-                              context.t.dash_accedi,
-                              context,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+
+                  const SizedBox(
+                      height: 90), // spazio per non far coprire il fondo
                 ],
               ),
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Container(
+          color: _moveBg.withOpacity(0.10),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 10),
+          child: Row(
+            children: [
+              Expanded(
+                child: _buildOutlineButton(context.t.dash_dettaglio, context),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildOutlineButton(context.t.dash_accedi, context),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
